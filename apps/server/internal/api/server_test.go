@@ -56,7 +56,7 @@ func fixture(t *testing.T) (*Server, *httptest.Server, string, string) {
 		s.Pool.Exec(ctx, "DELETE FROM projects WHERE id=$1", p)
 	})
 
-	server := New(s, config.Config{Channels: []string{"whatsapp", "webchat"}, WebOrigin: "http://localhost:5173", MetaAppSecret: "meta-test-secret", MetaVerifyToken: "verify-token", AllowPrivateWebhooks: true, RequestLogSampleRate: 1})
+	server := New(s, config.Config{Channels: []string{"whatsapp", "webchat"}, WebOrigin: "http://localhost:5173", MetaAppSecret: "meta-test-secret", MetaVerifyToken: "verify-token", AllowPrivateWebhooks: true, LoginRateLimit: 100, RequestLogSampleRate: 1})
 	t.Cleanup(server.Close)
 	httpServer := httptest.NewServer(server.Handler())
 	t.Cleanup(httpServer.Close)

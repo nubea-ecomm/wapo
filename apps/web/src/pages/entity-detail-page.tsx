@@ -20,6 +20,7 @@ import { NativeSelect } from '../components/ui/native-select'
 import { WhatsAppIcon } from '../components/icons/whatsapp-icon'
 import { TemplateList } from '../components/template-list'
 import { useI18n } from '../app/i18n'
+import { BusinessProfile } from '../components/business-profile'
 
 export function EntityDetailPage({
   kind,
@@ -63,6 +64,7 @@ export function EntityDetailPage({
         ]
       : [
           ['overview', t('detail.summary')],
+          ['profile', t('businessProfile.tab')],
           ['health', t('detail.diagnostics')],
           ['templates', t('templates')],
         ]
@@ -163,6 +165,9 @@ export function EntityDetailPage({
               customerId={current.customer_id}
               phoneNumberId={current.external_id}
             />
+          )}
+          {kind === 'connections' && tab === 'profile' && (
+            <BusinessProfile connectionId={id} />
           )}
           {tab === 'connections' && (
             <Panel title="Conexiones">

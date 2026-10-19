@@ -9,6 +9,12 @@ import type {
 } from './types.js'
 
 export class WapoAdminClient extends Transport {
+  emailSettings() {
+    return this.request<{ data: { smtp_configured: boolean } }>(
+      'GET',
+      '/admin/v1/settings/email',
+    )
+  }
   whatsappSettings() {
     return this.request<{ data: WhatsAppSettings }>(
       'GET',
@@ -21,7 +27,7 @@ export class WapoAdminClient extends Transport {
   createUser(input: {
     name: string
     email: string
-    password: string
+    password?: string
     role?: UserRole
     all_projects?: boolean
     project_ids?: string[]

@@ -1,0 +1,53 @@
+{{define "business-profile"}}
+<section id="business-profile">
+  <span class="section-number">02 / WhatsApp</span>
+  <h2>Manage the business profile</h2>
+  <p>
+    The WhatsApp Business profile is attached to a phone number and is visible
+    from conversation headers. Open
+    <strong>Connections → connection → Profile</strong> to edit About text,
+    description, address, contact email, category and up to two websites.
+  </p>
+  <div class="callout">
+    <strong>Meta remains the source of truth.</strong> Wapo reads the profile
+    directly from Meta and reloads it after every update. Profile fields are not
+    mirrored into PostgreSQL.
+  </div>
+  <p>
+    The console displays the current profile image. Changing it requires a Meta
+    resumable-upload handle, so image upload is not yet available in the
+    console. API consumers that already have a handle can send
+    <code>profile_picture_handle</code> through the native update endpoint.
+  </p>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Update a connection profile</span
+      ><button
+        type="button"
+        data-copy
+      >
+        Copy
+      </button>
+    </div>
+    <pre><code>curl -X PATCH "$WAPO_URL/v1/connections/CONNECTION_ID/business-profile" \
+  -H "X-API-Key: $WAPO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "about": "Atendemos todos los días",
+    "description": "Soporte y ventas por WhatsApp",
+    "email": "soporte@example.com",
+    "vertical": "PROF_SERVICES",
+    "websites": ["https://example.com"]
+  }'</code></pre>
+  </div>
+  <p>
+    Graph-compatible clients can use
+    <code
+      >GET/POST
+      /meta/whatsapp/v24.0/{phone_number_id}/whatsapp_business_profile</code
+    >
+    instead. Both paths use the encrypted credential of a connection owned by
+    the authenticated project.
+  </p>
+</section>
+{{end}}

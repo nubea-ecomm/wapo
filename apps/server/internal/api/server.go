@@ -68,6 +68,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PATCH /auth/v1/me", s.updateConsoleProfile)
 	mux.HandleFunc("POST /auth/v1/login", s.login)
 	mux.HandleFunc("POST /auth/v1/logout", s.logout)
+	mux.HandleFunc("GET /auth/v1/invitations/{token}", s.userInvitation)
+	mux.HandleFunc("POST /auth/v1/invitations/{token}", s.userInvitation)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { write(w, 200, store.Object{"status": "ok"}) })
 	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second)

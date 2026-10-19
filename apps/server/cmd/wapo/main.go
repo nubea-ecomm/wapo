@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"wapo.local/server/internal/channel"
 	"wapo.local/server/internal/config"
 	"wapo.local/server/internal/delivery"
+	"wapo.local/server/internal/notification"
 	"wapo.local/server/internal/store"
 	"wapo.local/server/internal/templatesync"
 )
@@ -123,6 +125,14 @@ func run() error {
 		go templatesync.Run(ctx, s, channel.WhatsApp{BaseURL: c.MetaURL, Version: c.MetaVersion})
 		go api.New(s, c).RunConnectionHealth(ctx)
 		go s.RunMaintenance(ctx)
+
+		var emailSender notification.Sender
+
+		if c.SMTPHost != "" {
+			emailSender = notification.SMTPSender{Config: notification.SMTPConfig{Host: c.SMTPHost, Port: c.SMTPPort, Username: c.SMTPUsername, Password: c.SMTPPassword, FromAddress: c.SMTPFromAddress, FromName: c.SMTPFromName, TLS: c.SMTPTLS}}
+		}
+
+		go notification.Run(ctx, s, emailSender, strings.TrimSpace(strings.Split(c.WebOrigin, ",")[0]))
 
 		delivery.Run(ctx, s, c.AllowPrivateWebhooks)
 

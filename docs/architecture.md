@@ -20,7 +20,8 @@ React dashboard / public clients / TypeScript SDK
           |
       PostgreSQL (durable source of truth)
           |
-    signed delivery outbox -> application webhooks
+     signed delivery outbox -> application webhooks
+     email notification outbox -> SMTP / Amazon SES SMTP
 ```
 
 ## Product hierarchy
@@ -145,6 +146,18 @@ Batched API telemetry preserves every error and samples successful requests acco
 to `REQUEST_LOG_SAMPLE_RATE` (1% by default). This bounds write amplification at high
 traffic; administrative audits, domain events and message records are never sampled.
 
+Email notification preferences are project-scoped. SMTP credentials are process
+environment secrets, while recipients, switches and a durable retry outbox live in
+PostgreSQL. Health-transition alerts are inserted in the same transaction as the
+new connection diagnosis. Periodic summaries are deduplicated by UTC reporting
+period. SMTP delivery is at least once across process crashes.
+
+Console member invitations use the same durable email worker. Invited accounts are
+inactive until a seven-day, single-use token is accepted and a password is set.
+Validation tokens are hashed; the outbox carries an encrypted token only until the
+message is rendered. Installations without SMTP retain manual initial-password user
+creation.
+
 ## Extension roadmap
 
 1. Real Meta pilot: app review, business permissions, coexistence eligibility,
@@ -176,3 +189,9 @@ time of the latest inbound message. Free-form sends are rejected outside that
 24-hour window with `template_required`; approved templates are allowed at any
 time and are mandatory when starting a new conversation. An inbound reply opens
 the window and persists `service_window_expires_at` on the conversation summary.
+
+WhatsApp Business profiles are provider-authoritative. Native connection endpoints
+validate and relay reads/updates to Meta without creating a stale local profile
+copy. The console edits text, contact, category and website fields and displays the
+current image. Creating a new profile-picture handle through Meta resumable upload
+is not implemented.

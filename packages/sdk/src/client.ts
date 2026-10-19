@@ -4,7 +4,10 @@ import type {
   MessageTemplate,
   TemplateInput,
   ProjectSettings,
+  NotificationSettings,
   Connection,
+  BusinessProfile,
+  BusinessProfileInput,
   Conversation,
   Customer,
   CustomerInput,
@@ -28,6 +31,21 @@ export class WapoClient extends Transport {
     return this.request<{ data: ProjectSettings }>(
       'PATCH',
       '/v1/project',
+      input,
+    )
+  }
+  notificationSettings() {
+    return this.request<{ data: NotificationSettings }>(
+      'GET',
+      '/v1/notification-settings',
+    )
+  }
+  updateNotificationSettings(
+    input: Omit<NotificationSettings, 'smtp_configured' | 'project_users'>,
+  ) {
+    return this.request<{ data: NotificationSettings }>(
+      'PATCH',
+      '/v1/notification-settings',
       input,
     )
   }
@@ -92,6 +110,19 @@ export class WapoClient extends Transport {
   }
   deleteConnection(id: string) {
     return this.request('DELETE', `/v1/connections/${encode(id)}`)
+  }
+  businessProfile(connectionId: string) {
+    return this.request<{ data: BusinessProfile }>(
+      'GET',
+      `/v1/connections/${encode(connectionId)}/business-profile`,
+    )
+  }
+  updateBusinessProfile(connectionId: string, input: BusinessProfileInput) {
+    return this.request<{ data: BusinessProfile }>(
+      'PATCH',
+      `/v1/connections/${encode(connectionId)}/business-profile`,
+      input,
+    )
   }
   listMessages(connectionId?: string) {
     return this.request<Page<Message>>(

@@ -82,6 +82,12 @@ func TestUserRolesAndProjectAssignmentsAreEnforcedOnExistingSessions(t *testing.
 			expect(t, status, 403, o)
 			status, o = scopedRequest(t, h.URL, token, p, "GET", "/v1/overview", nil)
 			expect(t, status, 200, o)
+			status, o = scopedRequest(t, h.URL, token, p, "GET", "/v1/notification-settings", nil)
+			expect(t, status, 200, o)
+			projectUsers := object(o, "data")["project_users"].([]any)
+			if (role == "admin") != (len(projectUsers) > 0) {
+				t.Fatalf("unexpected notification autocomplete visibility for %s: %#v", role, projectUsers)
+			}
 
 			expected := 200
 			if role == "billing" {
@@ -110,6 +116,8 @@ func TestUserRolesAndProjectAssignmentsAreEnforcedOnExistingSessions(t *testing.
 			}
 
 			status, o = scopedRequest(t, h.URL, token, p, "PATCH", "/v1/project", store.Object{"branding": store.Object{"theme": "dark"}})
+			expect(t, status, expected, o)
+			status, o = scopedRequest(t, h.URL, token, p, "PATCH", "/v1/notification-settings", store.Object{"weekly_stats": false})
 			expect(t, status, expected, o)
 			status, o = request(t, h.URL, "permissions-admin", "PATCH", "/admin/v1/users/"+id, store.Object{"role": "viewer", "project_ids": []string{other}}, "")
 			expect(t, status, 200, o)

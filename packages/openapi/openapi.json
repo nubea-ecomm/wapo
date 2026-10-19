@@ -3530,6 +3530,135 @@
         "description": "Revoke the supplied console session. The operation is idempotent."
       }
     },
+    "/auth/v1/invitations/{token}": {
+      "get": {
+        "operationId": "get_console_user_invitation",
+        "tags": ["Console authentication"],
+        "summary": "Inspect a console invitation",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": ["name", "email", "expires_at"],
+                      "properties": {
+                        "name": { "type": "string" },
+                        "email": { "type": "string", "format": "email" },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Expired, accepted, unknown, or invalid invitation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "accept_console_user_invitation",
+        "tags": ["Console authentication"],
+        "summary": "Accept a console invitation",
+        "security": [],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["password"],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 72,
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Invitation accepted" },
+          "default": {
+            "description": "Expired, accepted, unknown, or invalid invitation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/v1/settings/email": {
+      "get": {
+        "operationId": "get_email_settings",
+        "tags": ["Console authentication"],
+        "summary": "Get email readiness",
+        "description": "Returns only whether SMTP is configured. SMTP credentials are never returned.",
+        "responses": {
+          "200": {
+            "description": "Email readiness",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": ["smtp_configured"],
+                      "properties": { "smtp_configured": { "type": "boolean" } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/v1/users": {
       "get": {
         "operationId": "list_console_users",
@@ -3637,12 +3766,12 @@
                     "description": "Explicit project access when all_projects is false."
                   }
                 },
-                "required": ["name", "email", "password"]
+                "required": ["name", "email"]
               }
             }
           }
         },
-        "description": "Create a console user with a role and project access. Defaults to member with no projects; set project_ids or all_projects explicitly. Only platform administrators may manage console users."
+        "description": "Create a console user with a role and project access. When SMTP is configured, password is omitted: the account remains inactive and a seven-day, single-use invitation is queued by email. Without SMTP, password is required and the account is activated immediately. Defaults to member with no projects; set project_ids or all_projects explicitly. Only platform administrators may manage console users."
       }
     },
     "/admin/v1/users/{id}": {
@@ -3920,6 +4049,95 @@
                 "schema": {
                   "$ref": "#/components/schemas/Error"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/notification-settings": {
+      "get": {
+        "operationId": "get_notification_settings",
+        "summary": "Get email notification preferences",
+        "tags": ["Project"],
+        "description": "Returns project-scoped recipients and notification switches. smtp_configured only indicates whether the deployment has an SMTP host; SMTP credentials are never returned.",
+        "responses": {
+          "200": {
+            "description": "Current notification preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/NotificationSettings"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "update_notification_settings",
+        "summary": "Update email notification preferences",
+        "tags": ["Project"],
+        "description": "Updates project recipients and switches. Up to ten explicit recipients are accepted. When recipients is empty, notifications are sent to every active console user with access to the project. Daily and weekly periods use UTC. SMTP credentials remain deployment-level environment secrets.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "recipients": {
+                    "type": "array",
+                    "maxItems": 10,
+                    "uniqueItems": true,
+                    "items": { "type": "string", "format": "email" }
+                  },
+                  "whatsapp_disconnected": { "type": "boolean" },
+                  "customer_needs_attention": { "type": "boolean" },
+                  "daily_stats": { "type": "boolean" },
+                  "weekly_stats": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated notification preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/NotificationSettings"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
               }
             }
           }
@@ -6409,6 +6627,92 @@
         }
       }
     },
+    "/v1/connections/{id}/business-profile": {
+      "get": {
+        "operationId": "get_connection_business_profile",
+        "tags": ["Connections"],
+        "summary": "Get WhatsApp Business profile",
+        "description": "Reads the current phone-number business profile directly from Meta. Meta remains the source of truth and no profile fields are persisted locally.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current business profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/BusinessProfile" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Connection, credential, validation, or Meta error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "update_connection_business_profile",
+        "tags": ["Connections"],
+        "summary": "Update WhatsApp Business profile",
+        "description": "Validates editable fields, updates the phone-number business profile in Meta, and returns a fresh provider read. The profile image requires a Meta resumable-upload handle; the console currently treats the image as read-only.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BusinessProfileInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated business profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/BusinessProfile" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Connection, credential, validation, or Meta error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/connections/{id}/templates/{template_id}/history": {
       "get": {
         "tags": ["Templates"],
@@ -7120,6 +7424,11 @@
           "active": {
             "type": "boolean"
           },
+          "invitation_pending": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "True while a valid email invitation is waiting for acceptance."
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -7194,6 +7503,113 @@
             "type": "string",
             "description": "Relative immutable public logo path, or an empty string when no logo is configured."
           }
+        }
+      },
+      "NotificationSettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "recipients",
+          "whatsapp_disconnected",
+          "customer_needs_attention",
+          "daily_stats",
+          "weekly_stats",
+          "smtp_configured",
+          "project_users"
+        ],
+        "properties": {
+          "recipients": {
+            "type": "array",
+            "maxItems": 10,
+            "items": { "type": "string", "format": "email" }
+          },
+          "whatsapp_disconnected": { "type": "boolean" },
+          "customer_needs_attention": { "type": "boolean" },
+          "daily_stats": { "type": "boolean" },
+          "weekly_stats": { "type": "boolean" },
+          "smtp_configured": { "type": "boolean", "readOnly": true },
+          "project_users": {
+            "type": "array",
+            "readOnly": true,
+            "description": "Active users with access to the project, returned for authenticated console sessions to power recipient autocomplete. API-key responses return an empty array.",
+            "items": {
+              "type": "object",
+              "required": ["id", "name", "email"],
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "email": { "type": "string", "format": "email" }
+              }
+            }
+          }
+        }
+      },
+      "BusinessVertical": {
+        "type": "string",
+        "enum": [
+          "ALCOHOL",
+          "APPAREL",
+          "AUTO",
+          "BEAUTY",
+          "EDU",
+          "ENTERTAIN",
+          "EVENT_PLAN",
+          "FINANCE",
+          "GOVT",
+          "GROCERY",
+          "HEALTH",
+          "HOTEL",
+          "NONPROFIT",
+          "ONLINE_GAMBLING",
+          "OTC_DRUGS",
+          "OTHER",
+          "PHYSICAL_GAMBLING",
+          "PROF_SERVICES",
+          "RESTAURANT",
+          "RETAIL",
+          "TRAVEL"
+        ]
+      },
+      "BusinessProfile": {
+        "type": "object",
+        "properties": {
+          "about": { "type": "string", "minLength": 1, "maxLength": 139 },
+          "address": { "type": "string", "maxLength": 256 },
+          "description": { "type": "string", "maxLength": 512 },
+          "email": { "type": "string", "format": "email", "maxLength": 128 },
+          "profile_picture_url": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true
+          },
+          "websites": {
+            "type": "array",
+            "maxItems": 2,
+            "items": { "type": "string", "format": "uri", "maxLength": 256 }
+          },
+          "vertical": { "$ref": "#/components/schemas/BusinessVertical" }
+        }
+      },
+      "BusinessProfileInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "about": { "type": "string", "minLength": 1, "maxLength": 139 },
+          "address": { "type": "string", "maxLength": 256 },
+          "description": { "type": "string", "maxLength": 512 },
+          "email": { "type": "string", "format": "email", "maxLength": 128 },
+          "profile_picture_handle": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Handle returned by Meta resumable upload."
+          },
+          "websites": {
+            "type": "array",
+            "maxItems": 2,
+            "items": { "type": "string", "format": "uri", "maxLength": 256 }
+          },
+          "vertical": { "$ref": "#/components/schemas/BusinessVertical" }
         }
       },
       "LogEntry": {

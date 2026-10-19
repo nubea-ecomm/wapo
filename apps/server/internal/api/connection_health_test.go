@@ -24,6 +24,27 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 		t.Fatal(e)
 	}
 
+	recipient := store.ID("health-recipient") + "@example.com"
+
+	user, e := s.Store.CreateUser(ctx, recipient, "Health recipient", "test-password-123456")
+	if e != nil {
+		t.Fatal(e)
+	}
+
+	t.Cleanup(func() { s.Store.Pool.Exec(ctx, "DELETE FROM console_users WHERE id=$1", user.ID) })
+
+	if _, e = s.Store.Pool.Exec(ctx, "UPDATE console_users SET all_projects=false WHERE id=$1", user.ID); e != nil {
+		t.Fatal(e)
+	}
+
+	if _, e = s.Store.Pool.Exec(ctx, "INSERT INTO console_user_projects(user_id,project_id) VALUES($1,$2)", user.ID, p); e != nil {
+		t.Fatal(e)
+	}
+
+	if e = s.Store.SaveNotificationSettings(ctx, p, store.NotificationSettings{Recipients: []string{}, WhatsAppDisconnected: true, CustomerNeedsAttention: true}); e != nil {
+		t.Fatal(e)
+	}
+
 	calls := 0
 
 	var failed atomic.Bool
@@ -70,6 +91,18 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 	d := object(body, "data")
 	if str(d, "status") != "error" || str(object(d, "billing"), "status") != "attention_required" {
 		t.Fatal(d)
+	}
+
+	var notifications int
+
+	if e := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM notification_deliveries WHERE project_id=$1", p).Scan(&notifications); e != nil || notifications != 2 {
+		t.Fatalf("health notifications were not queued atomically: count=%d error=%v", notifications, e)
+	}
+
+	var resolved []string
+
+	if e := s.Store.Pool.QueryRow(ctx, "SELECT recipients FROM notification_deliveries WHERE project_id=$1 LIMIT 1", p).Scan(&resolved); e != nil || len(resolved) != 1 || resolved[0] != recipient {
+		t.Fatalf("project recipients were not resolved: recipients=%v error=%v", resolved, e)
 	}
 
 	checks := d["checks"].([]any)

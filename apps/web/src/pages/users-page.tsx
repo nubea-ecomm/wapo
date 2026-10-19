@@ -146,7 +146,13 @@ export function UsersPage() {
                         .join(', ') || t('users.noAccess')}
                 </TableCell>
                 <TableCell>
-                  <Status value={user.active ? 'active' : 'inactive'} />
+                  {user.invitation_pending ? (
+                    <Badge variant="outline">
+                      {t('users.invitationPending')}
+                    </Badge>
+                  ) : (
+                    <Status value={user.active ? 'active' : 'inactive'} />
+                  )}
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
                   {dateLabel(user.created_at)}

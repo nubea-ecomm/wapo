@@ -28,7 +28,7 @@ func projectPermission(user store.ConsoleUser, r *http.Request) bool {
 
 	path := r.URL.Path
 	if user.Role == "billing" {
-		return r.Method == "GET" && (path == "/v1/overview" || path == "/v1/me" || path == "/v1/project" || path == "/v1/channels")
+		return r.Method == "GET" && (path == "/v1/overview" || path == "/v1/me" || path == "/v1/project" || path == "/v1/channels" || path == "/v1/notification-settings")
 	}
 
 	if strings.Contains(path, "/api_keys") || (user.Role == "viewer" && strings.Contains(path, "/setup_links")) {
@@ -40,7 +40,7 @@ func projectPermission(user store.ConsoleUser, r *http.Request) bool {
 	}
 
 	if user.Role == "member" {
-		return !(path == "/v1/project" && r.Method != "GET")
+		return !((path == "/v1/project" || path == "/v1/notification-settings") && r.Method != "GET")
 	}
 
 	return false

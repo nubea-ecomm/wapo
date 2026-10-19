@@ -291,6 +291,19 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 		_, e = saveTx.Exec(saveCtx, "UPDATE resources SET data=data||jsonb_build_object('health_status',$3::text,'health_issues',$4::int,'health_checked_at',$5::text) WHERE project_id=$1 AND kind='connections' AND id=$2", p, str(c, "id"), overall, issues, str(result, "checked_at"))
 	}
 
+	if e == nil && overall != str(c, "health_status") && (overall == "warning" || overall == "error") {
+		payload := store.Object{"connection_id": str(c, "id"), "connection_name": str(c, "name"), "customer_id": str(c, "customer_id"), "status": overall, "issues": issues, "checked_at": result["checked_at"]}
+		day := time.Now().UTC().Format("2006-01-02")
+
+		if overall == "error" {
+			e = store.EnqueueNotification(saveCtx, saveTx, p, "whatsapp_disconnected", str(c, "id")+":"+day, payload)
+		}
+
+		if e == nil {
+			e = store.EnqueueNotification(saveCtx, saveTx, p, "customer_needs_attention", str(c, "id")+":"+overall+":"+day, payload)
+		}
+	}
+
 	if e != nil {
 		return nil, e
 	}

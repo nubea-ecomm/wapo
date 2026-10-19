@@ -29,6 +29,46 @@ export interface Connection {
   access_token_expires_at?: string
 }
 
+export type BusinessVertical =
+  | 'ALCOHOL'
+  | 'APPAREL'
+  | 'AUTO'
+  | 'BEAUTY'
+  | 'EDU'
+  | 'ENTERTAIN'
+  | 'EVENT_PLAN'
+  | 'FINANCE'
+  | 'GOVT'
+  | 'GROCERY'
+  | 'HEALTH'
+  | 'HOTEL'
+  | 'NONPROFIT'
+  | 'ONLINE_GAMBLING'
+  | 'OTC_DRUGS'
+  | 'OTHER'
+  | 'PHYSICAL_GAMBLING'
+  | 'PROF_SERVICES'
+  | 'RESTAURANT'
+  | 'RETAIL'
+  | 'TRAVEL'
+
+export interface BusinessProfile {
+  about?: string
+  address?: string
+  description?: string
+  email?: string
+  profile_picture_url?: string
+  websites?: string[]
+  vertical?: BusinessVertical
+}
+
+export interface BusinessProfileInput extends Omit<
+  BusinessProfile,
+  'profile_picture_url'
+> {
+  profile_picture_handle?: string
+}
+
 export interface Message {
   id: string
   connection_id: string
@@ -140,6 +180,7 @@ export interface ConsoleUser {
   language: 'es' | 'pt' | 'en'
   avatar_variant: number
   active: boolean
+  invitation_pending?: boolean
   created_at: string
 }
 
@@ -163,6 +204,16 @@ export interface ProjectSettings extends Project {
     accent_color: string
     theme: 'light' | 'dark'
   }
+}
+
+export interface NotificationSettings {
+  recipients: string[]
+  whatsapp_disconnected: boolean
+  customer_needs_attention: boolean
+  daily_stats: boolean
+  weekly_stats: boolean
+  smtp_configured: boolean
+  project_users: Array<{ id: string; name: string; email: string }>
 }
 
 export interface LogEntry {

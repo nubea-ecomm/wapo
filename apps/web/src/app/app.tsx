@@ -11,6 +11,7 @@ import {
 import { useSession } from './session-context'
 import { AppShell } from '../components/app-shell'
 import { LoginPage } from '../pages/login-page'
+import { AcceptInvitationPage } from '../pages/accept-invitation-page'
 
 const TemplatesPage = lazy(() =>
   import('../pages/templates-page').then((m) => ({ default: m.TemplatesPage })),
@@ -55,6 +56,9 @@ const SettingsPage = lazy(() =>
 
 export function App() {
   const { session } = useSession()
+
+  if (location.hash.startsWith('#/accept-invitation'))
+    return <AcceptInvitationPage />
 
   if (!session) return <LoginPage />
 

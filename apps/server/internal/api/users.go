@@ -21,7 +21,7 @@ func (s *Server) users(w http.ResponseWriter, r *http.Request, id string) {
 		for rows.Next() {
 			var u store.ConsoleUser
 
-			if e = rows.Scan(&u.ID, &u.Email, &u.Name, &u.Active, &u.CreatedAt, &u.Role, &u.AllProjects, &u.ProjectIDs, &u.Language, &u.AvatarVariant); e != nil {
+			if e = rows.Scan(&u.ID, &u.Email, &u.Name, &u.Active, &u.CreatedAt, &u.Role, &u.AllProjects, &u.ProjectIDs, &u.Language, &u.AvatarVariant, &u.InvitationPending); e != nil {
 				dbError(w, e)
 				return
 			}

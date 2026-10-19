@@ -103,11 +103,56 @@ func (s *Store) RotateEncryptionKey(ctx context.Context, key []byte) (int, error
 		}
 	}
 
+	invitationRows, err := tx.Query(ctx, "SELECT id,payload FROM notification_deliveries WHERE notification_type='user_invitation' AND payload ? 'invitation_token' FOR UPDATE")
+	if err != nil {
+		return 0, err
+	}
+
+	type invitationSecret struct {
+		id      string
+		payload Object
+	}
+
+	invitations := []invitationSecret{}
+
+	for invitationRows.Next() {
+		var invitation invitationSecret
+
+		if err = invitationRows.Scan(&invitation.id, &invitation.payload); err != nil {
+			invitationRows.Close()
+			return 0, err
+		}
+
+		invitations = append(invitations, invitation)
+	}
+
+	if err = invitationRows.Err(); err != nil {
+		invitationRows.Close()
+		return 0, err
+	}
+
+	invitationRows.Close()
+
+	for _, invitation := range invitations {
+		invitationID, _ := invitation.payload["invitation_id"].(string)
+		ciphertext, _ := invitation.payload["invitation_token"].(string)
+		plain, decryptErr := unsealWith(s.aead, ciphertext, invitationID)
+
+		if decryptErr != nil || invitationID == "" {
+			return 0, fmt.Errorf("rotate invitation %s: unreadable token", invitation.id)
+		}
+
+		invitation.payload["invitation_token"] = sealWith(next, plain, invitationID)
+		if _, err = tx.Exec(ctx, "UPDATE notification_deliveries SET payload=$2 WHERE id=$1", invitation.id, invitation.payload); err != nil {
+			return 0, err
+		}
+	}
+
 	if err = tx.Commit(ctx); err != nil {
 		return 0, err
 	}
 
-	return len(resources), nil
+	return len(resources) + len(invitations), nil
 }
 
 func rotateCredentialObject(current, next cipher.AEAD, scope, kind string, object Object) error {

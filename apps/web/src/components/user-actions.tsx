@@ -75,7 +75,7 @@ export function UserActions({
             Cambiar contraseña
           </DropdownMenuItem>
           <DropdownMenuItem
-            disabled={lastActive}
+            disabled={lastActive || user.invitation_pending}
             onSelect={() => {
               change.reset()
               setAction('toggle')

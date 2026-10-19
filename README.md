@@ -59,16 +59,21 @@ provider webhooks to preserve incoming data.
 - Ten console screens: overview, tenants, users, customers, chats, channels, API
   keys, webhooks, activity and configuration.
 - Administrator email/password login, bcrypt password hashes, revocable sessions,
-  account activation/deactivation and password reset from the console.
+  SMTP member invitations, account activation/deactivation and password reset from
+  the console.
 - Customer external IDs, metadata, editing and deletion guards.
 - Dedicated WhatsApp and Business App Coexistence hosted onboarding, temporary
   links, encrypted credentials, Meta callback verification and sync requests.
 - WhatsApp is the only channel enabled in this deployment, including sends/templates through Meta.
+- Connection details include an editable Meta-authoritative WhatsApp Business
+  profile for About, description, address, email, category and websites.
 - Persistent conversations, contact identity per channel, assignment labels,
   close/reopen, replies, history and five-second console polling.
 - Native `/v1`, operator `/admin/v1`, compatibility `/platform/v1` and
   `/meta/whatsapp` APIs, project isolation, request IDs and idempotency journals.
 - Durable signed webhook outbox, retries, failed-delivery inspection and manual retry.
+- Project email alerts and daily/weekly summaries through SMTP or Amazon SES SMTP,
+  with durable retries and configurable notification switches.
 - TypeScript SDK, OpenAPI reference and optional project-scoped upstream bridge.
 - Prettier, ESLint, TypeScript checks, Go unit/integration tests, frontend tests,
   upstream API contracts and Playwright management-flow tests.
@@ -168,7 +173,7 @@ PostgreSQL only on 127.0.0.1:54329 and preserves it in a named volume. `make dow
 stops services without deleting data. Migrations are numbered, transactional,
 checksum-checked and applied once. Do not edit an applied migration.
 
-[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Contributing](CONTRIBUTING.md)
+[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Email notifications](docs/email-notifications.md) / [WhatsApp Business profile](docs/whatsapp-business-profile.md) / [Contributing](CONTRIBUTING.md)
 
 Apache-2.0 licensed. External providers retain their own fees and requirements.
 

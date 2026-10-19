@@ -67,6 +67,17 @@ func (s *Server) admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(parts) == 2 && parts[0] == "settings" && parts[1] == "email" {
+		if r.Method != "GET" {
+			fail(w, 405, "method_not_allowed", "Use GET")
+			return
+		}
+
+		write(w, 200, store.Object{"data": store.Object{"smtp_configured": s.Config.SMTPHost != ""}})
+
+		return
+	}
+
 	if parts[0] == "users" && len(parts) <= 2 {
 		id := ""
 		if len(parts) == 2 {

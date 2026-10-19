@@ -43,6 +43,20 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request, id string) {
 	}
 
 	if active, ok := input["active"].(bool); ok {
+		var pendingInvitation bool
+
+		if active && str(input, "password") == "" {
+			if e = tx.QueryRow(r.Context(), "SELECT EXISTS(SELECT 1 FROM console_user_invitations WHERE user_id=$1 AND accepted_at IS NULL AND expires_at>now())", id).Scan(&pendingInvitation); e != nil {
+				dbError(w, e)
+				return
+			}
+		}
+
+		if pendingInvitation {
+			fail(w, 409, "invitation_pending", "Set a password or wait for the user to accept the invitation before activation")
+			return
+		}
+
 		if _, e = tx.Exec(r.Context(), "UPDATE console_users SET active=$2 WHERE id=$1", id, active); e != nil {
 			dbError(w, e)
 			return
@@ -62,6 +76,16 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request, id string) {
 		}
 
 		if _, e = tx.Exec(r.Context(), "DELETE FROM console_sessions WHERE user_id=$1", id); e != nil {
+			dbError(w, e)
+			return
+		}
+
+		if _, e = tx.Exec(r.Context(), "UPDATE console_user_invitations SET accepted_at=now() WHERE user_id=$1 AND accepted_at IS NULL", id); e != nil {
+			dbError(w, e)
+			return
+		}
+
+		if _, e = tx.Exec(r.Context(), "UPDATE notification_deliveries SET state='failed',lease_until=NULL,last_error='invitation replaced by administrator password',payload=payload-'invitation_token',updated_at=now() WHERE notification_type='user_invitation' AND state IN ('pending','processing') AND payload->>'invitation_id' IN (SELECT invitation.id FROM console_user_invitations invitation WHERE invitation.user_id=$1)", id); e != nil {
 			dbError(w, e)
 			return
 		}

@@ -28,6 +28,11 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if kind == "notification-settings" && len(parts) == 1 {
+		s.notificationSettings(w, r)
+		return
+	}
+
 	id := ""
 	if len(parts) > 1 {
 		id = parts[1]
@@ -45,6 +50,11 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 
 	if len(parts) == 3 && parts[0] == "connections" && parts[2] == "health" {
 		s.connectionHealth(w, r, id)
+		return
+	}
+
+	if len(parts) == 3 && parts[0] == "connections" && parts[2] == "business-profile" {
+		s.businessProfile(w, r, id)
 		return
 	}
 
@@ -102,7 +112,7 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if id != "" && (kind == "me" || kind == "overview" || kind == "events" || kind == "channels") {
+	if id != "" && (kind == "me" || kind == "overview" || kind == "events" || kind == "channels" || kind == "notification-settings") {
 		fail(w, 404, "not_found", "Endpoint not found")
 		return
 	}

@@ -2,6 +2,7 @@ import { permissions } from '../app/permissions'
 import { useState } from 'react'
 import { ProjectSettings } from '../components/project-settings'
 import { WhatsAppSettings } from '../components/whatsapp-settings'
+import { NotificationSettingsPanel } from '../components/notification-settings'
 import { Button } from '../components/ui/button'
 import { Link } from 'react-router-dom'
 import { ExternalLink } from 'lucide-react'
@@ -28,6 +29,7 @@ export function SettingsPage() {
         {[
           ['project', t('project')],
           ['whatsapp', t('settings.whatsapp')],
+          ['notifications', t('notifications.title')],
           ['api', t('settings.api')],
         ].map(([value, label]) => (
           <Button
@@ -51,6 +53,7 @@ export function SettingsPage() {
       >
         {tab === 'project' && <ProjectSettings />}
         {tab === 'whatsapp' && <WhatsAppSettings />}
+        {tab === 'notifications' && <NotificationSettingsPanel />}
         {tab === 'api' && (
           <>
             <div className="overview-grid">
