@@ -66,9 +66,10 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 24px;
-  font-weight: 650;
-  letter-spacing: -1px;
+}
+.docs-brand img {
+  width: 104px;
+  height: auto;
 }
 .docs-brand span {
   font-size: 12px;
@@ -77,6 +78,9 @@ button:focus-visible {
   color: var(--muted);
   border-left: 1px solid var(--line);
   padding-left: 10px;
+}
+:root[data-theme='dark'] .docs-brand img {
+  filter: invert(1);
 }
 .docs-header nav {
   display: flex;
