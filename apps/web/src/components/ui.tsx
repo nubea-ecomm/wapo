@@ -1,7 +1,14 @@
+import {
+  cloneElement,
+  isValidElement,
+  useId,
+  useState,
+  type ReactNode,
+} from 'react'
+import { Inbox, AlertCircle } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { permissions } from '../app/permissions'
-import { ContentSkeleton } from './content-skeleton'
-import type { SkeletonVariant } from './content-skeleton'
+import { ContentSkeleton, type SkeletonVariant } from './content-skeleton'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -14,18 +21,11 @@ import {
   AlertDialogAction,
 } from './ui/alert-dialog'
 import { Card } from './ui/card'
-import { Badge } from './ui/badge'
 import { Label } from './ui/label'
 import { Button } from './ui/button'
-import {
-  cloneElement,
-  isValidElement,
-  useId,
-  useState,
-  type ReactNode,
-} from 'react'
-import { Inbox, AlertCircle } from 'lucide-react'
-import { useI18n, type MessageKey } from '../app/i18n'
+import { useI18n } from '../app/i18n'
+
+export { Status } from './status'
 
 export function PageHeader({
   title,
@@ -112,172 +112,6 @@ export function Loading({ variant = 'list' }: { variant?: SkeletonVariant }) {
   return <ContentSkeleton variant={variant} />
 }
 
-export function Status({ value, label }: { value: string; label?: string }) {
-  const { t } = useI18n()
-  const statusKeys: Record<string, MessageKey> = {
-    active: 'status.active',
-    connected: 'status.connected',
-    healthy: 'status.healthy',
-    approved: 'status.approved',
-    pending: 'status.pending',
-    failed: 'status.failed',
-    expired: 'status.expired',
-    warning: 'status.warning',
-    revoked: 'status.revoked',
-    inactive: 'status.inactive',
-    closed: 'status.closed',
-  }
-  const presentation = (
-    {
-      active: [
-        'Activo',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      connected: [
-        'Conectada',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      healthy: [
-        'Saludable',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      approved: [
-        'Aprobado',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      delivered: [
-        'Entregado',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      read: [
-        'Leído',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      completed: [
-        'Completado',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      used: [
-        'Usado',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      pass: [
-        'Correcto',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      configured: [
-        'Configurado',
-        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
-      ],
-      onboarding: [
-        'Configurando',
-        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
-      ],
-      processing: [
-        'Procesando',
-        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
-      ],
-      queued: [
-        'En cola',
-        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
-      ],
-      sent: [
-        'Enviado',
-        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
-      ],
-      received: [
-        'Recibido',
-        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
-      ],
-      pending: [
-        'Pendiente',
-        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
-      ],
-      retrying: [
-        'Reintentando',
-        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
-      ],
-      warning: [
-        'Revisar',
-        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
-      ],
-      paused: [
-        'Pausado',
-        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
-      ],
-      credential_expired: [
-        'Token vencido',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      failed: [
-        'Falló',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      rejected: [
-        'Rechazado',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      disabled: [
-        'Deshabilitado',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      expired: [
-        'Vencido',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      onboarding_failed: [
-        'Configuración fallida',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      error: [
-        'Con problemas',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      suspended: [
-        'Suspendido',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      revoked: [
-        'Revocado',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      inactive: [
-        'Inactivo',
-        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
-      ],
-      disconnected: [
-        'Desconectada',
-        'border-border bg-muted/40 text-muted-foreground',
-      ],
-      closed: ['Cerrado', 'border-border bg-muted/40 text-muted-foreground'],
-      cancelled: [
-        'Cancelado',
-        'border-border bg-muted/40 text-muted-foreground',
-      ],
-      unknown: [
-        'Sin comprobar',
-        'border-border bg-muted/40 text-muted-foreground',
-      ],
-    } as Record<string, [string, string]>
-  )[value.toLowerCase()] || [
-    value.replaceAll('_', ' '),
-    'border-border bg-muted/40 text-muted-foreground',
-  ]
-
-  return (
-    <Badge
-      variant="outline"
-      className={presentation[1]}
-    >
-      <span className="size-1.5 rounded-full bg-current" />
-      {label ||
-        (statusKeys[value.toLowerCase()]
-          ? t(statusKeys[value.toLowerCase()])
-          : presentation[0])}
-    </Badge>
-  )
-}
-
 export function Field({
   label,
   children,
@@ -315,6 +149,7 @@ export function ConfirmButton({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const { session } = useSession()
+  const { t } = useI18n()
 
   if (!permissions(session).canWrite) return null
 
@@ -341,12 +176,14 @@ export function ConfirmButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirmar acción</AlertDialogTitle>
+          <AlertDialogTitle>{t('common.confirmAction')}</AlertDialogTitle>
           <AlertDialogDescription>{message}</AlertDialogDescription>
         </AlertDialogHeader>
         <ErrorNotice error={error} />
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>
+            {t('common.cancel')}
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={pending || disabled}
@@ -358,14 +195,14 @@ export function ConfirmButton({
               try {
                 await onConfirm()
                 setOpen(false)
-              } catch (error) {
-                setError(error)
+              } catch (caught) {
+                setError(caught)
               } finally {
                 setPending(false)
               }
             }}
           >
-            {pending ? 'Procesando…' : 'Confirmar'}
+            {pending ? t('common.processing') : t('common.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -382,6 +219,8 @@ export function LoadMore({
   busy: boolean
   load: () => void
 }) {
+  const { t } = useI18n()
+
   return available ? (
     <div className="load-more">
       <Button
@@ -390,7 +229,7 @@ export function LoadMore({
         disabled={busy}
         onClick={load}
       >
-        {busy ? 'Cargando…' : 'Cargar más'}
+        {busy ? t('common.loading') : t('common.loadMore')}
       </Button>
     </div>
   ) : null

@@ -50,6 +50,7 @@ func fixture(t *testing.T) (*Server, *httptest.Server, string, string) {
 		s.Pool.Exec(ctx, "DELETE FROM deliveries WHERE project_id=$1", p)
 		s.Pool.Exec(ctx, "DELETE FROM events WHERE project_id=$1", p)
 		s.Pool.Exec(ctx, "DELETE FROM requests WHERE project_id=$1", p)
+		s.Pool.Exec(ctx, "DELETE FROM customers WHERE project_id=$1", p)
 		s.Pool.Exec(ctx, "DELETE FROM resources WHERE project_id=$1", p)
 		s.Pool.Exec(ctx, "DELETE FROM api_keys WHERE project_id=$1", p)
 		s.Pool.Exec(ctx, "DELETE FROM projects WHERE id=$1", p)

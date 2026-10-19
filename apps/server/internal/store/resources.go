@@ -13,6 +13,10 @@ import (
 )
 
 func (s *Store) Get(ctx context.Context, p, k, id string) (Object, error) {
+	if k == "customers" {
+		return s.getCustomer(ctx, p, id)
+	}
+
 	var b []byte
 
 	e := s.Pool.QueryRow(ctx, "SELECT data FROM resources WHERE project_id=$1 AND kind=$2 AND id=$3", p, k, id).Scan(&b)
@@ -33,6 +37,10 @@ func (s *Store) Get(ctx context.Context, p, k, id string) (Object, error) {
 }
 
 func (s *Store) Put(ctx context.Context, p, k, id string, o Object, create bool) error {
+	if k == "customers" {
+		return s.putCustomer(ctx, p, id, o, create)
+	}
+
 	b, e := json.Marshal(o)
 	if e != nil {
 		return e
@@ -49,6 +57,10 @@ func (s *Store) Put(ctx context.Context, p, k, id string, o Object, create bool)
 }
 
 func (s *Store) Delete(ctx context.Context, p, k, id string) error {
+	if k == "customers" {
+		return s.deleteCustomer(ctx, p, id)
+	}
+
 	tag, e := s.Pool.Exec(ctx, "DELETE FROM resources WHERE project_id=$1 AND kind=$2 AND id=$3", p, k, id)
 	if e == nil && tag.RowsAffected() == 0 {
 		return ErrNotFound
@@ -59,6 +71,10 @@ func (s *Store) Delete(ctx context.Context, p, k, id string) error {
 
 // Cursor is the stable (created_at,id) pair; deleting the anchor does not break pagination.
 func (s *Store) List(ctx context.Context, p, k string, filter map[string]string, after string, limit int) ([]Object, string, error) {
+	if k == "customers" {
+		return s.listCustomers(ctx, p, filter, after, limit)
+	}
+
 	args := []any{p, k}
 	q := "SELECT data,created_at,id FROM resources WHERE project_id=$1 AND kind=$2"
 	keys := make([]string, 0, len(filter))
