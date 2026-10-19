@@ -73,6 +73,11 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 		fail(w, 422, "validation_error", "payload.to and payload.type are required")
 		return
 	}
+	if typ == "whatsapp" {
+		if contact := normalizedPhone(str(payload, "to")); contact != "" {
+			payload["to"] = contact
+		}
+	}
 	if typ == "webchat" && str(payload, "type") != "text" {
 		fail(w, 422, "unsupported_message", "webchat currently supports text only")
 		return
@@ -80,6 +85,24 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 	if str(payload, "type") == "text" && str(object(payload, "text"), "body") == "" {
 		fail(w, 422, "validation_error", "text.body is required")
 		return
+	}
+	if str(payload, "type") == "template" {
+		template := object(payload, "template")
+		if str(template, "name") == "" || str(object(template, "language"), "code") == "" {
+			fail(w, 422, "validation_error", "template.name and template.language.code are required")
+			return
+		}
+	}
+	if typ == "whatsapp" && str(payload, "type") != "template" {
+		open, _, err := s.Store.ServiceWindow(r.Context(), p, str(c, "id"), str(payload, "to"))
+		if err != nil {
+			dbError(w, err)
+			return
+		}
+		if !open {
+			fail(w, 409, "template_required", "A template is required to start a conversation or message outside the 24-hour customer service window")
+			return
+		}
 	}
 	b, _ := json.Marshal(payload)
 	key := r.Header.Get("Idempotency-Key")
@@ -130,7 +153,10 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 		return
 	}
 	now := time.Now().UTC()
-	msg := store.Object{"id": result.ProviderID, "connection_id": str(c, "id"), "phone_number_id": str(c, "external_id"), "channel": typ, "direction": "outbound", "status": "sent", "to": str(payload, "to"), "timestamp": now.Format(time.RFC3339Nano), "payload": payload, "provider_response": result.Raw}
+	msg := store.Object{"id": result.ProviderID, "connection_id": str(c, "id"), "customer_id": str(c, "customer_id"), "phone_number_id": str(c, "external_id"), "channel": typ, "direction": "outbound", "status": "sent", "to": str(payload, "to"), "timestamp": now.Format(time.RFC3339Nano), "payload": payload, "provider_response": result.Raw}
+	if str(payload, "type") == "template" {
+		msg["display_text"] = s.renderTemplateMessage(ctx, p, c, msg)
+	}
 	name := "message.sent"
 	eventPayload := store.Object{"event": name, "data": msg}
 	if typ == "whatsapp" {

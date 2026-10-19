@@ -1,6 +1,7 @@
 import type { Message } from '@wapo/sdk'
 export function messageText(message?: Message): string {
   if (!message) return ''
+  if (message.display_text) return message.display_text
   const text = message.payload.text
   if (
     typeof text === 'object' &&
@@ -10,6 +11,15 @@ export function messageText(message?: Message): string {
   )
     return text.body
   const type = message.payload.type
+  const template = message.payload.template
+  if (
+    type === 'template' &&
+    typeof template === 'object' &&
+    template !== null &&
+    'name' in template &&
+    typeof template.name === 'string'
+  )
+    return `Template: ${template.name}`
   return typeof type === 'string' ? `[${type}]` : 'Mensaje'
 }
 export function dateLabel(value?: string): string {

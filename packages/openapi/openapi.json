@@ -2161,7 +2161,7 @@
         "operationId": "list_conversations",
         "summary": "List conversations",
         "tags": ["Conversations"],
-        "description": "Filters: connection_id, status. Supports limit and after. Resource pages default to 50 items; limit accepts 1–100. Follow meta.after while meta.has_more is true.",
+        "description": "Filters: customer_id, connection_id and status. Supports limit and after. Resource pages default to 50 items; limit accepts 1–100. Follow meta.after while meta.has_more is true.",
         "responses": {
           "200": {
             "description": "Success",
@@ -2378,7 +2378,7 @@
         "operationId": "reply_to_conversation",
         "summary": "Reply to a conversation",
         "tags": ["Conversations"],
-        "description": "Send a text reply through the conversation connection. WhatsApp messaging-window rules apply. Supply a stable Idempotency-Key to identify the logical reply.",
+        "description": "Send through the conversation connection. Text is accepted only while the 24-hour customer service window is open; an approved template is required otherwise. Supply a stable Idempotency-Key to identify the logical reply.",
         "responses": {
           "201": {
             "description": "Success",
@@ -2423,12 +2423,18 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "text": {
-                    "type": "string"
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": { "text": { "type": "string" } },
+                    "required": ["text"]
+                  },
+                  {
+                    "type": "object",
+                    "properties": { "template": { "type": "object" } },
+                    "required": ["template"]
                   }
-                },
-                "required": ["text"]
+                ]
               }
             }
           }
@@ -6651,6 +6657,10 @@
           "connection_id": {
             "type": "string"
           },
+          "customer_id": {
+            "type": "string",
+            "description": "Customer associated with the connection, used for inbox filtering."
+          },
           "phone_number_id": {
             "type": "string"
           },
@@ -6677,6 +6687,10 @@
           "payload": {
             "type": "object",
             "additionalProperties": true
+          },
+          "display_text": {
+            "type": "string",
+            "description": "Rendered template text for presentation. Existing template messages are hydrated from synchronized template snapshots when read."
           },
           "conversation_id": {
             "type": "string"
@@ -6707,6 +6721,10 @@
                   }
                 },
                 "required": ["body"]
+              },
+              "template": {
+                "type": "object",
+                "description": "Approved WhatsApp template payload. Required when starting a conversation or outside the 24-hour customer service window."
               }
             },
             "required": ["to", "type"]
@@ -6900,6 +6918,10 @@
           "connection_id": {
             "type": "string"
           },
+          "customer_id": {
+            "type": "string",
+            "description": "Customer associated with the connection, used for inbox filtering."
+          },
           "channel": {
             "type": "string"
           },
@@ -6922,6 +6944,15 @@
           },
           "updated_at": {
             "type": "string"
+          },
+          "service_window_open": {
+            "type": "boolean",
+            "description": "Whether free-form WhatsApp replies are currently allowed."
+          },
+          "service_window_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Twenty-four hours after the latest inbound message, based on server ingestion time."
           }
         },
         "required": ["id", "connection_id", "contact", "status"]

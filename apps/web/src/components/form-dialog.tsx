@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { cn } from '../lib/utils'
 import {
   Dialog,
   DialogContent,
@@ -11,11 +12,13 @@ export function FormDialog({
   description,
   onClose,
   children,
+  contentClassName,
 }: {
   title: ReactNode
   description?: string
   onClose: () => void
   children: ReactNode
+  contentClassName?: string
 }) {
   return (
     <Dialog
@@ -25,7 +28,7 @@ export function FormDialog({
       }}
     >
       <DialogContent
-        className="max-h-[90dvh] overflow-y-auto sm:max-w-xl"
+        className={cn('max-h-[90dvh] overflow-y-auto sm:max-w-xl', contentClassName)}
         aria-describedby={undefined}
       >
         <DialogHeader>

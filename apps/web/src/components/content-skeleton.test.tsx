@@ -14,7 +14,7 @@ describe('content skeletons', () => {
 
   it('keeps the route shell and chooses a layout matching the destination', () => {
     const { container, rerender } = render(<RouteSkeleton path="/inbox" />)
-    expect(screen.getByRole('status', { name: 'Cargando pantalla' })).toBeInTheDocument()
+    expect(screen.getByRole('status', { name: 'Cargando contenido' })).toBeInTheDocument()
     expect(container.querySelector('[data-skeleton="inbox"]')).toBeInTheDocument()
 
     rerender(<RouteSkeleton path="/connections" />)

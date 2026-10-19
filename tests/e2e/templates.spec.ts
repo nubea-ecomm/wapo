@@ -3,6 +3,7 @@ import { test, expect, env } from './fixtures'
 test('customer and connection details list and create templates using a fake provider boundary', async ({
   page,
 }) => {
+  test.setTimeout(60_000)
   const name = `Templates ${Date.now()}`
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(env.ADMIN_EMAIL)
@@ -39,6 +40,8 @@ test('customer and connection details list and create templates using a fake pro
   const templates: Record<string, unknown>[] = []
   let submitted: Record<string, unknown> | null = null
   let connectionUpdate: Record<string, unknown> | null = null
+  let sentMessage: Record<string, unknown> | null = null
+  let rejectRecipient = false
   let credentialExpired = false
   await page.route('**/v1/connections**', async (route) => {
     const request = route.request(),
@@ -77,6 +80,37 @@ test('customer and connection details list and create templates using a fake pro
   await page.route('**/v1/customers/*/templates*', (route) =>
     route.fulfill({ json: { data: templates } }),
   )
+  await page.route('**/v1/messages', async (route) => {
+    sentMessage = route.request().postDataJSON()
+    if (rejectRecipient) {
+      await route.fulfill({
+        status: 400,
+        json: {
+          error: {
+            code: 131030,
+            message: '(#131030) Recipient phone number not in allowed list',
+          },
+        },
+      })
+      return
+    }
+    await route.fulfill({
+      status: 201,
+      json: {
+        data: {
+          id: 'wamid.ui',
+          connection_id: connection.id,
+          conversation_id: 'conv_ui',
+          channel: 'whatsapp',
+          direction: 'outbound',
+          status: 'sent',
+          to: '5491155550000',
+          timestamp: new Date().toISOString(),
+          payload: (sentMessage as { payload?: unknown })?.payload || {},
+        },
+      },
+    })
+  })
   await page.getByRole('button', { name, exact: true }).click()
   const metrics = page.getByRole('region', { name: 'Métricas del customer' })
   await expect(metrics.getByText('Sin fallas de entrega', { exact: true })).toBeVisible()
@@ -174,7 +208,61 @@ test('customer and connection details list and create templates using a fake pro
     name: 'WhatsApp renovado',
     access_token: 'replacement-token',
   })
+  templates.push({
+    id: 'tpl_approved',
+    name: 'back_in_stock',
+    language: 'es',
+    category: 'UTILITY',
+    status: 'APPROVED',
+    components: [
+      { type: 'HEADER', text: 'Hola {{1}}' },
+      { type: 'BODY', text: 'El producto {{1}} volvió al stock. Miralo en {{2}}' },
+      { type: 'FOOTER', text: 'Respondé si necesitás ayuda' },
+    ],
+  })
+  await page.getByRole('link', { name: 'Templates', exact: true }).first().click()
+  await page.getByRole('button', { name: 'Probar back_in_stock', exact: true }).click()
+  const testTemplate = page.getByRole('dialog', { name: 'Probar template', exact: true })
+  await testTemplate
+    .getByLabel('Destinatario', { exact: true })
+    .fill('+54 9 11 5555-0000')
+  await testTemplate.getByLabel('Encabezado · parámetro 1').fill('Ana')
+  await testTemplate.getByLabel('Mensaje · parámetro 1').fill('Café')
+  await testTemplate.getByLabel('Mensaje · parámetro 2').fill('https://example.com/cafe')
+  rejectRecipient = true
+  await testTemplate.getByRole('button', { name: 'Enviar template', exact: true }).click()
+  await expect(
+    testTemplate.getByText('Meta está en modo de prueba', { exact: false }),
+  ).toBeVisible()
+  rejectRecipient = false
+  await testTemplate.getByRole('button', { name: 'Enviar template', exact: true }).click()
+  await expect(testTemplate).not.toBeVisible()
+  expect(sentMessage).toMatchObject({
+    connection_id: connection.id,
+    payload: {
+      to: '5491155550000',
+      type: 'template',
+      template: {
+        name: 'back_in_stock',
+        language: { code: 'es' },
+        components: [
+          { type: 'header', parameters: [{ type: 'text', text: 'Ana' }] },
+          {
+            type: 'body',
+            parameters: [
+              { type: 'text', text: 'Café' },
+              { type: 'text', text: 'https://example.com/cafe' },
+            ],
+          },
+        ],
+      },
+    },
+  })
   credentialExpired = true
+  await page
+    .getByRole('navigation', { name: 'Navegación principal' })
+    .getByRole('link', { name: 'Conexiones', exact: true })
+    .click()
   await page.getByRole('link', { name: 'Templates', exact: true }).first().click()
   await expect(
     page.getByRole('heading', { name: 'La autorización de Meta venció' }),

@@ -1,14 +1,14 @@
-import { WhatsAppIcon } from './icons/whatsapp-icon'
-import { NativeSelect } from '../components/ui/native-select'
-import { FormDialog } from './form-dialog'
-import { Textarea } from '../components/ui/textarea'
-import { Input } from '../components/ui/input'
-import { Button } from '../components/ui/button'
 import { useState } from 'react'
+import { ArrowRight } from 'lucide-react'
 import type { Connection, Page } from '@wapo/sdk'
-import { useSession } from '../app/session-context'
-import { useApi, useAction } from '../hooks/use-api'
+import { useApi } from '../hooks/use-api'
+import { WhatsAppIcon } from './icons/whatsapp-icon'
+import { NativeSelect } from './ui/native-select'
+import { FormDialog } from './form-dialog'
+import { Button } from './ui/button'
 import { Field, ErrorNotice } from './ui'
+import { TemplateSendDialog } from './template-send-dialog'
+
 export function NewChatDialog({
   onClose,
   onCreated,
@@ -16,17 +16,29 @@ export function NewChatDialog({
   onClose: () => void
   onCreated: (id: string) => void
 }) {
-  const { client } = useSession()
-  const [connection, setConnection] = useState('')
-  const [to, setTo] = useState('')
-  const [text, setText] = useState('')
-  const [key, setKey] = useState(() => crypto.randomUUID())
+  const [connectionId, setConnectionId] = useState('')
+  const [composing, setComposing] = useState(false)
   const connections = useApi<Page<Connection>>('/v1/connections')
-  const send = useAction(async () => {
-    const result = await client.sendText(connection, to, text, key)
-    if (result.data.conversation_id) onCreated(result.data.conversation_id)
-    onClose()
-  })
+  const available = (connections.data?.data || []).filter(
+    (connection) =>
+      connection.status === 'connected' &&
+      connection.channel === 'whatsapp' &&
+      connection.credential_status !== 'expired',
+  )
+  const selected = available.find((connection) => connection.id === connectionId)
+  if (composing && selected) {
+    return (
+      <TemplateSendDialog
+        connection={selected}
+        title="Nueva conversación"
+        onBack={() => setComposing(false)}
+        onClose={onClose}
+        onSent={(message) => {
+          if (message.conversation_id) onCreated(message.conversation_id)
+        }}
+      />
+    )
+  }
   return (
     <FormDialog
       title={
@@ -35,70 +47,50 @@ export function NewChatDialog({
           Nueva conversación
         </span>
       }
+      description="Elegí desde qué número vas a iniciar el contacto."
       onClose={onClose}
     >
       <form
-        className="form-stack"
-        onSubmit={(e) => {
-          e.preventDefault()
-          send.mutate()
+        className="grid gap-5"
+        onSubmit={(event) => {
+          event.preventDefault()
+          if (selected) setComposing(true)
         }}
       >
-        <Field label="Conexión de WhatsApp">
+        <Field
+          label="Conexión de WhatsApp"
+          hint="Solo se muestran conexiones activas y con credenciales vigentes."
+        >
           <NativeSelect
-            disabled={connections.isLoading || send.isPending}
-            value={connection}
-            onChange={(e) => {
-              setConnection(e.target.value)
-              setKey(crypto.randomUUID())
-            }}
+            disabled={connections.isLoading}
+            value={connectionId}
+            onChange={(event) => setConnectionId(event.target.value)}
             required
           >
             <option value="">
               {connections.isLoading ? 'Cargando conexiones…' : 'Elegí una conexión'}
             </option>
-            {connections.data?.data
-              .filter((c) => c.status === 'connected' && c.channel === 'whatsapp')
-              .map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name || c.display_phone_number || c.id}
-                </option>
-              ))}
+            {available.map((connection) => (
+              <option key={connection.id} value={connection.id}>
+                {connection.name || connection.display_phone_number || connection.id}
+              </option>
+            ))}
           </NativeSelect>
         </Field>
-        <Field label="Destinatario" hint="Número de WhatsApp con código de país.">
-          <Input
-            value={to}
-            onChange={(e) => {
-              setTo(e.target.value)
-              setKey(crypto.randomUUID())
-            }}
-            required
-          />
-        </Field>
-        <Field label="Mensaje">
-          <Textarea
-            value={text}
-            onChange={(e) => {
-              setText(e.target.value)
-              setKey(crypto.randomUUID())
-            }}
-            required
-            rows={4}
-          />
-        </Field>
-        <ErrorNotice error={send.error || connections.error} />
-        <p className="hint">
-          WhatsApp exige una ventana de atención abierta para texto libre. Para iniciar
-          fuera de esa ventana, enviá una plantilla aprobada mediante la API.
-        </p>
-        <Button
-          variant="default"
-          size="default"
-          disabled={send.isPending || connections.isLoading || !connection}
-        >
-          {send.isPending ? 'Enviando…' : 'Enviar mensaje'}
-        </Button>
+        {!connections.isLoading && !available.length && (
+          <p className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+            No hay conexiones disponibles para iniciar una conversación.
+          </p>
+        )}
+        <ErrorNotice error={connections.error} />
+        <div className="flex justify-end gap-2 border-t pt-4">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button disabled={!selected}>
+            Elegir template <ArrowRight />
+          </Button>
+        </div>
       </form>
     </FormDialog>
   )

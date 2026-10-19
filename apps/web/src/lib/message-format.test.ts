@@ -11,6 +11,20 @@ const base: Message = {
   payload: {},
 }
 describe('provider message presentation', () => {
+  it('prefers the rendered template text persisted by the server', () => {
+    expect(
+      messageText({
+        id: 'template-message',
+        connection_id: 'connection',
+        channel: 'whatsapp',
+        direction: 'outbound',
+        status: 'sent',
+        timestamp: '2026-10-19T00:00:00Z',
+        payload: { type: 'template', template: { name: 'welcome' } },
+        display_text: 'Hola Ana, bienvenido',
+      }),
+    ).toBe('Hola Ana, bienvenido')
+  })
   it('renders text and unsupported media without treating provider content as markup', () => {
     expect(
       messageText({ ...base, payload: { text: { body: '<script>hello</script>' } } }),

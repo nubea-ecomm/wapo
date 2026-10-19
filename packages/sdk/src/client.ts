@@ -95,6 +95,19 @@ export class WapoClient extends Transport {
       idempotencyKey,
     )
   }
+  sendTemplate(
+    connectionId: string,
+    to: string,
+    template: { name: string; language: { code: string }; components?: unknown[] },
+    idempotencyKey: string,
+  ) {
+    return this.request<{ data: Message }>(
+      'POST',
+      '/v1/messages',
+      { connection_id: connectionId, payload: { to, type: 'template', template } },
+      idempotencyKey,
+    )
+  }
   listConversations() {
     return this.request<Page<Conversation>>('GET', '/v1/conversations')
   }
@@ -113,6 +126,18 @@ export class WapoClient extends Transport {
       'POST',
       `/v1/conversations/${encode(id)}/messages`,
       { text },
+      idempotencyKey,
+    )
+  }
+  replyWithTemplate(
+    id: string,
+    template: { name: string; language: { code: string }; components?: unknown[] },
+    idempotencyKey: string,
+  ) {
+    return this.request<{ data: Message }>(
+      'POST',
+      `/v1/conversations/${encode(id)}/messages`,
+      { template },
       idempotencyKey,
     )
   }

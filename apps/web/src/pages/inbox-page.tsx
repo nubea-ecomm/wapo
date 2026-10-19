@@ -1,33 +1,42 @@
-import { NativeSelect } from '../components/ui/native-select'
-import { Input } from '../components/ui/input'
-import { Button } from '../components/ui/button'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Plus, Search, MessagesSquare } from 'lucide-react'
-import type { Conversation } from '@wapo/sdk'
+import { MessagesSquare, Plus, Search } from 'lucide-react'
+import type { Connection, Conversation, Customer, Page } from '@wapo/sdk'
+import { Input } from '../components/ui/input'
+import { Button } from '../components/ui/button'
 import { useSession } from '../app/session-context'
 import { usePaged } from '../hooks/use-paged'
-import { PageHeader, Empty, ErrorNotice, Loading } from '../components/ui'
+import { useApi } from '../hooks/use-api'
+import { Empty, ErrorNotice, Loading } from '../components/ui'
 import { ConversationThread } from '../components/conversation-thread'
 import { NewChatDialog } from '../components/new-chat-dialog'
 import { messageText, dateLabel } from '../lib/message-format'
+import { FilterCombobox } from '../components/filter-combobox'
+
 export function InboxPage() {
   const { session } = useSession()
   const [params, setParams] = useSearchParams()
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState('open')
+  const [customer, setCustomer] = useState('')
   const [creating, setCreating] = useState(false)
   const connection = params.get('connection') || ''
   const selected = params.get('chat') || ''
   const query = new URLSearchParams()
   if (connection) query.set('connection_id', connection)
+  if (customer) query.set('customer_id', customer)
   if (status) query.set('status', status)
   const chats = usePaged<Conversation>(
     `/v1/conversations${query.size ? `?${query}` : ''}`,
     true,
   )
-  const filtered = chats.items.filter((c) =>
-    `${c.contact} ${c.contact_name || ''} ${messageText(c.last_message)}`
+  const connections = useApi<Page<Connection>>('/v1/connections')
+  const customers = useApi<Page<Customer>>('/v1/customers')
+  const availableConnections = (connections.data?.data || []).filter(
+    (item) => !customer || item.customer_id === customer,
+  )
+  const filtered = chats.items.filter((conversation) =>
+    `${conversation.contact} ${conversation.contact_name || ''} ${messageText(conversation.last_message)}`
       .toLowerCase()
       .includes(search.toLowerCase()),
   )
@@ -35,102 +44,144 @@ export function InboxPage() {
     setParams({ ...(connection ? { connection } : {}), chat: id })
   }
   return (
-    <>
-      <PageHeader
-        title="Chats"
-        description="Conversaciones de WhatsApp."
-        action={
-          <Button
-            variant="default"
-            size="default"
-
-            disabled={!session?.tenantId}
-            onClick={() => setCreating(true)}
-          >
-            <Plus size={15} /> Nueva conversación
-          </Button>
-        }
-      />
-      <div className="inbox">
-        <section className="conversation-list">
-          <div className="inbox-tools">
-            <div className="search-input">
-              <Search size={15} />
-              <Input
-                aria-label="Buscar conversaciones"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar conversaciones…"
+    <div className={`inbox ${selected ? 'has-selection' : ''}`}>
+      <section className="conversation-list" aria-label="Conversaciones">
+        <div className="inbox-list-header">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <h1>Inbox</h1>
+              <span
+                className="size-2 rounded-full bg-emerald-500"
+                aria-label="En línea"
               />
             </div>
-            <NativeSelect
-              aria-label="Estado de conversaciones"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              disabled={!session?.tenantId}
+              onClick={() => setCreating(true)}
+              aria-label="Nueva conversación"
             >
-              <option value="">Todos los chats</option>
-              <option value="open">Abiertos</option>
-              <option value="closed">Cerrados</option>
-            </NativeSelect>
+              <Plus />
+            </Button>
           </div>
-          <ErrorNotice error={chats.error} />
+          <div className="search-input">
+            <Search size={15} />
+            <Input
+              aria-label="Buscar conversaciones"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar conversaciones…"
+            />
+          </div>
+          <div className="inbox-filters">
+            <FilterCombobox
+              label="Estado de conversaciones"
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: 'open', label: 'Activas' },
+                { value: 'closed', label: 'Cerradas' },
+                { value: '', label: 'Todas' },
+              ]}
+            />
+            <FilterCombobox
+              label="Customer de conversaciones"
+              value={customer}
+              searchPlaceholder="Buscar customer…"
+              onChange={(value) => {
+                setCustomer(value)
+                setParams({})
+              }}
+              options={[
+                { value: '', label: 'Todos los customers' },
+                ...(customers.data?.data || []).map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                  keywords: item.external_customer_id || '',
+                })),
+              ]}
+            />
+          </div>
+          <FilterCombobox
+            label="Conexión de conversaciones"
+            value={connection}
+            searchPlaceholder="Buscar conexión…"
+            onChange={(value) => setParams(value ? { connection: value } : {})}
+            options={[
+              { value: '', label: 'Todas las conexiones' },
+              ...availableConnections.map((item) => ({
+                value: item.id,
+                label: item.name || item.display_phone_number || item.id,
+                keywords: `${item.display_phone_number || ''} ${item.external_id || ''}`,
+              })),
+            ]}
+          />
+        </div>
+        <ErrorNotice error={chats.error || connections.error || customers.error} />
+        <div className="conversation-results">
           {chats.isLoading && <Loading />}
-          {filtered.map((c) => (
+          {filtered.map((conversation) => (
             <button
-              className={`conversation-preview ${selected === c.id ? 'selected' : ''}`}
-              key={c.id}
-              onClick={() => select(c.id)}
+              className={`conversation-preview ${selected === conversation.id ? 'selected' : ''}`}
+              key={conversation.id}
+              onClick={() => select(conversation.id)}
             >
               <span className="contact-avatar">
-                {(c.contact_name || c.contact).slice(0, 1).toUpperCase()}
+                {(conversation.contact_name || conversation.contact)
+                  .slice(0, 2)
+                  .toUpperCase()}
               </span>
               <div>
                 <div>
-                  <b>{c.contact_name || c.contact}</b>
-                  <small>{dateLabel(c.updated_at)}</small>
+                  <b>{conversation.contact_name || conversation.contact}</b>
+                  <small>{dateLabel(conversation.updated_at)}</small>
                 </div>
-                <p>{messageText(c.last_message)}</p>
-                <span>
-                  {c.channel} / {c.status}
-                  {c.assigned_to && ` / ${c.assigned_to}`}
+                <p>{messageText(conversation.last_message)}</p>
+                <span className="conversation-meta">
+                  {conversation.assigned_to || 'Sin asignar'}
+                  {conversation.status === 'open' && <i aria-label="Activa" />}
                 </span>
               </div>
             </button>
           ))}
           {!filtered.length && !chats.isLoading && !chats.error && (
             <Empty title="Todavía no hay chats">
-              Enviá un mensaje o esperá una consulta por WhatsApp.
+              {search
+                ? 'Probá con otra búsqueda.'
+                : 'Iniciá una conversación con un template.'}
             </Empty>
           )}
           {chats.hasNextPage && (
             <Button
               variant="ghost"
-              size="default"
-
+              className="w-full"
               disabled={chats.isFetchingNextPage}
-              onClick={() => {
-                void chats.fetchNextPage()
-              }}
+              onClick={() => void chats.fetchNextPage()}
             >
               {chats.isFetchingNextPage ? 'Cargando…' : 'Cargar más chats'}
             </Button>
           )}
-        </section>
-        <section className="thread-panel">
-          {selected ? (
-            <ConversationThread key={selected} id={selected} />
-          ) : (
-            <div className="thread-empty">
-              <MessagesSquare size={48} />
-              <h2>Seleccioná una conversación</h2>
-              <p>Elegí un chat para ver los mensajes.</p>
-            </div>
-          )}
-        </section>
-      </div>
+        </div>
+      </section>
+      <section className="thread-panel">
+        {selected ? (
+          <ConversationThread
+            key={selected}
+            id={selected}
+            onBack={() => setParams(connection ? { connection } : {})}
+          />
+        ) : (
+          <div className="thread-empty">
+            <MessagesSquare size={42} />
+            <h2>Seleccioná una conversación</h2>
+            <p>Elegí un chat de la lista para ver sus mensajes.</p>
+          </div>
+        )}
+      </section>
       {creating && (
         <NewChatDialog onClose={() => setCreating(false)} onCreated={select} />
       )}
-    </>
+    </div>
   )
 }

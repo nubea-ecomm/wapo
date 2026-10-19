@@ -37,10 +37,12 @@ export interface Message {
   from?: string
   timestamp: string
   payload: Record<string, unknown>
+  display_text?: string
 }
 export interface Conversation {
   id: string
   connection_id: string
+  customer_id?: string
   channel: string
   contact: string
   contact_name?: string
@@ -48,6 +50,8 @@ export interface Conversation {
   assigned_to: string
   last_message: Message
   updated_at: string
+  service_window_open?: boolean
+  service_window_expires_at?: string
 }
 export interface Webhook {
   id: string

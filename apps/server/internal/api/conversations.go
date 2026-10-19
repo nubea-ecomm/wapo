@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"wapo.local/server/internal/store"
 )
@@ -13,7 +14,7 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 			fail(w, 405, "method_not_allowed", "Use GET")
 			return
 		}
-		s.list(w, r, "conversations", map[string]string{"connection_id": r.URL.Query().Get("connection_id"), "status": r.URL.Query().Get("status"), "channel": s.Config.ChannelFilter()})
+		s.listConversations(w, r)
 		return
 	}
 	c, e := s.Store.Get(r.Context(), project(r), "conversations", id)
@@ -21,24 +22,39 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 		dbError(w, e)
 		return
 	}
+	if str(c, "channel") == "whatsapp" {
+		open, expiresAt, windowErr := s.Store.ServiceWindow(r.Context(), project(r), str(c, "connection_id"), str(c, "contact"))
+		if windowErr != nil {
+			dbError(w, windowErr)
+			return
+		}
+		c["service_window_open"] = open
+		if !expiresAt.IsZero() {
+			c["service_window_expires_at"] = expiresAt.Format(time.RFC3339Nano)
+		}
+	}
 	if subresource == "messages" {
+		connection, connectionErr := s.Store.Get(r.Context(), project(r), "connections", str(c, "connection_id"))
+		if connectionErr != nil {
+			dbError(w, connectionErr)
+			return
+		}
 		switch r.Method {
 		case "GET":
-			s.list(w, r, "messages", map[string]string{"conversation_id": id})
+			s.listConversationMessages(w, r, c, connection)
 		case "POST":
-			connection, e := s.Store.Get(r.Context(), project(r), "connections", str(c, "connection_id"))
-			if e != nil {
-				dbError(w, e)
-				return
-			}
 			o, e := decode(r)
 			if e != nil {
 				fail(w, 400, "invalid_json", "Valid JSON required")
 				return
 			}
+			if template := object(o, "template"); template != nil {
+				s.send(w, r, connection, store.Object{"to": str(c, "contact"), "type": "template", "template": template}, false)
+				return
+			}
 			text := strings.TrimSpace(str(o, "text"))
 			if text == "" {
-				fail(w, 422, "validation_error", "text is required")
+				fail(w, 422, "validation_error", "text or template is required")
 				return
 			}
 			s.send(w, r, connection, store.Object{"to": str(c, "contact"), "type": "text", "text": store.Object{"body": text}}, false)

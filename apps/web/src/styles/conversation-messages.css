@@ -1,108 +1,136 @@
 .timeline {
-  background: var(--muted);
+  min-height: 0;
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--muted) 22%, var(--background));
+  scroll-behavior: smooth;
+}
+.timeline-content {
   display: flex;
+  width: min(100%, 820px);
+  min-height: 100%;
   flex-direction: column;
   align-items: flex-start;
-  gap: 13px;
-  padding: 25px;
+  gap: 10px;
+  margin: 0 auto;
+  padding: 24px 28px;
 }
 .message-bubble {
-  max-width: 80%;
-  padding: 12px 15px;
-  border-radius: 11px;
-  background: var(--background);
+  max-width: min(76%, 620px);
+  padding: 10px 12px 8px;
   border: 1px solid var(--border);
+  border-radius: 12px 12px 12px 3px;
+  background: var(--background);
   color: var(--foreground);
-  box-shadow: 0 1px 2px #00000003;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
 }
 .message-bubble.outbound {
   align-self: flex-end;
-  background: var(--muted);
-  border-color: var(--border);
+  border-radius: 12px 12px 3px 12px;
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
 }
 .message-bubble p {
-  font-size: 12px;
-  white-space: pre-wrap;
+  margin: 0 0 5px;
   overflow-wrap: anywhere;
-  margin: 0 0 7px;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
 }
 .message-bubble small {
-  font-size: 8px;
-  color: var(--muted-foreground);
   display: flex;
-  gap: 4px;
   align-items: center;
   justify-content: flex-end;
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 8px;
+}
+.message-bubble.outbound small svg {
+  color: #38bdf8;
 }
 .load-older {
   align-self: center;
+  margin-bottom: 8px;
 }
 .reply-form {
-  padding: 16px 20px;
+  width: min(calc(100% - 32px), 760px);
+  flex-shrink: 0;
+  margin: 12px auto;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   background: var(--background);
-  border-top: 1px solid var(--border);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 7%);
 }
 .reply-form textarea {
+  min-height: 58px;
+  resize: none;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   font-size: 12px;
-  border: 1px solid var(--border);
-  min-height: 65px;
+}
+.reply-form textarea:focus-visible {
+  box-shadow: none;
 }
 .reply-form > div:last-child {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: 11px;
+  justify-content: space-between;
   gap: 10px;
+  margin-top: 6px;
 }
 .reply-form small {
-  font-size: 9px;
   color: var(--muted-foreground);
+  font-size: 9px;
+}
+.closed-window-composer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px;
+}
+.closed-window-composer > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+.closed-window-composer strong {
+  font-size: 11px;
 }
 .conversation-thread > .notice {
-  margin: 10px 20px;
+  margin: 8px 18px;
 }
-@media (max-width: 1100px) {
-  .inbox {
-    grid-template-columns: 260px minmax(0, 1fr);
-  }
-  .thread-header {
-    padding: 14px;
-    flex-wrap: wrap;
-  }
-}
+
 @media (max-width: 900px) {
-  .inbox {
-    grid-template-columns: 225px minmax(0, 1fr);
+  .timeline-content {
+    padding: 20px 16px;
   }
-  .conversation-preview {
-    padding: 14px 10px;
-  }
-  .conversation-preview small {
-    display: none;
+  .message-bubble {
+    max-width: 86%;
   }
   .reply-form small {
     display: none;
   }
 }
-@media (max-width: 750px) {
-  .inbox {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  .conversation-list {
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-    max-height: 330px;
-  }
-  .thread-panel {
-    height: 620px;
-  }
+@media (max-width: 600px) {
   .thread-header {
-    flex-wrap: nowrap;
+    padding: 9px 10px;
+  }
+  .thread-actions [data-slot='popover-trigger'] {
+    display: none;
+  }
+  .timeline-content {
+    padding: 16px 10px;
   }
   .message-bubble {
-    max-width: 90%;
+    max-width: 92%;
+  }
+  .reply-form {
+    width: calc(100% - 16px);
+    margin: 8px;
+  }
+  .closed-window-composer {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

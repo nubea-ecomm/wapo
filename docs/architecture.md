@@ -148,3 +148,9 @@ is sent, delivered or read; failed and pending are separate. Connection types an
 conversation counts describe current totals and do not use the message period.
 Deleted connections are excluded. Historical messages from before this instance
 received events cannot be reconstructed.
+
+WhatsApp conversations track a customer-service window from the server ingestion
+time of the latest inbound message. Free-form sends are rejected outside that
+24-hour window with `template_required`; approved templates are allowed at any
+time and are mandatory when starting a new conversation. An inbound reply opens
+the window and persists `service_window_expires_at` on the conversation summary.

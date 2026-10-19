@@ -56,6 +56,7 @@ export function RouteSkeleton({ path }: { path: string }) {
               path.startsWith('/connections/')
             ? 'settings'
             : 'table'
+  if (variant === 'inbox') return <ContentSkeleton variant="inbox" />
   return (
     <div role="status" aria-label="Cargando pantalla" aria-busy="true" className="w-full">
       <span className="sr-only">Cargando pantalla…</span>
@@ -219,16 +220,67 @@ function SettingsSkeleton() {
 
 function InboxSkeleton() {
   return (
-    <div className="inbox overflow-hidden">
+    <div className="inbox inbox-skeleton overflow-hidden">
       <section className="conversation-list">
-        <div className="inbox-tools">
-          <Skeleton className="h-9 flex-1 rounded-md" />
-          <Skeleton className="h-9 w-28 rounded-md" />
+        <div className="inbox-list-header">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="size-8 rounded-md" />
+          </div>
+          <Skeleton className="h-9 w-full rounded-md" />
+          <div className="inbox-filters">
+            <Skeleton className="h-8 rounded-md" />
+            <Skeleton className="h-8 rounded-md" />
+          </div>
+          <Skeleton className="h-8 w-full rounded-md" />
         </div>
-        <ListSkeleton rows={5} />
+        <div className="conversation-results">
+          {Array.from({ length: 7 }, (_, index) => (
+            <div className="conversation-preview" key={index}>
+              <Skeleton className="size-9 shrink-0 rounded-full" />
+              <div className="space-y-2">
+                <div>
+                  <Skeleton className="h-3 w-28" />
+                  <Skeleton className="h-2 w-8" />
+                </div>
+                <Skeleton className="h-2.5 w-4/5" />
+                <Skeleton className="h-2 w-16" />
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
       <section className="thread-panel">
-        <ThreadSkeleton />
+        <div className="conversation-thread">
+          <div className="thread-header">
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-9 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-2 w-24" />
+              </div>
+            </div>
+            <Skeleton className="h-8 w-24 rounded-md" />
+          </div>
+          <div className="timeline">
+            <div className="timeline-content">
+              {[62, 42, 55, 35].map((width, index) => (
+                <Skeleton
+                  key={index}
+                  className={`h-14 rounded-xl ${index % 2 ? 'self-end' : ''}`}
+                  style={{ width: `${width}%` }}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="reply-form">
+            <Skeleton className="h-14 w-full rounded-md" />
+            <div>
+              <Skeleton className="h-2 w-28" />
+              <Skeleton className="h-8 w-20 rounded-md" />
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   )

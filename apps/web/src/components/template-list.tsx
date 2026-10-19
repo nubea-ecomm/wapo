@@ -1,7 +1,7 @@
 import { TemplateHistory } from './template-history'
 import { useState } from 'react'
 import type { Connection, MessageTemplate } from '@wapo/sdk'
-import { Plus, RefreshCw, Search } from 'lucide-react'
+import { Plus, RefreshCw, Search, Send } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { permissions } from '../app/permissions'
 import { usePaged } from '../hooks/use-paged'
@@ -15,6 +15,8 @@ import { CopyCode } from './copy-code'
 import { TemplateEditor } from './template-editor'
 import { CredentialRecovery } from './credential-recovery'
 import { isCredentialExpired } from '../lib/api-error'
+import { TemplateSendDialog } from './template-send-dialog'
+import { templatePreview } from '../lib/template-message'
 export function TemplateList({
   connection,
   connectionId,
@@ -27,6 +29,7 @@ export function TemplateList({
   const { session } = useSession()
   const [creating, setCreating] = useState(false)
   const [selected, setSelected] = useState<MessageTemplate | null>(null)
+  const [testing, setTesting] = useState<MessageTemplate | null>(null)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const params = new URLSearchParams()
@@ -101,48 +104,66 @@ export function TemplateList({
         {credentialExpired && <CredentialRecovery connection={connection} />}
         {templates.isLoading && <Loading variant="table" />}
         {filtered.length > 0 && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Idioma</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Estado</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((template) => (
-                <TableRow key={`${template.id}:${template.language}`}>
-                  <TableCell>
-                    <button
-                      className="font-medium text-foreground hover:underline"
-                      onClick={() => setSelected(template)}
-                    >
-                      {template.name}
-                    </button>
-                  </TableCell>
-                  <TableCell>{template.language}</TableCell>
-                  <TableCell>{template.category}</TableCell>
-                  <TableCell>
-                    <Status
-                      value={template.status}
-                      label={
-                        (
-                          {
-                            APPROVED: 'Aprobado',
-                            PENDING: 'En revisión',
-                            REJECTED: 'Rechazado',
-                            PAUSED: 'Pausado',
-                            DISABLED: 'Deshabilitado',
-                          } as Record<string, string>
-                        )[template.status]
-                      }
-                    />
-                  </TableCell>
+          <div className="table-scroll">
+            <Table className="min-w-[720px] table-fixed">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[42%]">Nombre</TableHead>
+                  <TableHead className="w-[15%]">Idioma</TableHead>
+                  <TableHead className="w-[18%]">Categoría</TableHead>
+                  <TableHead className="w-[17%]">Estado</TableHead>
+                  <TableHead className="w-[8%] text-right">
+                    <span className="sr-only">Acciones</span>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((template) => (
+                  <TableRow key={`${template.id}:${template.language}`}>
+                    <TableCell>
+                      <button
+                        className="font-medium text-foreground hover:underline"
+                        onClick={() => setSelected(template)}
+                      >
+                        {template.name}
+                      </button>
+                    </TableCell>
+                    <TableCell>{template.language}</TableCell>
+                    <TableCell>{template.category}</TableCell>
+                    <TableCell>
+                      <Status
+                        value={template.status}
+                        label={
+                          (
+                            {
+                              APPROVED: 'Aprobado',
+                              PENDING: 'En revisión',
+                              REJECTED: 'Rechazado',
+                              PAUSED: 'Pausado',
+                              DISABLED: 'Deshabilitado',
+                            } as Record<string, string>
+                          )[template.status]
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {template.status === 'APPROVED' &&
+                        permissions(session).canWrite && (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Probar ${template.name}`}
+                            onClick={() => setTesting(template)}
+                          >
+                            <Send />
+                          </Button>
+                        )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
         {!templates.isLoading && !templates.error && !filtered.length && (
           <Empty title="Sin templates">
@@ -160,32 +181,73 @@ export function TemplateList({
       )}
       {selected && (
         <FormDialog
-          title={selected.name}
-          description={`${selected.language} / ${selected.status}`}
+          title={
+            <span className="flex items-center gap-3 pr-8">
+              <span className="truncate">{selected.name}</span>
+              <Status value={selected.status} />
+            </span>
+          }
+          description={`${selected.language} · ${selected.category}`}
+          contentClassName="sm:max-w-2xl"
           onClose={() => setSelected(null)}
         >
-          <div className="grid gap-3">
-            {selected.components.map(
-              (component, index) =>
-                typeof component.text === 'string' && (
-                  <p
-                    key={index}
-                    className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap"
-                  >
-                    {component.text}
-                  </p>
-                ),
-            )}
-            {selected.rejected_reason && (
-              <p className="text-sm text-destructive">{selected.rejected_reason}</p>
+          <div className="grid gap-5">
+            <section>
+              <h3 className="mb-2 text-xs font-medium text-muted-foreground">
+                Vista previa
+              </h3>
+              <div className="max-w-lg rounded-xl rounded-tl-sm border bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/35 dark:text-emerald-50">
+                {templatePreview(selected, {}).map((part, index) =>
+                  part.type === 'header' ? (
+                    <strong className="mb-2 block" key={index}>
+                      {part.text}
+                    </strong>
+                  ) : part.type === 'footer' ? (
+                    <small className="mt-3 block opacity-65" key={index}>
+                      {part.text}
+                    </small>
+                  ) : (
+                    <p className="whitespace-pre-wrap" key={index}>
+                      {part.text}
+                    </p>
+                  ),
+                )}
+              </div>
+            </section>
+            {selected.rejected_reason && selected.rejected_reason !== 'NONE' && (
+              <p className="rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                {selected.rejected_reason}
+              </p>
             )}
             <TemplateHistory connectionId={connectionId} templateId={selected.id} />
-            <details>
-              <summary className="cursor-pointer text-xs">Ver JSON</summary>
+            <details className="border-t pt-3">
+              <summary className="cursor-pointer text-xs text-muted-foreground">
+                Ver definición JSON
+              </summary>
               <CopyCode value={JSON.stringify(selected, null, 2)} />
             </details>
+            {selected.status === 'APPROVED' && permissions(session).canWrite && (
+              <div className="flex justify-end border-t pt-4">
+                <Button
+                  onClick={() => {
+                    setSelected(null)
+                    setTesting(selected)
+                  }}
+                >
+                  <Send /> Probar template
+                </Button>
+              </div>
+            )}
           </div>
         </FormDialog>
+      )}
+      {testing && (
+        <TemplateSendDialog
+          connection={connection}
+          template={testing}
+          title="Probar template"
+          onClose={() => setTesting(null)}
+        />
       )}
     </>
   )
