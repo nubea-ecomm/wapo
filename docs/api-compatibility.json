@@ -1,0 +1,1223 @@
+{
+  "source": "external hosted API inventory",
+  "reviewed_at": "2026-10-16",
+  "definition": "implemented_partial means the route exists; it does not assert identical request, response or lifecycle behavior.",
+  "operations": [
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{business_account_id}/dataset",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{business_account_id}/dataset",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{dataset_id}/events",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/messages",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/messages",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/marketing_messages",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/username",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/username",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "DELETE",
+      "path": "/{phone_number_id}/username",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/username_suggestions",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/messages/{message_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/conversations",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/conversations/{conversation_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/thread_control",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/contacts",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/contacts/{wa_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/calls",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/calls",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/media",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{media_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "DELETE",
+      "path": "/{media_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/media_download",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{business_account_id}/message_templates",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{business_account_id}/message_templates",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "DELETE",
+      "path": "/{business_account_id}/message_templates",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{business_account_id}/message_templates/{template_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/whatsapp_business_profile",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/whatsapp_business_profile",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/call_permissions",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/block_users",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/block_users",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "DELETE",
+      "path": "/{phone_number_id}/block_users",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{business_account_id}/flows",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{business_account_id}/flows",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}/flows",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}/flows",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{flow_id}/assets",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{flow_id}/assets",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{flow_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{flow_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "DELETE",
+      "path": "/flows/{flow_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{flow_id}/publish",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{flow_id}/deprecate",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{business_account_id}/phone_numbers",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "GET",
+      "path": "/{phone_number_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "whatsapp",
+      "method": "POST",
+      "path": "/{phone_number_id}",
+      "status": "implemented_partial",
+      "notes": "Route implemented. Meta operations use stored connection credentials. Wapo data endpoints and provider extensions have documented differences."
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/customers",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/customers",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/customers/{customer_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/customers/{customer_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/customers/{customer_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/customers/{customer_id}/setup_links",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/customers/{customer_id}/setup_links",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/customers/{customer_id}/setup_links/{setup_link_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/webhooks",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/webhooks",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/webhooks/{webhook_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/webhooks/{webhook_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/whatsapp/webhooks/{webhook_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/webhooks/{webhook_id}/test",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/customers/{customer_id}/whatsapp/phone_numbers",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/health",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/webhooks",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/webhooks",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/webhooks/{webhook_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/webhooks/{webhook_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/webhooks/{webhook_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/broadcasts",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/broadcasts",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/broadcasts/{broadcast_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/broadcasts/{broadcast_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/broadcasts/{broadcast_id}/recipients",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/broadcasts/{broadcast_id}/recipients",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/whatsapp/broadcasts/{broadcast_id}/recipients",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/broadcasts/{broadcast_id}/send",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/broadcasts/{broadcast_id}/schedule",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/broadcasts/{broadcast_id}/cancel",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/messages",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/messages/{message_id}",
+      "status": "implemented_partial"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/conversations",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/conversations/{conversation_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/conversations/{conversation_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/conversations/{conversation_id}/assignments",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/conversations/{conversation_id}/assignments",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/conversations/{conversation_id}/assignments/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/conversations/{conversation_id}/assignments/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/display_name_requests",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/display_name_requests",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/phone_numbers/{phone_number_id}/display_name_requests/{request_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/media",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/contacts",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/contacts",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/contacts/{identifier}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/contacts/{identifier}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/whatsapp/contacts/{identifier}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/contacts/{identifier}/marketing_preferences",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/contacts/{identifier}/marketing_preferences/{phone_number_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/users",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/webhook_deliveries",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/event-definitions",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/event-definitions",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/event-definitions/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/event-definitions/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/event-definitions/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/events",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/events",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/api_logs",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/log_search",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/log_search",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/log_search/catalog",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/provider_models",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/inbox_embeds",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/inbox_embeds",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/inbox_embeds/{inbox_embed_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/inbox_embeds/{inbox_embed_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/inbox_embeds/{inbox_embed_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows/{flow_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows/{flow_id}/publish",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows/{flow_id}/setup_encryption",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows/{flow_id}/versions",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows/{flow_id}/versions",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows/{flow_id}/versions/{version_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows/{flow_id}/data_endpoint",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows/{flow_id}/data_endpoint",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PATCH",
+      "path": "/whatsapp/flows/{flow_id}/data_endpoint",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows/{flow_id}/data_endpoint/deploy",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/flows/{flow_id}/data_endpoint/register",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows/{flow_id}/function_logs",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/flows/{flow_id}/function_invocations",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/findings",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/findings/{finding_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/findings/{finding_id}/evidence",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/findings/{finding_id}/start_investigation",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/findings/{finding_id}/dismiss",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/findings/{finding_id}/mark_addressed",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/notifications/events",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/notifications/destinations",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/notifications/destinations",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/notifications/destinations/{destination_id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/notifications/routes",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "PUT",
+      "path": "/notifications/routes",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "DELETE",
+      "path": "/notifications/routes/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/accounts/{waba_id}/funding",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/accounts/{waba_id}/funding",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/accounts/{waba_id}/usage",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/portfolios/{portfolio_id}/accounts",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/portfolios/{portfolio_id}/usage",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "POST",
+      "path": "/whatsapp/portfolios/{portfolio_id}/funding/revoke",
+      "status": "pending"
+    },
+    {
+      "group": "platform",
+      "method": "GET",
+      "path": "/whatsapp/portfolios/{portfolio_id}/funding/operations/{operation_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflows",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/workflows",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflows/{workflow_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "PATCH",
+      "path": "/workflows/{workflow_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflows/{workflow_id}/definition",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflows/{workflow_id}/variables",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflows/{workflow_id}/executions",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/workflows/{workflow_id}/executions",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflow_executions/{execution_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "PATCH",
+      "path": "/workflow_executions/{execution_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflow_executions/{execution_id}/events",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/workflow_executions/{execution_id}/resume",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/workflows/{workflow_id}/triggers",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/workflows/{workflow_id}/triggers",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "PUT",
+      "path": "/workflows/{workflow_id}/triggers",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "PATCH",
+      "path": "/triggers/{trigger_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "DELETE",
+      "path": "/triggers/{trigger_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/functions",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/functions",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/functions/{function_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "PATCH",
+      "path": "/functions/{function_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "DELETE",
+      "path": "/functions/{function_id}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/functions/{function_id}/deploy",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/functions/{function_id}/invoke",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/functions/{function_id}/secrets",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "POST",
+      "path": "/functions/{function_id}/secrets",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "DELETE",
+      "path": "/functions/{function_id}/secrets/{secret_name}",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/functions/{function_id}/invocations",
+      "status": "pending"
+    },
+    {
+      "group": "workflows",
+      "method": "GET",
+      "path": "/whatsapp/conversations/{conversation_id}/flow_executions",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "GET",
+      "path": "/legacy-agent/modes",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "GET",
+      "path": "/legacy-agent/modes/{mode}",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "GET",
+      "path": "/legacy-agent/modes/{mode}/sessions",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "GET",
+      "path": "/legacy-agent/sessions/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "POST",
+      "path": "/legacy-agent/runs",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "GET",
+      "path": "/legacy-agent/runs/{id}",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "POST",
+      "path": "/legacy-agent/runs/{id}/pause",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "POST",
+      "path": "/legacy-agent/runs/{id}/resume",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "POST",
+      "path": "/legacy-agent/runs/{id}/cancel",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "POST",
+      "path": "/legacy-agent/runs/{id}/approvals/{approval_id}/approve",
+      "status": "pending"
+    },
+    {
+      "group": "legacy-agent",
+      "method": "POST",
+      "path": "/legacy-agent/runs/{id}/approvals/{approval_id}/reject",
+      "status": "pending"
+    }
+  ]
+}
