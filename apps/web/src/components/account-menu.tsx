@@ -1,10 +1,11 @@
 import { UserAvatar } from './user-avatar'
 import { ThemeToggle } from './theme-toggle'
-import { ChevronDown, LogOut, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, Shuffle, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { useSession } from '../app/session-context'
 import { useI18n } from '../app/i18n'
 import { ProfileDialog } from './profile-dialog'
+import { nextAvatarVariant } from '../lib/avatar'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -16,9 +17,27 @@ import {
 } from './ui/dropdown-menu'
 
 export function AccountMenu() {
-  const { session, disconnect } = useSession()
+  const { session, disconnect, updateProfile } = useSession()
   const { t } = useI18n()
   const [editing, setEditing] = useState(false)
+  const [avatarBusy, setAvatarBusy] = useState(false)
+  const [avatarError, setAvatarError] = useState(false)
+
+  async function regenerateAvatar() {
+    const user = session?.user
+    if (!user || avatarBusy) return
+    setAvatarBusy(true)
+    setAvatarError(false)
+    try {
+      await updateProfile({
+        avatar_variant: nextAvatarVariant(user.id, user.avatar_variant),
+      })
+    } catch {
+      setAvatarError(true)
+    } finally {
+      setAvatarBusy(false)
+    }
+  }
   return (
     <>
       <DropdownMenu>
@@ -46,6 +65,23 @@ export function AccountMenu() {
               <UserRound />
               {t('editProfile')}
             </DropdownMenuItem>
+          )}
+          {session?.user && (
+            <DropdownMenuItem
+              disabled={avatarBusy}
+              onSelect={(event) => {
+                event.preventDefault()
+                void regenerateAvatar()
+              }}
+            >
+              <Shuffle />
+              {t('anotherAvatar')}
+            </DropdownMenuItem>
+          )}
+          {avatarError && (
+            <DropdownMenuLabel role="alert" className="text-destructive">
+              {t('profileError')}
+            </DropdownMenuLabel>
           )}
           <ThemeToggle />
           <DropdownMenuSeparator />
