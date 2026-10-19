@@ -49,6 +49,11 @@ func (s *Server) deleteUser(w http.ResponseWriter, r *http.Request, id string) {
 	}
 
 	// Sessions are removed by the foreign key cascade; tenant resources have no user ownership dependency.
+	if _, e = tx.Exec(r.Context(), "DELETE FROM notification_deliveries WHERE notification_type='user_invitation' AND payload->>'invitation_id' IN (SELECT id FROM console_user_invitations WHERE user_id=$1)", id); e != nil {
+		dbError(w, e)
+		return
+	}
+
 	if _, e = tx.Exec(r.Context(), "DELETE FROM console_users WHERE id=$1", id); e != nil {
 		dbError(w, e)
 		return

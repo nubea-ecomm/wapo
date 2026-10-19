@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math"
+	"net/mail"
 	"net/url"
 	"os"
 	"strconv"
@@ -26,6 +27,9 @@ type Config struct {
 	AuthCacheTTL                                                   time.Duration
 	AuthCacheEntries                                               int
 	RequestLogSampleRate                                           float64
+	SMTPHost, SMTPUsername, SMTPPassword, SMTPFromAddress          string
+	SMTPFromName, SMTPTLS                                          string
+	SMTPPort                                                       int
 }
 
 func Env(name, fallback string) string {
@@ -43,6 +47,12 @@ func Load() (Config, error) {
 	c.AdminKey = os.Getenv("ADMIN_API_KEY")
 	c.MetaAppID = os.Getenv("META_APP_ID")
 	c.MetaConfigID = os.Getenv("META_EMBEDDED_SIGNUP_CONFIG_ID")
+	c.SMTPHost = strings.TrimSpace(os.Getenv("SMTP_HOST"))
+	c.SMTPUsername = os.Getenv("SMTP_USERNAME")
+	c.SMTPPassword = os.Getenv("SMTP_PASSWORD")
+	c.SMTPFromAddress = strings.TrimSpace(os.Getenv("SMTP_FROM_ADDRESS"))
+	c.SMTPFromName = Env("SMTP_FROM_NAME", "Wapo")
+	c.SMTPTLS = strings.ToLower(Env("SMTP_TLS", "starttls"))
 
 	var err error
 
@@ -64,6 +74,29 @@ func Load() (Config, error) {
 
 	if c.RequestLogSampleRate, err = strconv.ParseFloat(Env("REQUEST_LOG_SAMPLE_RATE", "0.01"), 64); err != nil || math.IsNaN(c.RequestLogSampleRate) || c.RequestLogSampleRate < 0 || c.RequestLogSampleRate > 1 {
 		return c, fmt.Errorf("REQUEST_LOG_SAMPLE_RATE must be between 0 and 1")
+	}
+
+	if c.SMTPPort, err = envInt("SMTP_PORT", 587); err != nil || c.SMTPPort < 1 || c.SMTPPort > 65535 {
+		return c, fmt.Errorf("SMTP_PORT must be between 1 and 65535")
+	}
+
+	if c.SMTPTLS != "starttls" && c.SMTPTLS != "tls" && c.SMTPTLS != "none" {
+		return c, fmt.Errorf("SMTP_TLS must be starttls, tls or none")
+	}
+
+	if c.SMTPHost != "" && c.SMTPFromAddress == "" {
+		return c, fmt.Errorf("SMTP_FROM_ADDRESS is required when SMTP_HOST is configured")
+	}
+
+	if c.SMTPFromAddress != "" {
+		address, addressErr := mail.ParseAddress(c.SMTPFromAddress)
+		if addressErr != nil || address.Address != c.SMTPFromAddress {
+			return c, fmt.Errorf("SMTP_FROM_ADDRESS must be one email address without a display name")
+		}
+	}
+
+	if (c.SMTPUsername == "") != (c.SMTPPassword == "") {
+		return c, fmt.Errorf("SMTP_USERNAME and SMTP_PASSWORD must be configured together")
 	}
 
 	maxConns, maxErr := envInt("DB_MAX_CONNS", 40)

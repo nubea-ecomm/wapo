@@ -20,7 +20,8 @@ React dashboard / public clients / TypeScript SDK
           |
       PostgreSQL (durable source of truth)
           |
-    signed delivery outbox -> application webhooks
+     signed delivery outbox -> application webhooks
+     email notification outbox -> SMTP / Amazon SES SMTP
 ```
 
 ## Product hierarchy
@@ -144,6 +145,18 @@ headers are never recorded.
 Batched API telemetry preserves every error and samples successful requests according
 to `REQUEST_LOG_SAMPLE_RATE` (1% by default). This bounds write amplification at high
 traffic; administrative audits, domain events and message records are never sampled.
+
+Email notification preferences are project-scoped. SMTP credentials are process
+environment secrets, while recipients, switches and a durable retry outbox live in
+PostgreSQL. Health-transition alerts are inserted in the same transaction as the
+new connection diagnosis. Periodic summaries are deduplicated by UTC reporting
+period. SMTP delivery is at least once across process crashes.
+
+Console member invitations use the same durable email worker. Invited accounts are
+inactive until a seven-day, single-use token is accepted and a password is set.
+Validation tokens are hashed; the outbox carries an encrypted token only until the
+message is rendered. Installations without SMTP retain manual initial-password user
+creation.
 
 ## Extension roadmap
 

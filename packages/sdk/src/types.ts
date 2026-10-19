@@ -140,6 +140,7 @@ export interface ConsoleUser {
   language: 'es' | 'pt' | 'en'
   avatar_variant: number
   active: boolean
+  invitation_pending?: boolean
   created_at: string
 }
 
@@ -163,6 +164,16 @@ export interface ProjectSettings extends Project {
     accent_color: string
     theme: 'light' | 'dark'
   }
+}
+
+export interface NotificationSettings {
+  recipients: string[]
+  whatsapp_disconnected: boolean
+  customer_needs_attention: boolean
+  daily_stats: boolean
+  weekly_stats: boolean
+  smtp_configured: boolean
+  project_users: Array<{ id: string; name: string; email: string }>
 }
 
 export interface LogEntry {

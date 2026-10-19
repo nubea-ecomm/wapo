@@ -2,9 +2,9 @@ import { UserAccessFields, type UserAccessValue } from './user-access-fields'
 import { useState } from 'react'
 import type { ConsoleUser } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
-import { useAction } from '../hooks/use-api'
+import { useAction, useApi } from '../hooks/use-api'
 import { FormDialog } from './form-dialog'
-import { Field, ErrorNotice } from './ui'
+import { Field, ErrorNotice, Loading } from './ui'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 
@@ -24,20 +24,58 @@ export function UserEditor({
     project_ids: session?.tenantId ? [session.tenantId] : [],
   })
   const [password, setPassword] = useState('')
+  const emailSettings = useApi<{ data: { smtp_configured: boolean } }>(
+    '/admin/v1/settings/email',
+    { admin: true },
+  )
+  const invitesByEmail = !user && emailSettings.data?.data.smtp_configured
   const save = useAction(async () => {
     if (user) {
       await admin.updateUser(user.id, { password })
 
       if (user.id === session?.user?.id) disconnect()
-    } else await admin.createUser({ name, email, password, ...access })
+    } else
+      await admin.createUser({
+        name,
+        email,
+        ...(invitesByEmail ? {} : { password }),
+        ...access,
+      })
 
     onClose()
   })
 
+  if (!user && emailSettings.isLoading)
+    return (
+      <FormDialog
+        title="Invitar usuario"
+        description="Verificando la configuración de email…"
+        onClose={onClose}
+      >
+        <Loading variant="settings" />
+      </FormDialog>
+    )
+
+  if (!user && emailSettings.error)
+    return (
+      <FormDialog
+        title="Invitar usuario"
+        description="No pudimos comprobar si el servidor puede enviar invitaciones."
+        onClose={onClose}
+      >
+        <ErrorNotice error={emailSettings.error} />
+      </FormDialog>
+    )
+
   return (
     <FormDialog
-      title={user ? 'Cambiar contraseña' : 'Crear usuario'}
-      description={user?.email}
+      title={user ? 'Cambiar contraseña' : 'Invitar usuario'}
+      description={
+        user?.email ||
+        (invitesByEmail
+          ? 'Le enviaremos un email para que acepte la invitación y cree su contraseña.'
+          : 'SMTP no está configurado; definí una contraseña inicial manualmente.')
+      }
       onClose={onClose}
     >
       <form
@@ -68,20 +106,22 @@ export function UserEditor({
             </Field>
           </>
         )}
-        <Field
-          label="Contraseña nueva"
-          hint="Entre 12 y 72 caracteres. Cambiarla cierra las sesiones existentes."
-        >
-          <Input
-            type="password"
-            autoComplete="new-password"
-            minLength={12}
-            maxLength={72}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </Field>
+        {(user || !invitesByEmail) && (
+          <Field
+            label={user ? 'Contraseña nueva' : 'Contraseña inicial'}
+            hint="Entre 12 y 72 caracteres. Cambiarla cierra las sesiones existentes."
+          >
+            <Input
+              type="password"
+              autoComplete="new-password"
+              minLength={12}
+              maxLength={72}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Field>
+        )}
         {!user && (
           <UserAccessFields
             value={access}
@@ -103,7 +143,11 @@ export function UserEditor({
               (!user && !access.all_projects && !access.project_ids.length)
             }
           >
-            {save.isPending ? 'Guardando…' : 'Guardar usuario'}
+            {save.isPending
+              ? 'Guardando…'
+              : invitesByEmail
+                ? 'Enviar invitación'
+                : 'Guardar usuario'}
           </Button>
         </div>
       </form>

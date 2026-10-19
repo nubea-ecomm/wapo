@@ -11,16 +11,17 @@ import (
 )
 
 type ConsoleUser struct {
-	Role          string    `json:"role"`
-	AllProjects   bool      `json:"all_projects"`
-	ProjectIDs    []string  `json:"project_ids"`
-	ID            string    `json:"id"`
-	Email         string    `json:"email"`
-	Name          string    `json:"name"`
-	Language      string    `json:"language"`
-	AvatarVariant int       `json:"avatar_variant"`
-	Active        bool      `json:"active"`
-	CreatedAt     time.Time `json:"created_at"`
+	Role              string    `json:"role"`
+	AllProjects       bool      `json:"all_projects"`
+	ProjectIDs        []string  `json:"project_ids"`
+	ID                string    `json:"id"`
+	Email             string    `json:"email"`
+	Name              string    `json:"name"`
+	Language          string    `json:"language"`
+	AvatarVariant     int       `json:"avatar_variant"`
+	Active            bool      `json:"active"`
+	InvitationPending bool      `json:"invitation_pending"`
+	CreatedAt         time.Time `json:"created_at"`
 }
 
 func NormalizeEmail(email string) (string, error) {

@@ -4,6 +4,7 @@ import type {
   MessageTemplate,
   TemplateInput,
   ProjectSettings,
+  NotificationSettings,
   Connection,
   Conversation,
   Customer,
@@ -28,6 +29,21 @@ export class WapoClient extends Transport {
     return this.request<{ data: ProjectSettings }>(
       'PATCH',
       '/v1/project',
+      input,
+    )
+  }
+  notificationSettings() {
+    return this.request<{ data: NotificationSettings }>(
+      'GET',
+      '/v1/notification-settings',
+    )
+  }
+  updateNotificationSettings(
+    input: Omit<NotificationSettings, 'smtp_configured' | 'project_users'>,
+  ) {
+    return this.request<{ data: NotificationSettings }>(
+      'PATCH',
+      '/v1/notification-settings',
       input,
     )
   }

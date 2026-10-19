@@ -29,7 +29,7 @@ docker compose up -d api worker
 ## Credential encryption-key rotation
 
 `ENCRYPTION_KEY` protects Meta access tokens, registration PINs, setup-link
-tokens and webhook signing secrets. Back it up separately from PostgreSQL. To
+tokens, pending invitation email tokens and webhook signing secrets. Back it up separately from PostgreSQL. To
 rotate it without exposing plaintext:
 
 1. Stop every API and worker replica.
@@ -59,6 +59,7 @@ Collect structured process logs and alert on:
 - unresolved idempotency journals approaching 90 days;
 - connection-health errors and expired provider credentials;
 - repeated worker restarts or maintenance failures.
+- email notification deliveries reaching `failed`.
 
 Use `/healthz` only for process liveness and `/readyz` for traffic readiness.
 Request IDs connect API responses, request logs and administrative audit records.
@@ -68,6 +69,31 @@ without exposing tenant payloads or secrets:
 ```bash
 docker compose run --rm api operations
 ```
+
+## Email notifications
+
+The worker sends project notifications through SMTP. Configure `SMTP_HOST`,
+`SMTP_PORT`, `SMTP_FROM_ADDRESS` and, when required, `SMTP_USERNAME` and
+`SMTP_PASSWORD`. `SMTP_TLS=starttls` is the recommended default. Credentials stay
+in the deployment secret manager and are never stored in PostgreSQL or returned by
+the API.
+
+Amazon SES is supported through its SMTP interface: use the regional endpoint
+(for example `email-smtp.us-east-1.amazonaws.com`), port 587, STARTTLS and
+region-specific **SMTP credentials** (not an AWS access key). Verify the sender in
+SES and move the account out of the SES sandbox before sending to unverified
+recipients.
+
+When SMTP is configured, new console users are created as inactive invitations.
+The worker sends a seven-day, single-use acceptance link so the recipient can set
+their own password. Without SMTP, administrators must continue supplying an initial
+password when creating the user.
+
+Recipients and per-project switches are managed in Console → Configuration →
+Notifications. When no explicit recipient is configured, each delivery resolves all
+active console users with access to that project. The PostgreSQL outbox retries temporary failures up to eight times;
+delivery is at least once, so a crash immediately after SMTP acceptance can produce
+a duplicate. Daily and weekly periods use UTC.
 
 ## Release and rollback
 

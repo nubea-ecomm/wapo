@@ -1,0 +1,118 @@
+{{define "email-notifications"}}
+<section id="email-notifications">
+  <span class="section-number">04 / Operations</span>
+  <h2>Email notifications</h2>
+  <p>
+    Wapo sends connection alerts and project summaries through SMTP. The adapter
+    works with a standard SMTP provider and the Amazon SES SMTP interface.
+    Credentials stay in the server environment; project preferences and the
+    durable delivery outbox live in PostgreSQL.
+  </p>
+  <h3>Configure the mail server</h3>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>.env / SMTP with STARTTLS</span
+      ><button
+        type="button"
+        data-copy
+      >
+        Copy
+      </button>
+    </div>
+    <pre><code>SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USERNAME=&lt;smtp-username&gt;
+SMTP_PASSWORD=&lt;smtp-password&gt;
+SMTP_FROM_ADDRESS=notifications@example.com
+SMTP_FROM_NAME=Wapo
+SMTP_TLS=starttls</code></pre>
+  </div>
+  <p>
+    Use <code>starttls</code> for port 587, <code>tls</code> for implicit TLS on
+    port 465, and <code>none</code> only with a trusted local development
+    server. Never expose these values through <code>VITE_*</code> variables.
+  </p>
+  <h3>Amazon SES SMTP</h3>
+  <p>
+    Use the regional endpoint and SES-specific SMTP credentials. AWS access keys
+    are not SMTP credentials. Verify the sender or its domain and request SES
+    production access before sending to unverified destinations.
+  </p>
+  <div class="code-block">
+    <pre><code>SMTP_HOST=email-smtp.us-east-1.amazonaws.com
+SMTP_PORT=587
+SMTP_USERNAME=&lt;ses-smtp-username&gt;
+SMTP_PASSWORD=&lt;ses-smtp-password&gt;
+SMTP_FROM_ADDRESS=notifications@example.com
+SMTP_FROM_NAME=Wapo
+SMTP_TLS=starttls</code></pre>
+  </div>
+  <p>Recreate the services after changing the environment:</p>
+  <div class="code-block">
+    <pre><code>docker compose up -d --build migrate api worker</code></pre>
+  </div>
+  <h3>Choose recipients and events</h3>
+  <p>
+    Open <strong>Console → Configuration → Notifications</strong>. The recipient
+    control suggests active people with access to the current project. Select a
+    suggestion, or type any valid external address and press Enter or comma. You
+    can save up to ten explicit addresses.
+  </p>
+  <div class="callout">
+    <strong>No explicit recipients?</strong> Wapo sends the notification to
+    every active console user with access to that project, including users with
+    all-project access. Membership is resolved when the delivery is queued.
+  </div>
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Notification</th>
+          <th>When it is generated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>WhatsApp disconnected</td>
+          <td>A connection health check transitions to an error.</td>
+        </tr>
+        <tr>
+          <td>Customer needs attention</td>
+          <td>An associated connection develops a warning or error.</td>
+        </tr>
+        <tr>
+          <td>Daily statistics</td>
+          <td>Metrics for the previous UTC day.</td>
+        </tr>
+        <tr>
+          <td>Weekly statistics</td>
+          <td>Metrics for the last complete UTC week.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Retries and troubleshooting</h3>
+  <p>
+    Email jobs are durable and retry up to eight times with backoff. Delivery is
+    at least once, so a crash after SMTP acceptance can produce a duplicate.
+    Check worker logs and run
+    <code>docker compose run --rm api operations</code> to inspect
+    <code>failed_notifications</code>. Confirm TLS mode, sender verification,
+    SES Region and sandbox status when delivery fails.
+  </p>
+  <h3>Invite project members</h3>
+  <p>
+    With SMTP configured, <strong>Console → Users → Invite user</strong> creates
+    an inactive account and queues “Te invitaron a Wapo”. The button in that
+    email opens a public acceptance page where the invited person creates their
+    password. The single-use link expires after seven days; the account becomes
+    active only after acceptance.
+  </p>
+  <p>
+    Wapo stores the validation token as a hash and keeps only an encrypted copy
+    for the durable email job. If SMTP is not configured, the administrator must
+    provide an initial password and the account is activated immediately, which
+    preserves local installations without a mail server.
+  </p>
+</section>
+{{end}}

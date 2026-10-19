@@ -55,6 +55,11 @@ findings, workflow execution, function deployment and agent runs remain pending.
 The inventory lists each missing operation instead of exposing successful-looking
 placeholder handlers. No full API parity or live Meta certification is claimed.
 
+Wapo's project-scoped `/v1/notification-settings`, SMTP email outbox and console
+member invitation endpoints are native operational features; they do not implement
+the reference platform's pending notification service or alter its compatibility
+inventory.
+
 ## Verification
 
 PostgreSQL integration tests use fake Meta servers to verify account selection,

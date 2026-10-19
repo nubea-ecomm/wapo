@@ -24,6 +24,13 @@
         class="guide-nav-group"
         open
       >
+        <summary>Operations</summary>
+        <a href="#email-notifications">Email notifications</a>
+      </details>
+      <details
+        class="guide-nav-group"
+        open
+      >
         <summary>WhatsApp</summary>
         <a href="#customers">Customers &amp; connections</a
         ><a href="#meta-setup">Configure Meta</a
@@ -85,7 +92,7 @@
     </section>
     {{template "getting-started" .}} {{template "meta-setup" .}} {{template
     "messaging" .}} {{template "webhooks" .}} {{template "templates" .}}
-    {{template "conventions" .}}
+    {{template "email-notifications" .}} {{template "conventions" .}}
     <footer class="docs-footer">
       <span>Wapo / Apache 2.0</span
       ><a href="/docs?view=reference">API reference →</a>
@@ -95,7 +102,8 @@
     <p>In this guide</p>
     <a href="#quickstart">First request</a
     ><a href="#onboarding">Connect a customer</a
-    ><a href="#messages">Send a message</a><a href="#webhooks">Handle events</a>
+    ><a href="#messages">Send a message</a><a href="#webhooks">Handle events</a
+    ><a href="#email-notifications">Configure email</a>
     <div class="context-note">
       Examples use placeholders. Create your own tenant key in the console.
     </div>

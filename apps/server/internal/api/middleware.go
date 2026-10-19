@@ -89,6 +89,11 @@ func (s *Server) auth(next http.Handler) http.Handler {
 		}
 
 		w.Header().Set("Cache-Control", "no-store")
+
+		if consoleSession {
+			r = r.WithContext(context.WithValue(r.Context(), consoleUserKey, sessionUser))
+		}
+
 		s.serveLogged(w, r.WithContext(context.WithValue(r.Context(), projectKey, p)), next)
 	})
 }

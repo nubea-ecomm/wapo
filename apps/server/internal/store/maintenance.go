@@ -15,6 +15,8 @@ type MaintenanceResult struct {
 	Events          int64
 	SetupClaims     int64
 	RateLimits      int64
+	Notifications   int64
+	Invitations     int64
 }
 
 func (s *Store) Maintain(ctx context.Context) (MaintenanceResult, error) {
@@ -38,6 +40,8 @@ func (s *Store) Maintain(ctx context.Context) (MaintenanceResult, error) {
 		{&result.Events, "DELETE FROM events e WHERE e.created_at<now()-interval '90 days' AND NOT EXISTS(SELECT 1 FROM deliveries d WHERE d.event_id=e.id)"},
 		{&result.SetupClaims, `UPDATE resources SET data=(data-'completion_started_at')||'{"status":"active"}'::jsonb WHERE kind='setup_links' AND data->>'status'='processing' AND (data->>'completion_started_at')::timestamptz<now()-interval '15 minutes'`},
 		{&result.RateLimits, "DELETE FROM rate_limit_counters WHERE window_start<now()-interval '10 minutes'"},
+		{&result.Notifications, "DELETE FROM notification_deliveries WHERE (state='sent' AND updated_at<now()-interval '30 days') OR (state='failed' AND updated_at<now()-interval '90 days')"},
+		{&result.Invitations, "DELETE FROM console_user_invitations WHERE (accepted_at IS NOT NULL AND accepted_at<now()-interval '30 days') OR (accepted_at IS NULL AND expires_at<now()-interval '30 days')"},
 	}
 	for _, query := range queries {
 		tag, queryErr := tx.Exec(ctx, query.sql)
