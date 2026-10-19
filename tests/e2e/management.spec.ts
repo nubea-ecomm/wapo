@@ -11,6 +11,16 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await expect(
     page.getByRole('heading', { name: 'Vista general', exact: true }),
   ).toBeVisible()
+  await page.getByRole('button', { name: 'Colapsar navegación', exact: true }).click()
+  await expect(
+    page.getByRole('button', { name: 'Expandir navegación', exact: true }),
+  ).toBeVisible()
+  await page
+    .getByRole('navigation', { name: 'Navegación principal' })
+    .getByRole('link', { name: 'Chats', exact: true })
+    .hover()
+  await expect(page.getByRole('tooltip')).toHaveText('Chats')
+  await page.getByRole('button', { name: 'Expandir navegación', exact: true }).click()
   await page.getByRole('button', { name: 'Integraciones', exact: true }).click()
   await expect(
     page.getByRole('link', { name: 'API keys', exact: true }),
@@ -195,7 +205,7 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     fullPage: true,
   })
   await page.getByRole('dialog').getByRole('link', { name: 'Chats', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Chats', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Inbox', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Abrir navegación' }).click()
   await page
     .getByRole('dialog')

@@ -60,6 +60,9 @@
   margin-top: auto;
   padding-top: 24px;
 }
+.sidebar-docs {
+  justify-content: flex-start;
+}
 .account-trigger {
   width: auto;
   margin-left: auto;
@@ -120,4 +123,54 @@
   margin-bottom: 20px;
   font-size: 12px;
   box-shadow: none;
+}
+.sidebar.collapsed .tenant-picker-trigger,
+.sidebar.collapsed .workspace-picker {
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 14px;
+  padding: 6px;
+}
+.sidebar.collapsed .tenant-picker-trigger > span:not(.project-avatar),
+.sidebar.collapsed .tenant-picker-trigger > svg,
+.sidebar.collapsed .workspace-picker > span:not(.project-avatar) {
+  display: none;
+}
+.sidebar.collapsed .navigation-search-trigger {
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 12px;
+  padding: 0;
+}
+.sidebar.collapsed .navigation-search-trigger span,
+.sidebar.collapsed .navigation-search-trigger kbd {
+  display: none;
+}
+.collapsed-nav {
+  overflow: visible;
+}
+.collapsed-nav .nav-group {
+  gap: 4px;
+}
+.collapsed-nav .nav-group a {
+  position: relative;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  padding: 0;
+}
+.sidebar.collapsed .sidebar-bottom {
+  justify-items: center;
+}
+.sidebar.collapsed .sidebar-docs {
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+}
+.sidebar.collapsed .sidebar-docs span {
+  display: none;
 }

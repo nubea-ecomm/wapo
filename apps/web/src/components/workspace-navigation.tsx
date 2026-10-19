@@ -9,7 +9,14 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collap
 import { Button } from './ui/button'
 import { useI18n } from '../app/i18n'
 import { Separator } from './ui/separator'
-export function WorkspaceNavigation({ onNavigate }: { onNavigate: () => void }) {
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+export function WorkspaceNavigation({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate: () => void
+  collapsed?: boolean
+}) {
   const layoutId = useId()
   const { session } = useSession()
   const { t } = useI18n()
@@ -36,6 +43,31 @@ export function WorkspaceNavigation({ onNavigate }: { onNavigate: () => void }) 
         </NavLink>
       ))
   }
+  if (collapsed)
+    return (
+      <nav className="workspace-nav collapsed-nav" aria-label="Navegación principal">
+        <div className="nav-group">
+          {visible.map((item) => (
+            <Tooltip key={item.to}>
+              <TooltipTrigger asChild>
+                <NavLink to={item.to} end={item.to === '/'} onClick={onNavigate}>
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <span className="nav-active-surface" aria-hidden="true" />
+                      )}
+                      <item.icon size={17} strokeWidth={1.7} />
+                      <span className="sr-only">{navigationLabel(item, t)}</span>
+                    </>
+                  )}
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent side="right">{navigationLabel(item, t)}</TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
+      </nav>
+    )
   return (
     <nav className="workspace-nav" aria-label={t('primaryNavigation')}>
       <div className="nav-group">{links('main')}</div>
