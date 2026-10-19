@@ -172,14 +172,16 @@ The public SDK package is `@nubea-ecomm/wapo-sdk`:
 npm install @nubea-ecomm/wapo-sdk
 ```
 
-SDK releases use GitHub tags matching `sdk-v<package-version>`. Publishing is
-performed by `.github/workflows/publish-sdk.yml` with npm Trusted Publishing and
-provenance. For the first version only, ensure the `nubea-ecomm` organization
-exists on npm and create the public package with a temporary `NPM_TOKEN` repository
-secret. Then configure its npm Trusted Publisher for organization `nubea-ecomm`,
-repository `wapo`, workflow `publish-sdk.yml`, allow direct publishing, and delete
-the secret. The workflow rejects tags that do not exactly match
-`packages/sdk/package.json` or commits not contained in `main`.
+SDK versions and changelogs are automated with Release Please. Conventional
+`fix:` commits produce patches, `feat:` commits produce minor releases, and
+breaking changes produce major releases. Release Please maintains a release PR;
+merging it creates the matching `sdk-v<package-version>` GitHub release and
+triggers `.github/workflows/publish-sdk.yml`. The release PR uses a fine-grained
+`RELEASE_PLEASE_TOKEN` limited to this repository because the organization blocks
+PR creation by the default Actions token. npm publication uses Trusted Publishing
+with automatic provenance and no npm token. The publishing workflow rejects tags
+that do not exactly match `packages/sdk/package.json` or commits not contained in
+`main`.
 
 Console user sessions survive refresh in the same browser tab until their 12-hour
 expiry or logout. The tab stores the session token and selected tenant in

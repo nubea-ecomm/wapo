@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "skip-labeling": true,
+  "packages": {
+    "packages/sdk": {
+      "release-type": "node",
+      "package-name": "@nubea-ecomm/wapo-sdk",
+      "component": "sdk",
+      "include-component-in-tag": true,
+      "include-v-in-tag": true,
+      "changelog-path": "CHANGELOG.md",
+      "pull-request-title-pattern": "chore(sdk): release ${version}"
+    }
+  }
+}

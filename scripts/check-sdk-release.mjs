@@ -10,6 +10,18 @@ const manifest = JSON.parse(
     'utf8',
   ),
 )
+const releaseManifest = JSON.parse(
+  readFileSync(
+    new URL('../.release-please-manifest.json', import.meta.url),
+    'utf8',
+  ),
+)
+const releaseConfig = JSON.parse(
+  readFileSync(
+    new URL('../release-please-config.json', import.meta.url),
+    'utf8',
+  ),
+)
 
 if (manifest.name !== expectedName) {
   throw new Error(
@@ -19,6 +31,22 @@ if (manifest.name !== expectedName) {
 
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) {
   throw new Error(`SDK version must be stable semver, got ${manifest.version}`)
+}
+
+if (releaseManifest['packages/sdk'] !== manifest.version) {
+  throw new Error(
+    `Release Please tracks ${releaseManifest['packages/sdk']}, but the SDK is ${manifest.version}`,
+  )
+}
+
+const sdkRelease = releaseConfig.packages?.['packages/sdk']
+
+if (
+  sdkRelease?.component !== 'sdk' ||
+  sdkRelease?.['release-type'] !== 'node' ||
+  sdkRelease?.['include-component-in-tag'] !== true
+) {
+  throw new Error('Release Please must create sdk-v* Node.js releases')
 }
 
 const expectedTag = `sdk-v${manifest.version}`
