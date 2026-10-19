@@ -189,3 +189,9 @@ time of the latest inbound message. Free-form sends are rejected outside that
 24-hour window with `template_required`; approved templates are allowed at any
 time and are mandatory when starting a new conversation. An inbound reply opens
 the window and persists `service_window_expires_at` on the conversation summary.
+
+WhatsApp Business profiles are provider-authoritative. Native connection endpoints
+validate and relay reads/updates to Meta without creating a stale local profile
+copy. The console edits text, contact, category and website fields and displays the
+current image. Creating a new profile-picture handle through Meta resumable upload
+is not implemented.

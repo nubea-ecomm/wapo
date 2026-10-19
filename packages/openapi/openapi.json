@@ -6627,6 +6627,92 @@
         }
       }
     },
+    "/v1/connections/{id}/business-profile": {
+      "get": {
+        "operationId": "get_connection_business_profile",
+        "tags": ["Connections"],
+        "summary": "Get WhatsApp Business profile",
+        "description": "Reads the current phone-number business profile directly from Meta. Meta remains the source of truth and no profile fields are persisted locally.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current business profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/BusinessProfile" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Connection, credential, validation, or Meta error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "update_connection_business_profile",
+        "tags": ["Connections"],
+        "summary": "Update WhatsApp Business profile",
+        "description": "Validates editable fields, updates the phone-number business profile in Meta, and returns a fresh provider read. The profile image requires a Meta resumable-upload handle; the console currently treats the image as read-only.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BusinessProfileInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated business profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/BusinessProfile" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Connection, credential, validation, or Meta error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/connections/{id}/templates/{template_id}/history": {
       "get": {
         "tags": ["Templates"],
@@ -7456,6 +7542,74 @@
               }
             }
           }
+        }
+      },
+      "BusinessVertical": {
+        "type": "string",
+        "enum": [
+          "ALCOHOL",
+          "APPAREL",
+          "AUTO",
+          "BEAUTY",
+          "EDU",
+          "ENTERTAIN",
+          "EVENT_PLAN",
+          "FINANCE",
+          "GOVT",
+          "GROCERY",
+          "HEALTH",
+          "HOTEL",
+          "NONPROFIT",
+          "ONLINE_GAMBLING",
+          "OTC_DRUGS",
+          "OTHER",
+          "PHYSICAL_GAMBLING",
+          "PROF_SERVICES",
+          "RESTAURANT",
+          "RETAIL",
+          "TRAVEL"
+        ]
+      },
+      "BusinessProfile": {
+        "type": "object",
+        "properties": {
+          "about": { "type": "string", "minLength": 1, "maxLength": 139 },
+          "address": { "type": "string", "maxLength": 256 },
+          "description": { "type": "string", "maxLength": 512 },
+          "email": { "type": "string", "format": "email", "maxLength": 128 },
+          "profile_picture_url": {
+            "type": "string",
+            "format": "uri",
+            "readOnly": true
+          },
+          "websites": {
+            "type": "array",
+            "maxItems": 2,
+            "items": { "type": "string", "format": "uri", "maxLength": 256 }
+          },
+          "vertical": { "$ref": "#/components/schemas/BusinessVertical" }
+        }
+      },
+      "BusinessProfileInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "about": { "type": "string", "minLength": 1, "maxLength": 139 },
+          "address": { "type": "string", "maxLength": 256 },
+          "description": { "type": "string", "maxLength": 512 },
+          "email": { "type": "string", "format": "email", "maxLength": 128 },
+          "profile_picture_handle": {
+            "type": "string",
+            "maxLength": 512,
+            "description": "Handle returned by Meta resumable upload."
+          },
+          "websites": {
+            "type": "array",
+            "maxItems": 2,
+            "items": { "type": "string", "format": "uri", "maxLength": 256 }
+          },
+          "vertical": { "$ref": "#/components/schemas/BusinessVertical" }
         }
       },
       "LogEntry": {

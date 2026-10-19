@@ -1,0 +1,83 @@
+import type { BusinessVertical } from '@nubea-ecomm/wapo-sdk'
+import type { Language } from '../app/i18n'
+
+const labels: Record<Language, Record<BusinessVertical, string>> = {
+  es: {
+    ALCOHOL: 'Bebidas alcohólicas',
+    APPAREL: 'Indumentaria',
+    AUTO: 'Automotriz',
+    BEAUTY: 'Belleza, spa y salón',
+    EDU: 'Educación',
+    ENTERTAIN: 'Entretenimiento',
+    EVENT_PLAN: 'Eventos',
+    FINANCE: 'Finanzas',
+    GOVT: 'Servicio público',
+    GROCERY: 'Alimentos y supermercado',
+    HEALTH: 'Salud',
+    HOTEL: 'Hotelería',
+    NONPROFIT: 'Organización sin fines de lucro',
+    ONLINE_GAMBLING: 'Juegos online',
+    OTC_DRUGS: 'Medicamentos de venta libre',
+    OTHER: 'Otro',
+    PHYSICAL_GAMBLING: 'Juegos presenciales',
+    PROF_SERVICES: 'Servicios profesionales',
+    RESTAURANT: 'Restaurante',
+    RETAIL: 'Comercio minorista',
+    TRAVEL: 'Viajes',
+  },
+  en: {
+    ALCOHOL: 'Alcoholic beverages',
+    APPAREL: 'Clothing and apparel',
+    AUTO: 'Automotive',
+    BEAUTY: 'Beauty, spa and salon',
+    EDU: 'Education',
+    ENTERTAIN: 'Entertainment',
+    EVENT_PLAN: 'Event planning',
+    FINANCE: 'Finance and banking',
+    GOVT: 'Public service',
+    GROCERY: 'Food and grocery',
+    HEALTH: 'Medical and health',
+    HOTEL: 'Hotel and lodging',
+    NONPROFIT: 'Non-profit',
+    ONLINE_GAMBLING: 'Online gambling and gaming',
+    OTC_DRUGS: 'Over-the-counter drugs',
+    OTHER: 'Other',
+    PHYSICAL_GAMBLING: 'Physical gambling and gaming',
+    PROF_SERVICES: 'Professional services',
+    RESTAURANT: 'Restaurant',
+    RETAIL: 'Shopping and retail',
+    TRAVEL: 'Travel and transportation',
+  },
+  pt: {
+    ALCOHOL: 'Bebidas alcoólicas',
+    APPAREL: 'Vestuário',
+    AUTO: 'Automotivo',
+    BEAUTY: 'Beleza, spa e salão',
+    EDU: 'Educação',
+    ENTERTAIN: 'Entretenimento',
+    EVENT_PLAN: 'Eventos',
+    FINANCE: 'Finanças',
+    GOVT: 'Serviço público',
+    GROCERY: 'Alimentos e supermercado',
+    HEALTH: 'Saúde',
+    HOTEL: 'Hotelaria',
+    NONPROFIT: 'Organização sem fins lucrativos',
+    ONLINE_GAMBLING: 'Jogos online',
+    OTC_DRUGS: 'Medicamentos sem receita',
+    OTHER: 'Outro',
+    PHYSICAL_GAMBLING: 'Jogos presenciais',
+    PROF_SERVICES: 'Serviços profissionais',
+    RESTAURANT: 'Restaurante',
+    RETAIL: 'Comércio varejista',
+    TRAVEL: 'Viagens',
+  },
+}
+
+export const businessVerticals = Object.keys(labels.en) as BusinessVertical[]
+
+export function businessVerticalLabel(
+  language: Language,
+  vertical: BusinessVertical,
+) {
+  return labels[language][vertical]
+}

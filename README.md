@@ -65,6 +65,8 @@ provider webhooks to preserve incoming data.
 - Dedicated WhatsApp and Business App Coexistence hosted onboarding, temporary
   links, encrypted credentials, Meta callback verification and sync requests.
 - WhatsApp is the only channel enabled in this deployment, including sends/templates through Meta.
+- Connection details include an editable Meta-authoritative WhatsApp Business
+  profile for About, description, address, email, category and websites.
 - Persistent conversations, contact identity per channel, assignment labels,
   close/reopen, replies, history and five-second console polling.
 - Native `/v1`, operator `/admin/v1`, compatibility `/platform/v1` and
@@ -171,7 +173,7 @@ PostgreSQL only on 127.0.0.1:54329 and preserves it in a named volume. `make dow
 stops services without deleting data. Migrations are numbered, transactional,
 checksum-checked and applied once. Do not edit an applied migration.
 
-[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Email notifications](docs/email-notifications.md) / [Contributing](CONTRIBUTING.md)
+[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Email notifications](docs/email-notifications.md) / [WhatsApp Business profile](docs/whatsapp-business-profile.md) / [Contributing](CONTRIBUTING.md)
 
 Apache-2.0 licensed. External providers retain their own fees and requirements.
 

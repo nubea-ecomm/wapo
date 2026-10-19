@@ -6,6 +6,8 @@ import type {
   ProjectSettings,
   NotificationSettings,
   Connection,
+  BusinessProfile,
+  BusinessProfileInput,
   Conversation,
   Customer,
   CustomerInput,
@@ -108,6 +110,19 @@ export class WapoClient extends Transport {
   }
   deleteConnection(id: string) {
     return this.request('DELETE', `/v1/connections/${encode(id)}`)
+  }
+  businessProfile(connectionId: string) {
+    return this.request<{ data: BusinessProfile }>(
+      'GET',
+      `/v1/connections/${encode(connectionId)}/business-profile`,
+    )
+  }
+  updateBusinessProfile(connectionId: string, input: BusinessProfileInput) {
+    return this.request<{ data: BusinessProfile }>(
+      'PATCH',
+      `/v1/connections/${encode(connectionId)}/business-profile`,
+      input,
+    )
   }
   listMessages(connectionId?: string) {
     return this.request<Page<Message>>(

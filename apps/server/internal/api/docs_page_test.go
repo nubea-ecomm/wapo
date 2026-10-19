@@ -18,7 +18,7 @@ func TestDocumentationRendersGuidesWithoutSecrets(t *testing.T) {
 	}
 
 	body := w.Body.String()
-	for _, text := range []string{`id="docs-search"`, "Your first request", "Send a WhatsApp message", "Receive signed webhooks", "Email notifications", "Amazon SES SMTP", "https://console.example.com", "/docs/assets/docs.js"} {
+	for _, text := range []string{`id="docs-search"`, "Your first request", "Send a WhatsApp message", "Manage the business profile", "Receive signed webhooks", "Email notifications", "Amazon SES SMTP", "https://console.example.com", "/docs/assets/docs.js"} {
 		if !strings.Contains(body, text) {
 			t.Fatalf("documentation missing %q", text)
 		}

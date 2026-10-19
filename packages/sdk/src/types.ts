@@ -29,6 +29,46 @@ export interface Connection {
   access_token_expires_at?: string
 }
 
+export type BusinessVertical =
+  | 'ALCOHOL'
+  | 'APPAREL'
+  | 'AUTO'
+  | 'BEAUTY'
+  | 'EDU'
+  | 'ENTERTAIN'
+  | 'EVENT_PLAN'
+  | 'FINANCE'
+  | 'GOVT'
+  | 'GROCERY'
+  | 'HEALTH'
+  | 'HOTEL'
+  | 'NONPROFIT'
+  | 'ONLINE_GAMBLING'
+  | 'OTC_DRUGS'
+  | 'OTHER'
+  | 'PHYSICAL_GAMBLING'
+  | 'PROF_SERVICES'
+  | 'RESTAURANT'
+  | 'RETAIL'
+  | 'TRAVEL'
+
+export interface BusinessProfile {
+  about?: string
+  address?: string
+  description?: string
+  email?: string
+  profile_picture_url?: string
+  websites?: string[]
+  vertical?: BusinessVertical
+}
+
+export interface BusinessProfileInput extends Omit<
+  BusinessProfile,
+  'profile_picture_url'
+> {
+  profile_picture_handle?: string
+}
+
 export interface Message {
   id: string
   connection_id: string

@@ -53,6 +53,11 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(parts) == 3 && parts[0] == "connections" && parts[2] == "business-profile" {
+		s.businessProfile(w, r, id)
+		return
+	}
+
 	if len(parts) == 3 && parts[2] == "templates" {
 		if kind == "connections" {
 			s.templates(w, r, id, "")
