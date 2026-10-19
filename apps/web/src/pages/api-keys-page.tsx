@@ -119,7 +119,10 @@ export function ApiKeysPage() {
                     </TableCell>
                     <TableCell>{dateLabel(k.created_at)}</TableCell>
                     <TableCell>
-                      <Status value={k.revoked_at ? 'revoked' : 'active'} />
+                      <Status
+                        value={k.revoked_at ? 'revoked' : 'active'}
+                        label={k.revoked_at ? 'Revocada' : undefined}
+                      />
                     </TableCell>
                     <TableCell>
                       {!k.revoked_at && (
