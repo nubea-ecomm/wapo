@@ -2,6 +2,25 @@ import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
+const vendorChunks = [
+  ['vendor-charts', ['recharts']],
+  ['vendor-ui', ['radix-ui', 'cmdk']],
+  ['vendor-icons', ['lucide-react']],
+  ['vendor-motion', ['motion']],
+  ['vendor-data', ['@tanstack/react-query']],
+  ['vendor-react', ['react', 'react-dom', 'react-router-dom']],
+] as const
+
+function manualChunks(id: string) {
+  if (!id.includes('/node_modules/')) return
+
+  for (const [chunk, packages] of vendorChunks) {
+    if (packages.some((name) => id.includes(`/node_modules/${name}/`))) {
+      return chunk
+    }
+  }
+}
+
 export default defineConfig({
   envDir: '../..',
   plugins: [react(), tailwindcss()],
@@ -17,14 +36,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['radix-ui', 'cmdk'],
-          'vendor-icons': ['lucide-react'],
-          'vendor-motion': ['motion'],
-          'vendor-data': ['@tanstack/react-query'],
-          'vendor-charts': ['recharts'],
-        },
+        manualChunks,
       },
     },
   },
