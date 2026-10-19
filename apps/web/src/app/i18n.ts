@@ -4,9 +4,10 @@ export type Language = 'es' | 'pt' | 'en'
 
 export const messages = {
   es: {
-    signIn: 'Iniciar sesión en Wapo',
+    signIn: 'Iniciar sesión',
+    signInDescription: 'Accedé a tu consola de mensajería.',
     password: 'Contraseña',
-    remember: 'Recordarme',
+    remember: 'Mantener la sesión iniciada',
     signingIn: 'Ingresando…',
     signInAction: 'Iniciar sesión',
     signInError: 'No pudimos iniciar sesión. Revisá tus credenciales e intentá de nuevo.',
@@ -56,9 +57,10 @@ export const messages = {
     searchPlaceholder: 'Chats, clientes, API keys…',
   },
   pt: {
-    signIn: 'Entrar no Wapo',
+    signIn: 'Entrar',
+    signInDescription: 'Acesse seu console de mensagens.',
     password: 'Senha',
-    remember: 'Lembrar de mim',
+    remember: 'Manter a sessão iniciada',
     signingIn: 'Entrando…',
     signInAction: 'Entrar',
     signInError: 'Não foi possível entrar. Verifique suas credenciais e tente novamente.',
@@ -108,9 +110,10 @@ export const messages = {
     searchPlaceholder: 'Conversas, clientes, chaves de API…',
   },
   en: {
-    signIn: 'Sign in to Wapo',
+    signIn: 'Sign in',
+    signInDescription: 'Access your messaging console.',
     password: 'Password',
-    remember: 'Remember me',
+    remember: 'Keep me signed in',
     signingIn: 'Signing in…',
     signInAction: 'Sign in',
     signInError: 'We could not sign you in. Check your credentials and try again.',

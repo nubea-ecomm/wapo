@@ -47,7 +47,11 @@ export function WorkspaceSidebar({
       <TenantPicker />
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" className="navigation-search-trigger" onClick={onSearch}>
+          <Button
+            variant="outline"
+            className="navigation-search-trigger"
+            onClick={onSearch}
+          >
             <Search />
             <span>{t('search')}</span>
             <kbd>⌘K</kbd>
@@ -59,13 +63,19 @@ export function WorkspaceSidebar({
       <div className="sidebar-bottom">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" asChild className="sidebar-docs text-muted-foreground">
+            <Button
+              variant="ghost"
+              asChild
+              className="sidebar-docs text-muted-foreground"
+            >
               <a href={`${session?.url}/docs`} target="_blank" rel="noreferrer">
                 <BookOpen /> <span>{t('documentation')}</span>
               </a>
             </Button>
           </TooltipTrigger>
-          {collapsed && <TooltipContent side="right">{t('documentation')}</TooltipContent>}
+          {collapsed && (
+            <TooltipContent side="right">{t('documentation')}</TooltipContent>
+          )}
         </Tooltip>
       </div>
     </TooltipProvider>
