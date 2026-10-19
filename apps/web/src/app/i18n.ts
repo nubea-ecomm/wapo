@@ -48,7 +48,7 @@ export const messages = {
     multitenant: 'Multitenant',
     project: 'Proyecto',
     customers: 'Customers',
-    templates: 'Plantillas',
+    templates: 'Templates',
     workspace: 'Espacio de trabajo',
     searchPlaceholder: 'Chats, clientes, API keys…',
   },
