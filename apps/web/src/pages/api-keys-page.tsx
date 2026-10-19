@@ -130,7 +130,10 @@ export function ApiKeysPage() {
                             description:
                               'Las integraciones que usen esta clave perderán acceso inmediatamente.',
                             disabled: revoke.isPending,
-                            onConfirm: () => revoke.mutateAsync(k.id),
+                            onConfirm: async () => {
+                              await revoke.mutateAsync(k.id)
+                              await keys.refetch()
+                            },
                           }}
                         />
                       )}
