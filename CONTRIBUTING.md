@@ -4,6 +4,11 @@ Use English for identifiers, comments, API errors and technical documentation.
 Spanish belongs in the console's current user-facing copy. Keep API changes,
 OpenAPI and operational docs in the same change.
 
+Use Conventional Commit prefixes for SDK changes: `fix:` for patches, `feat:`
+for minor releases and a `!` or `BREAKING CHANGE:` footer for major releases.
+Release Please updates `packages/sdk/package.json` and its changelog; do not bump
+the SDK version manually.
+
 Keep modules focused: one screen/component, endpoint concern or protocol adapter
 per file. Prefer files under roughly 200 lines; split by responsibility rather
 than introducing generic utility folders. Do not spread a single rule into many

@@ -3,36 +3,41 @@ name: Publish SDK to npm
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing sdk-v* tag to publish
+        required: true
+        type: string
 
 permissions:
   contents: read
   id-token: write
 
 concurrency:
-  group: publish-sdk-${{ github.event.release.tag_name }}
+  group: publish-sdk-${{ inputs.release_tag || github.event.release.tag_name }}
   cancel-in-progress: false
 
 jobs:
   publish:
-    if: startsWith(github.event.release.tag_name, 'sdk-v')
+    if: startsWith(inputs.release_tag || github.event.release.tag_name, 'sdk-v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.release_tag || github.event.release.tag_name }}
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          registry-url: https://registry.npmjs.org
           cache: pnpm
       - name: Use an OIDC-capable npm CLI
         run: npm install --global npm@11.19.1
       - run: pnpm install --frozen-lockfile
       - name: Verify release source and version
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_TAG: ${{ inputs.release_tag || github.event.release.tag_name }}
         run: |
           git fetch origin main
           RELEASE_COMMIT=$(git rev-parse "$RELEASE_TAG^{commit}")
@@ -46,7 +51,3 @@ jobs:
       - name: Publish public package
         working-directory: packages/sdk
         run: npm publish --access public
-        env:
-          # Only needed to bootstrap the first package version. Remove the
-          # NPM_TOKEN secret after npm Trusted Publishing is configured.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
