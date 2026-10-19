@@ -73,10 +73,10 @@ func saveUserAccess(ctx context.Context, tx pgx.Tx, id string, access userAccess
 	return nil
 }
 
-const selectUser = `SELECT u.id,u.email,u.name,u.active,u.created_at,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id) FROM console_users u`
+const selectUser = `SELECT u.id,u.email,u.name,u.active,u.created_at,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id),u.language,u.avatar_variant FROM console_users u`
 
 func scanUser(row pgx.Row) (store.ConsoleUser, error) {
 	var u store.ConsoleUser
-	e := row.Scan(&u.ID, &u.Email, &u.Name, &u.Active, &u.CreatedAt, &u.Role, &u.AllProjects, &u.ProjectIDs)
+	e := row.Scan(&u.ID, &u.Email, &u.Name, &u.Active, &u.CreatedAt, &u.Role, &u.AllProjects, &u.ProjectIDs, &u.Language, &u.AvatarVariant)
 	return u, e
 }

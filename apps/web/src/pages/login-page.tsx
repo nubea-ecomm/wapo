@@ -6,9 +6,11 @@ import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
 import { Label } from '../components/ui/label'
+import { useI18n } from '../app/i18n'
 
 export function LoginPage() {
   const { connectUser } = useSession()
+  const { t } = useI18n()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(false)
@@ -25,7 +27,7 @@ export function LoginPage() {
         <a className="login-brand" href="#/">
           wapo
         </a>
-        <h1>Iniciar sesión en Wapo</h1>
+        <h1>{t('signIn')}</h1>
         <form
           onSubmit={(event) => {
             event.preventDefault()
@@ -37,13 +39,7 @@ export function LoginPage() {
               password,
               remember,
             )
-              .catch(() =>
-                setError(
-                  new Error(
-                    'No pudimos iniciar sesión. Revisá tus credenciales e intentá de nuevo.',
-                  ),
-                ),
-              )
+              .catch(() => setError(new Error(t('signInError'))))
               .finally(() => setBusy(false))
           }}
         >
@@ -57,7 +53,7 @@ export function LoginPage() {
               autoFocus
             />
           </Field>
-          <Field label="Contraseña">
+          <Field label={t('password')}>
             <Input
               type="password"
               autoComplete="current-password"
@@ -71,11 +67,11 @@ export function LoginPage() {
               checked={remember}
               onCheckedChange={(checked) => setRemember(checked === true)}
             />
-            Recordarme
+            {t('remember')}
           </Label>
           <ErrorNotice error={error} />
           <Button className="w-full" disabled={busy}>
-            {busy ? 'Ingresando…' : 'Iniciar sesión'}
+            {busy ? t('signingIn') : t('signInAction')}
           </Button>
         </form>
         <p className="login-footer">Wapo</p>

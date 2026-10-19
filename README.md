@@ -222,8 +222,9 @@ The worker applies automatic retention: 30 days for API logs and completed work,
 90 days for audit records, unresolved journals, failed deliveries and orphaned
 events. Expired sessions and stale onboarding claims are cleaned automatically.
 
-User avatars are generated locally from a user-specific seed. Regenerating an
-avatar saves its variation in the current browser, independently of the session.
+Each console user can edit their name and email, choose Spanish, Portuguese or
+English, and regenerate their avatar from the account menu. These profile
+preferences are stored in PostgreSQL and follow the user across browsers.
 
 ## Interface motion and documentation theme
 

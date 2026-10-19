@@ -50,6 +50,39 @@ func TestConsoleUserLoginSessionAndManagedAPIKeys(t *testing.T) {
 	expect(t, status, 401, o)
 }
 
+func TestConsoleUserCanUpdateOwnProfile(t *testing.T) {
+	server, h, _, _ := fixture(t)
+	ctx := context.Background()
+	password := "profile-test-password-123"
+	user, e := server.Store.CreateUser(ctx, store.ID("profile")+"@example.com", "Before", password)
+	if e != nil {
+		t.Fatal(e)
+	}
+	other, e := server.Store.CreateUser(ctx, store.ID("profile")+"@example.com", "Other", password)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(func() {
+		server.Store.Pool.Exec(ctx, "DELETE FROM console_users WHERE id=ANY($1)", []string{user.ID, other.ID})
+	})
+	status, body := request(t, h.URL, "", "POST", "/auth/v1/login", store.Object{"email": user.Email, "password": password}, "")
+	expect(t, status, 200, body)
+	token := str(object(body, "data"), "token")
+	updatedEmail := store.ID("updated") + "@example.com"
+	status, body = request(t, h.URL, token, "PATCH", "/auth/v1/me", store.Object{"name": "Updated name", "email": updatedEmail, "language": "pt", "avatar_variant": 42}, "")
+	expect(t, status, 200, body)
+	profile := object(object(body, "data"), "user")
+	if str(profile, "name") != "Updated name" || str(profile, "email") != updatedEmail || str(profile, "language") != "pt" || profile["avatar_variant"] != float64(42) {
+		t.Fatalf("unexpected profile: %#v", profile)
+	}
+	status, body = request(t, h.URL, token, "PATCH", "/auth/v1/me", store.Object{"email": other.Email}, "")
+	expect(t, status, 409, body)
+	status, body = request(t, h.URL, token, "PATCH", "/auth/v1/me", store.Object{"language": "fr"}, "")
+	expect(t, status, 422, body)
+	status, body = request(t, h.URL, "invalid", "PATCH", "/auth/v1/me", store.Object{"name": "No"}, "")
+	expect(t, status, 401, body)
+}
+
 func TestDeleteConsoleUserRevokesSessionsAndProtectsLastOperator(t *testing.T) {
 	server, h, _, projectKey := fixture(t)
 	ctx := context.Background()

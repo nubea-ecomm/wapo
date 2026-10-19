@@ -3,14 +3,16 @@ import { useId } from 'react'
 import { permissions } from '../app/permissions'
 import { NavLink } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
-import { navigation, navigationGroups } from '../app/navigation'
+import { navigation, navigationGroups, navigationLabel } from '../app/navigation'
 import { useSession } from '../app/session-context'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible'
 import { Button } from './ui/button'
+import { useI18n } from '../app/i18n'
 import { Separator } from './ui/separator'
 export function WorkspaceNavigation({ onNavigate }: { onNavigate: () => void }) {
   const layoutId = useId()
   const { session } = useSession()
+  const { t } = useI18n()
   const visible = navigation.filter((item) => permissions(session).canVisit(item.to))
   function links(group: string) {
     return visible
@@ -28,27 +30,27 @@ export function WorkspaceNavigation({ onNavigate }: { onNavigate: () => void }) 
                 />
               )}
               <item.icon size={16} strokeWidth={1.7} />
-              <span className="nav-item-label">{item.label}</span>
+              <span className="nav-item-label">{navigationLabel(item, t)}</span>
             </>
           )}
         </NavLink>
       ))
   }
   return (
-    <nav className="workspace-nav" aria-label="Navegación principal">
-      <div className="nav-group">{links('Principal')}</div>
+    <nav className="workspace-nav" aria-label={t('navigation')}>
+      <div className="nav-group">{links('main')}</div>
       <Separator />
       {navigationGroups.map((group) => (
-        <Collapsible key={group.label} defaultOpen className="nav-section">
+        <Collapsible key={group.key} defaultOpen className="nav-section">
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="nav-section-trigger group">
               <group.icon />
-              <span>{group.label}</span>
+              <span>{t(group.key)}</span>
               <ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90" />
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="nav-group nav-children">{links(group.label)}</div>
+            <div className="nav-group nav-children">{links(group.key)}</div>
           </CollapsibleContent>
         </Collapsible>
       ))}
