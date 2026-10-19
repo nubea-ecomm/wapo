@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Shuffle } from 'lucide-react'
+import { WapoError } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useI18n, type Language } from '../app/i18n'
 import { FormDialog } from './form-dialog'
@@ -28,7 +29,7 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
     setError(null)
     void updateProfile({ name, email, language, avatar_variant: avatar })
       .then(onClose)
-      .catch(() => setError(new Error(t('profileError'))))
+      .catch((error) => setError(new Error(profileUpdateError(error, t('profileError')))))
       .finally(() => setBusy(false))
   }
 
@@ -89,4 +90,19 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
       </form>
     </FormDialog>
   )
+}
+
+function profileUpdateError(error: unknown, fallback: string) {
+  if (!(error instanceof WapoError)) return fallback
+  if (error.status === 405)
+    return 'El servidor todavía no admite perfiles. Reiniciá el API.'
+  if (error.status === 401) return 'La sesión venció. Volvé a iniciar sesión.'
+  const body = error.body as { error?: { code?: string; message?: string } }
+  if (body?.error?.code === 'already_exists') {
+    return 'Ese correo electrónico ya pertenece a otro usuario.'
+  }
+  if (body?.error?.code === 'validation_error') {
+    return body.error.message || fallback
+  }
+  return fallback
 }
