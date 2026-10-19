@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs'
 
 const expectedName = '@nubea-ecomm/wapo-sdk'
-const tag = process.argv[2] || process.env.GITHUB_REF_NAME || ''
+// The release workflow passes the tag explicitly. Do not infer GITHUB_REF_NAME:
+// pull-request refs such as "11/merge" are not SDK release tags.
+const tag = process.argv[2] || ''
 const manifest = JSON.parse(
   readFileSync(
     new URL('../packages/sdk/package.json', import.meta.url),
