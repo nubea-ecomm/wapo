@@ -36,7 +36,12 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
 	limitKey := "login:" + host
 
-	allowed, limitError := s.Store.AllowRequest(r.Context(), "login", limitKey, 10)
+	limit := s.Config.LoginRateLimit
+	if limit == 0 {
+		limit = 10
+	}
+
+	allowed, limitError := s.Store.AllowRequest(r.Context(), "login", limitKey, limit)
 	if limitError != nil {
 		fail(w, 503, "unavailable", "Rate limit storage unavailable")
 		return

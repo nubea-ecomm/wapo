@@ -43,8 +43,11 @@ domains. Assignment labels do not create user accounts.
 
 ## Storage and secrets
 
-PostgreSQL stores typed resource categories in a project-scoped JSONB resource
-store, plus explicit key, request-journal, event and outbox tables. Database unique
+PostgreSQL stores mature domains in typed relational tables and retains a
+project-scoped JSONB resource store for evolving provider-shaped records, plus
+explicit key, request-journal, event and outbox tables. Customers use the typed
+`customers` table; a transactional resource mirror is temporarily retained so an
+older application image can be rolled back safely. Database unique
 indexes enforce customer external IDs and phone bindings. WhatsApp phone IDs and
 WABA ownership are exclusive to one tenant, because Meta callback overrides are
 WABA-scoped. PostgreSQL ownership triggers permit multiple numbers under the same
@@ -57,8 +60,10 @@ first; webhook deliveries whose subscription disappears are cancelled.
 API keys are stored as SHA-256 hashes of high-entropy secrets. Meta tokens, webhook
 secrets and dedicated registration PINs use AES-256-GCM, with project ID as
 associated data. Preserve and back up ENCRYPTION_KEY: changing it does not rotate
-existing ciphertext. Tokens and PINs are excluded from API responses. There is no
-hosted secret manager or key rotation UI yet.
+existing ciphertext unless the offline `rotate-encryption-key` command is used.
+Tokens and PINs are excluded from API responses. There is no hosted secret manager
+or key rotation UI yet. The backup, restore and rotation runbooks live in
+[operations](operations.md).
 
 Redis is not required. The optional Valkey Compose profile is reserved for future
 cache/presence; the application does not currently use it. Media URLs pass through
@@ -78,8 +83,9 @@ Meta. Successful responses and definitive 4xx responses can be replayed. A pendi
 reservation after a timeout/crash remains unresolved (409), rather than triggering
 an automatic second send. There is no exactly-once guarantee across an external
 provider boundary and no automatic stale-reservation expiry. Inspect message
-history/provider records before issuing a new logical send. The journal currently
-requires operator SQL for unresolved-request inspection and retention.
+history/provider records before issuing a new logical send. The offline
+`operations` command reports unresolved reservations without exposing payloads;
+retention remains automatic.
 
 Webchat sends persist messages for authenticated API consumers; this is not yet a
 public visitor-session widget or real-time end-user transport.
@@ -98,7 +104,8 @@ and has separate credentials. Bridge resources remain upstream and are not mirro
 into native collections or the native dashboard. Never mix native customer IDs
 with bridged customer IDs.
 
-Login limiting is ten attempts/source/minute. Public API quotas belong at the edge
+Login limiting defaults to ten attempts/source/minute and is configurable with
+`LOGIN_RATE_LIMIT_PER_MINUTE`. Public API quotas belong at the edge
 for high-throughput deployments; `PUBLIC_RATE_LIMIT_PER_MINUTE=0` leaves the
 in-process fallback disabled. A positive value enables a shared PostgreSQL quota.
 Replicas reserve small token blocks so the fallback does not write its hot counter

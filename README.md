@@ -137,8 +137,9 @@ pnpm test:contract      # Requires built wapo-api image and local Compose Postgr
 pnpm test:e2e           # Requires running API + local .env and full request logging; starts Vite automatically.
 ```
 
-Set `REQUEST_LOG_SAMPLE_RATE=1` for the end-to-end suite because its observability
-flow verifies a specific successful request record.
+Set `REQUEST_LOG_SAMPLE_RATE=1` and `LOGIN_RATE_LIMIT_PER_MINUTE=100` for the
+end-to-end suite because it verifies a specific successful request record and
+performs several independent sign-in workflows from one test runner.
 
 The reproducible k6 workload mixes 80% lightweight authenticated reads with 20%
 message-history queries. Point it at a disposable project; arrival rate and duration
@@ -159,7 +160,7 @@ PostgreSQL only on 127.0.0.1:54329 and preserves it in a named volume. `make dow
 stops services without deleting data. Migrations are numbered, transactional,
 checksum-checked and applied once. Do not edit an applied migration.
 
-[Architecture and limitations](docs/architecture.md) / [Contributing](CONTRIBUTING.md)
+[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Contributing](CONTRIBUTING.md)
 
 Apache-2.0 licensed. External providers retain their own fees and requirements.
 

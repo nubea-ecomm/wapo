@@ -21,7 +21,7 @@ type Config struct {
 	AdminEmail, AdminPassword                                      string
 	AdminKey                                                       string
 	MetaAppID, MetaConfigID                                        string
-	PublicRateLimit                                                int
+	PublicRateLimit, LoginRateLimit                                int
 	DBMaxConns, DBMinConns                                         int32
 	AuthCacheTTL                                                   time.Duration
 	AuthCacheEntries                                               int
@@ -48,6 +48,10 @@ func Load() (Config, error) {
 
 	if c.PublicRateLimit, err = envInt("PUBLIC_RATE_LIMIT_PER_MINUTE", 0); err != nil || c.PublicRateLimit < 0 {
 		return c, fmt.Errorf("PUBLIC_RATE_LIMIT_PER_MINUTE must be a non-negative integer")
+	}
+
+	if c.LoginRateLimit, err = envInt("LOGIN_RATE_LIMIT_PER_MINUTE", 10); err != nil || c.LoginRateLimit < 1 {
+		return c, fmt.Errorf("LOGIN_RATE_LIMIT_PER_MINUTE must be a positive integer")
 	}
 
 	if c.AuthCacheEntries, err = envInt("AUTH_CACHE_ENTRIES", 100000); err != nil || c.AuthCacheEntries < 0 {

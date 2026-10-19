@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -67,6 +68,33 @@ func run() error {
 
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		return s.Migrate(ctx, config.Env("MIGRATIONS_FILE", "migrations/001_initial.sql"))
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "rotate-encryption-key" {
+		encoded := os.Getenv("NEW_ENCRYPTION_KEY")
+		key, decodeErr := base64.StdEncoding.DecodeString(encoded)
+
+		if decodeErr != nil || len(key) != 32 {
+			return fmt.Errorf("NEW_ENCRYPTION_KEY must be a base64-encoded 32-byte key")
+		}
+
+		count, rotateErr := s.RotateEncryptionKey(ctx, key)
+		if rotateErr != nil {
+			return rotateErr
+		}
+
+		slog.Info("credential encryption key rotated", "resources", count)
+
+		return nil
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "operations" {
+		stats, statsErr := s.OperationalStats(ctx)
+		if statsErr != nil {
+			return statsErr
+		}
+
+		return json.NewEncoder(os.Stdout).Encode(stats)
 	}
 
 	if c.APIKey != "" {

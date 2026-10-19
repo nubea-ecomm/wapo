@@ -1,9 +1,17 @@
 name: Checks
+
 on: [push, pull_request]
+
 permissions:
   contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  verify:
+  javascript:
+    name: JavaScript and contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,23 +20,71 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm audit --audit-level high
+
+  go:
+    name: Go quality and race checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26'
           cache-dependency-path: apps/server/go.sum
+      - run: go test ./...
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.15.0
+          working-directory: apps/server
+
+  integration:
+    name: PostgreSQL integration and compatibility
+    needs: [javascript, go]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test
       - name: Prepare isolated local configuration
-        run: |
-          cp .env.example .env
-          sed -i 's/^REQUEST_LOG_SAMPLE_RATE=.*/REQUEST_LOG_SAMPLE_RATE=1/' .env
-          echo "BOOTSTRAP_API_KEY=$(openssl rand -hex 32)" >> .env
-          echo "ADMIN_API_KEY=$(openssl rand -hex 32)" >> .env
-          echo "ADMIN_PASSWORD=$(openssl rand -hex 24)" >> .env
-          echo "ENCRYPTION_KEY=$(openssl rand -base64 32)" >> .env
+        run: scripts/prepare-ci-env.sh
       - run: docker compose up --build -d api worker
       - run: make test-integration
       - run: pnpm test:contract
+      - if: always()
+        run: docker compose down
+
+  browser:
+    name: Browser workflows
+    needs: [javascript, go]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Prepare isolated local configuration
+        run: scripts/prepare-ci-env.sh
+      - run: docker compose up --build -d api worker
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - name: Browser artifacts

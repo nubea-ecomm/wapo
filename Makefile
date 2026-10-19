@@ -1,4 +1,4 @@
-.PHONY: secrets up down dev-api test-go fmt-go lint-go check
+.PHONY: secrets up down dev-api test-go test-race fmt-go lint-go check
 GO_IMAGE := golang:1.26-alpine
 GO_RUN := docker run --rm -v "$(CURDIR)/apps/server:/src" -v wapo-go-cache:/go/pkg -v wapo-go-build:/root/.cache/go-build -w /src $(GO_IMAGE)
 GOLANGCI_LINT_IMAGE := golangci/golangci-lint:v2.15.0
@@ -13,6 +13,8 @@ dev-api:
 	cd apps/server && go run ./cmd/wapo
 test-go:
 	$(GO_RUN) go test ./...
+test-race:
+	docker run --rm -v "$(CURDIR)/apps/server:/src" -v wapo-go-cache:/go/pkg -v wapo-go-build:/root/.cache/go-build -w /src golang:1.26 go test -race ./...
 fmt-go:
 	$(GOLANGCI_LINT_RUN) fmt
 	$(GOLANGCI_LINT_RUN) run --fix ./...

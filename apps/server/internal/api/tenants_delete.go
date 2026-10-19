@@ -30,7 +30,7 @@ func (s *Server) deleteTenant(w http.ResponseWriter, r *http.Request, id string)
 	}
 
 	// Order respects foreign keys. The project lock serializes concurrent inserts referencing this tenant.
-	for _, table := range []string{"deliveries", "events", "requests", "resources", "api_keys", "whatsapp_accounts"} {
+	for _, table := range []string{"deliveries", "events", "requests", "customers", "resources", "api_keys", "whatsapp_accounts"} {
 		if _, e = tx.Exec(r.Context(), "DELETE FROM "+table+" WHERE project_id=$1", id); e != nil {
 			dbError(w, e)
 			return

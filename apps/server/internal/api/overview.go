@@ -20,7 +20,13 @@ func (s *Server) overview(w http.ResponseWriter, r *http.Request) {
 	for _, kind := range []string{"customers", "connections", "conversations"} {
 		var n int
 
-		if e := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM resources WHERE project_id=$1 AND kind=$2 AND ($3='' OR kind='customers' OR data->>'channel'=$3)", p, kind, s.Config.ChannelFilter()).Scan(&n); e != nil {
+		if kind == "customers" {
+			e := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM customers WHERE project_id=$1", p).Scan(&n)
+			if e != nil {
+				dbError(w, e)
+				return
+			}
+		} else if e := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM resources WHERE project_id=$1 AND kind=$2 AND ($3='' OR data->>'channel'=$3)", p, kind, s.Config.ChannelFilter()).Scan(&n); e != nil {
 			dbError(w, e)
 			return
 		}
