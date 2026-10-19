@@ -49,7 +49,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 	password := str(input, "password")
 	var user store.ConsoleUser
 	var hash string
-	e = s.Store.Pool.QueryRow(r.Context(), "SELECT u.id,u.email,u.name,u.active,u.created_at,u.password_hash,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id) FROM console_users u WHERE email=$1", email).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &hash, &user.Role, &user.AllProjects, &user.ProjectIDs)
+	e = s.Store.Pool.QueryRow(r.Context(), "SELECT u.id,u.email,u.name,u.active,u.created_at,u.password_hash,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id),u.language,u.avatar_variant FROM console_users u WHERE email=$1", email).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &hash, &user.Role, &user.AllProjects, &user.ProjectIDs, &user.Language, &user.AvatarVariant)
 	if e != nil {
 		hash = "$2a$12$LXrCnzSg7Nk7dQ1aUEW3zOI/NpkfT.PKkFjPVVEhZv1uOGSso7/OW"
 	}

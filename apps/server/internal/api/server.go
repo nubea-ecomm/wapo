@@ -27,6 +27,7 @@ func New(s *store.Store, c config.Config) *Server {
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /auth/v1/me", s.consoleProfile)
+	mux.HandleFunc("PATCH /auth/v1/me", s.updateConsoleProfile)
 	mux.HandleFunc("POST /auth/v1/login", s.login)
 	mux.HandleFunc("POST /auth/v1/logout", s.logout)
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { write(w, 200, store.Object{"status": "ok"}) })

@@ -1,5 +1,4 @@
-import { readVariant, subscribe, avatarHash } from '../lib/avatar'
-import { useSyncExternalStore } from 'react'
+import { avatarHash } from '../lib/avatar'
 
 const palettes = [
   ['#f1c6b7', '#733f38', '#f7e6dd'],
@@ -13,13 +12,14 @@ export function UserAvatar({
   id,
   name,
   className = 'size-8',
+  variant = 0,
 }: {
   id: string
   name: string
   className?: string
+  variant?: number
 }) {
-  const variant = useSyncExternalStore(subscribe, () => readVariant(id))
-  const hash = avatarHash(id + variant)
+  const hash = avatarHash(id + String(variant))
   const [face, ink, bg] = palettes[hash % palettes.length]
   const tilt = ((hash % 3) - 1) * 8
   return (

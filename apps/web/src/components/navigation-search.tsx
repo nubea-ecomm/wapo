@@ -1,11 +1,12 @@
 import { permissions } from '../app/permissions'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { navigation } from '../app/navigation'
+import { navigation, navigationLabel } from '../app/navigation'
 import { useSession } from '../app/session-context'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
+import { useI18n } from '../app/i18n'
 export function NavigationSearch({
   open,
   onOpenChange,
@@ -16,6 +17,7 @@ export function NavigationSearch({
   onNavigate: () => void
 }) {
   const { session } = useSession()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   useEffect(() => {
@@ -31,7 +33,9 @@ export function NavigationSearch({
   const results = navigation.filter(
     (item) =>
       permissions(session).canVisit(item.to) &&
-      `${item.label} ${item.group}`.toLowerCase().includes(query.toLowerCase()),
+      `${navigationLabel(item, t)} ${t(item.group)}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
   )
   return (
     <Dialog
@@ -43,11 +47,11 @@ export function NavigationSearch({
     >
       <DialogContent aria-describedby={undefined} className="gap-3 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Buscar en Wapo</DialogTitle>
+          <DialogTitle>{t('searchWapo')}</DialogTitle>
         </DialogHeader>
         <Input
-          aria-label="Buscar pantalla"
-          placeholder="Chats, customers, API keys…"
+          aria-label={t('searchScreen')}
+          placeholder={t('searchPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -65,13 +69,15 @@ export function NavigationSearch({
               }}
             >
               <item.icon />
-              <span>{item.label}</span>
-              <span className="ml-auto text-xs text-muted-foreground">{item.group}</span>
+              <span>{navigationLabel(item, t)}</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                {t(item.group)}
+              </span>
             </Button>
           ))}
           {!results.length && (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              Sin resultados.
+              {t('noResults')}
             </p>
           )}
         </div>

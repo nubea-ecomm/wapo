@@ -24,6 +24,12 @@ export interface SessionContextValue {
   ) => Promise<void>
   selectTenant: (id: string, name: string) => void
   disconnect: () => void
+  updateProfile: (input: {
+    name?: string
+    email?: string
+    language?: 'es' | 'pt' | 'en'
+    avatar_variant?: number
+  }) => Promise<void>
 }
 export const SessionContext = createContext<SessionContextValue | null>(null)
 export function useSession() {

@@ -13,87 +13,105 @@ import {
   Layers,
   SlidersHorizontal,
 } from 'lucide-react'
+import type { ComponentType } from 'react'
+import type { MessageKey } from './i18n'
+
+export type NavigationGroup = 'main' | 'integrations' | 'multitenant' | 'project'
+export type NavigationItem = {
+  to: string
+  icon: ComponentType<{ size?: number; strokeWidth?: number }>
+  group: NavigationGroup
+  operator: boolean
+} & ({ labelKey: MessageKey; label?: never } | { label: string; labelKey?: never })
+
 export const navigation = [
   {
     to: '/templates',
-    label: 'Templates',
+    labelKey: 'templates',
     icon: FileText,
-    group: 'Integraciones',
+    group: 'integrations',
     operator: false,
   },
   {
     to: '/',
-    label: 'Vista general',
+    labelKey: 'overview',
     icon: LayoutDashboard,
-    group: 'Principal',
+    group: 'main',
     operator: false,
   },
   {
     to: '/connections',
-    label: 'Conexiones',
+    labelKey: 'connections',
     icon: WhatsAppIcon,
-    group: 'Principal',
+    group: 'main',
     operator: false,
   },
   {
     to: '/inbox',
-    label: 'Chats',
+    labelKey: 'inbox',
     icon: MessagesSquare,
-    group: 'Principal',
+    group: 'main',
     operator: false,
   },
   {
     to: '/api-keys',
     label: 'API keys',
     icon: KeyRound,
-    group: 'Integraciones',
+    group: 'integrations',
     operator: false,
   },
   {
     to: '/webhooks',
     label: 'Webhooks',
     icon: Webhook,
-    group: 'Integraciones',
+    group: 'integrations',
     operator: false,
   },
   {
     to: '/events',
-    label: 'Observabilidad',
+    labelKey: 'observability',
     icon: Activity,
-    group: 'Integraciones',
+    group: 'integrations',
     operator: false,
   },
   {
     to: '/customers',
-    label: 'Customers',
+    labelKey: 'customers',
     icon: UsersRound,
-    group: 'Multitenant',
+    group: 'multitenant',
     operator: false,
   },
   {
     to: '/tenants',
-    label: 'Proyectos',
+    labelKey: 'projects',
     icon: Building2,
-    group: 'Multitenant',
+    group: 'multitenant',
     operator: true,
   },
   {
     to: '/users',
-    label: 'Usuarios',
+    labelKey: 'users',
     icon: UsersRound,
-    group: 'Multitenant',
+    group: 'multitenant',
     operator: true,
   },
   {
     to: '/settings',
-    label: 'Configuración',
+    labelKey: 'settings',
     icon: Settings2,
-    group: 'Proyecto',
+    group: 'project',
     operator: false,
   },
-]
+] satisfies NavigationItem[]
 export const navigationGroups = [
-  { label: 'Integraciones', icon: Plug },
-  { label: 'Multitenant', icon: Layers },
-  { label: 'Proyecto', icon: SlidersHorizontal },
-]
+  { key: 'integrations', icon: Plug },
+  { key: 'multitenant', icon: Layers },
+  { key: 'project', icon: SlidersHorizontal },
+] satisfies { key: NavigationGroup; icon: ComponentType }[]
+
+export function navigationLabel(
+  item: NavigationItem,
+  translate: (key: MessageKey) => string,
+) {
+  return item.labelKey ? translate(item.labelKey) : item.label
+}

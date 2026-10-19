@@ -163,9 +163,33 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryClient.clear()
     setSession(null)
   }
+  async function updateProfile(input: {
+    name?: string
+    email?: string
+    language?: 'es' | 'pt' | 'en'
+    avatar_variant?: number
+  }) {
+    if (!session?.user) throw new Error('A console session is required')
+    const result = await new WapoAuthClient({
+      baseUrl: session.url,
+      apiKey: session.key,
+    }).updateProfile(input)
+    setSession((current) =>
+      current ? { ...current, id: crypto.randomUUID(), user: result.data.user } : null,
+    )
+  }
   return (
     <SessionContext.Provider
-      value={{ session, client, admin, connect, connectUser, selectTenant, disconnect }}
+      value={{
+        session,
+        client,
+        admin,
+        connect,
+        connectUser,
+        selectTenant,
+        disconnect,
+        updateProfile,
+      }}
     >
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </SessionContext.Provider>

@@ -4011,6 +4011,60 @@
             }
           }
         }
+      },
+      "patch": {
+        "operationId": "update_console_profile",
+        "summary": "Update signed-in user profile",
+        "tags": ["Console authentication"],
+        "description": "Updates the current console user's name, email, language or generated avatar variation. Preferences are stored in PostgreSQL and apply to all active sessions.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "minProperties": 1,
+                "properties": {
+                  "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+                  "email": { "type": "string", "format": "email" },
+                  "language": { "type": "string", "enum": ["es", "pt", "en"] },
+                  "avatar_variant": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated console user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": { "$ref": "#/components/schemas/ConsoleUser" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
+          }
+        }
       }
     },
     "/v1/logs": {
@@ -7004,6 +7058,17 @@
           "name": {
             "type": "string"
           },
+          "language": {
+            "type": "string",
+            "enum": ["es", "pt", "en"],
+            "default": "es"
+          },
+          "avatar_variant": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "default": 0
+          },
           "active": {
             "type": "boolean"
           },
@@ -7030,7 +7095,7 @@
             "description": "Explicit project access when all_projects is false."
           }
         },
-        "required": ["id", "email", "name", "active"]
+        "required": ["id", "email", "name", "language", "avatar_variant", "active"]
       },
       "ProjectBranding": {
         "type": "object",

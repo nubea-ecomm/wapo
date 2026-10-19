@@ -11,14 +11,16 @@ import (
 )
 
 type ConsoleUser struct {
-	Role        string    `json:"role"`
-	AllProjects bool      `json:"all_projects"`
-	ProjectIDs  []string  `json:"project_ids"`
-	ID          string    `json:"id"`
-	Email       string    `json:"email"`
-	Name        string    `json:"name"`
-	Active      bool      `json:"active"`
-	CreatedAt   time.Time `json:"created_at"`
+	Role          string    `json:"role"`
+	AllProjects   bool      `json:"all_projects"`
+	ProjectIDs    []string  `json:"project_ids"`
+	ID            string    `json:"id"`
+	Email         string    `json:"email"`
+	Name          string    `json:"name"`
+	Language      string    `json:"language"`
+	AvatarVariant int       `json:"avatar_variant"`
+	Active        bool      `json:"active"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func NormalizeEmail(email string) (string, error) {
@@ -50,7 +52,7 @@ func (s *Store) CreateUser(ctx context.Context, email, name, password string) (C
 	if e != nil {
 		return user, e
 	}
-	e = s.Pool.QueryRow(ctx, "INSERT INTO console_users(id,email,name,password_hash) VALUES($1,$2,$3,$4) RETURNING id,email,name,active,created_at,role,all_projects", ID("user"), email, name, hash).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &user.Role, &user.AllProjects)
+	e = s.Pool.QueryRow(ctx, "INSERT INTO console_users(id,email,name,password_hash) VALUES($1,$2,$3,$4) RETURNING id,email,name,active,created_at,role,all_projects,language,avatar_variant", ID("user"), email, name, hash).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &user.Role, &user.AllProjects, &user.Language, &user.AvatarVariant)
 	user.ProjectIDs = []string{}
 	return user, e
 }
@@ -77,6 +79,6 @@ func (s *Store) BootstrapUser(ctx context.Context, email, password string) error
 }
 func (s *Store) AuthenticateSession(ctx context.Context, token string) (ConsoleUser, error) {
 	var user ConsoleUser
-	e := s.Pool.QueryRow(ctx, `SELECT u.id,u.email,u.name,u.active,u.created_at,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id) FROM console_sessions s JOIN console_users u ON u.id=s.user_id WHERE s.hash=$1 AND s.expires_at>now() AND u.active`, Hash(token)).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &user.Role, &user.AllProjects, &user.ProjectIDs)
+	e := s.Pool.QueryRow(ctx, `SELECT u.id,u.email,u.name,u.active,u.created_at,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id),u.language,u.avatar_variant FROM console_sessions s JOIN console_users u ON u.id=s.user_id WHERE s.hash=$1 AND s.expires_at>now() AND u.active`, Hash(token)).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &user.Role, &user.AllProjects, &user.ProjectIDs, &user.Language, &user.AvatarVariant)
 	return user, e
 }

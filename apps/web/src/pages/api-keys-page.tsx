@@ -119,7 +119,10 @@ export function ApiKeysPage() {
                     </TableCell>
                     <TableCell>{dateLabel(k.created_at)}</TableCell>
                     <TableCell>
-                      <Status value={k.revoked_at ? 'revoked' : 'active'} />
+                      <Status
+                        value={k.revoked_at ? 'revoked' : 'active'}
+                        label={k.revoked_at ? 'Revocada' : undefined}
+                      />
                     </TableCell>
                     <TableCell>
                       {!k.revoked_at && (
@@ -130,7 +133,10 @@ export function ApiKeysPage() {
                             description:
                               'Las integraciones que usen esta clave perderán acceso inmediatamente.',
                             disabled: revoke.isPending,
-                            onConfirm: () => revoke.mutateAsync(k.id),
+                            onConfirm: async () => {
+                              await revoke.mutateAsync(k.id)
+                              await keys.refetch()
+                            },
                           }}
                         />
                       )}

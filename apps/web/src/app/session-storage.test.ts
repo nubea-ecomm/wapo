@@ -16,6 +16,8 @@ const session: Session = {
     project_ids: [],
     email: 'admin@example.com',
     name: 'Admin',
+    language: 'es',
+    avatar_variant: 0,
     active: true,
     created_at: '',
   },

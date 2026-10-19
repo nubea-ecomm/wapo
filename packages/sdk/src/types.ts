@@ -122,6 +122,8 @@ export interface ConsoleUser {
   id: string
   email: string
   name: string
+  language: 'es' | 'pt' | 'en'
+  avatar_variant: number
   active: boolean
   created_at: string
 }
