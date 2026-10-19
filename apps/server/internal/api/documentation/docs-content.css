@@ -1,0 +1,226 @@
+.guide-content section {
+  scroll-margin-top: 90px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+.guide-content .intro-section {
+  padding-top: 0;
+  padding-bottom: 35px;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.version {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.guide-content h1 {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -1.3px;
+  line-height: 1.2;
+  margin: 20px 0 14px;
+}
+.intro {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 590px;
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.intro-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.docs-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  background: var(--surface);
+}
+.docs-button:hover {
+  background: var(--hover);
+}
+.docs-button.primary {
+  background: var(--ink);
+  color: var(--inverse);
+  border-color: var(--ink);
+}
+.api-address {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--muted);
+}
+.api-address code {
+  color: var(--secondary-ink);
+  font-size: 11px;
+}
+.api-address .version {
+  margin-left: auto;
+}
+.guide-content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  line-height: 1.4;
+  margin: 0 0 14px;
+}
+.guide-content h3 {
+  font-size: 15px;
+  font-weight: 550;
+  margin: 25px 0 10px;
+}
+.guide-content p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 12px 0;
+}
+.guide-content strong {
+  font-weight: 550;
+  color: var(--ink);
+}
+.section-number {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.guide-content code {
+  font:
+    11.5px 'SFMono-Regular',
+    Consolas,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.guide-content p code,
+.docs-table td code {
+  background: var(--hover);
+  color: var(--secondary-ink);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+.code-block {
+  margin: 18px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--soft);
+}
+.code-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 12px;
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--soft);
+}
+.code-heading button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+.code-heading button:hover {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.code-block pre {
+  margin: 0;
+  padding: 18px;
+  overflow-x: auto;
+  line-height: 1.8;
+  tab-size: 2;
+}
+.code-block pre code {
+  color: var(--code-ink);
+  font-size: 11px;
+  white-space: pre;
+  overflow-wrap: normal;
+}
+.callout {
+  padding: 16px 18px;
+  margin: 22px 0;
+  border: 1px solid var(--line);
+  border-left: 3px solid #a3a3a3;
+  border-radius: 6px;
+  background: var(--soft);
+  font-size: 12px;
+}
+.callout p {
+  font-size: 12px;
+  margin: 5px 0 0;
+}
+.resource-flow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--muted);
+}
+.resource-flow span:nth-child(odd) {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 7px 12px;
+  color: var(--secondary-ink);
+}
+.docs-table {
+  overflow-x: auto;
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.docs-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+.docs-table th {
+  background: var(--soft);
+  font-weight: 500;
+  color: var(--secondary-ink);
+  font-size: 11px;
+}
+.docs-table th,
+.docs-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  min-width: 110px;
+}
+.docs-table tr:last-child td {
+  border-bottom: 0;
+}
+.docs-table td {
+  color: var(--muted);
+  line-height: 1.7;
+}

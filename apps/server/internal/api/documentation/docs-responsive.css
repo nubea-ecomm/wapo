@@ -1,0 +1,110 @@
+@media (min-width: 1500px) {
+  .docs-layout {
+    grid-template-columns: 250px minmax(0, 900px) 220px;
+  }
+  .guide-content {
+    padding: 50px 60px;
+  }
+}
+@media (max-width: 1150px) {
+  .docs-layout {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+  .guide-context {
+    display: none;
+  }
+  .guide-content {
+    padding: 36px 32px;
+  }
+}
+@media (max-width: 720px) {
+  .docs-header {
+    padding: 0 16px;
+    gap: 22px;
+  }
+  .docs-brand span {
+    display: none;
+  }
+  .docs-header nav {
+    gap: 18px;
+    font-size: 12px;
+  }
+  .header-links > a:first-child {
+    display: none;
+  }
+  .header-links {
+    gap: 0;
+  }
+  .console-link {
+    font-size: 11px;
+  }
+  .docs-layout {
+    display: block;
+  }
+  .guide-sidebar {
+    position: sticky;
+    top: var(--header);
+    height: auto;
+    background: var(--surface);
+    z-index: 30;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 0 16px;
+  }
+  .mobile-sections {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    border: 0;
+    background: var(--surface);
+    font-size: 12px;
+    color: var(--secondary-ink);
+    padding: 12px 0;
+  }
+  .guide-sidebar nav {
+    display: none;
+    padding: 12px 0 20px;
+    max-height: 65vh;
+    overflow: auto;
+  }
+  .guide-sidebar nav.open {
+    display: grid;
+  }
+  .guide-content {
+    padding: 30px 20px;
+  }
+  .guide-content h1 {
+    font-size: 30px;
+  }
+  .guide-content h2 {
+    font-size: 20px;
+  }
+  .guide-content section {
+    scroll-margin-top: 115px;
+  }
+  .intro {
+    font-size: 14px;
+  }
+  .api-address {
+    gap: 8px;
+  }
+  .api-address .version {
+    margin-left: 0;
+  }
+  .code-block pre {
+    padding: 14px;
+  }
+  .code-block pre code {
+    font-size: 10.5px;
+  }
+  .reference-loading {
+    padding: 50px 20px;
+  }
+  .docs-footer {
+    gap: 20px;
+  }
+  .reference-error {
+    margin: 24px 16px;
+  }
+}

@@ -1,0 +1,11 @@
+@import url('/docs/assets/docs-theme.css?v=3');
+@import url('/docs/assets/docs-shell.css?v=2');
+@import url('/docs/assets/docs-content.css?v=2');
+@import url('/docs/assets/docs-search.css?v=2');
+@import url('/docs/assets/docs-responsive.css?v=2');
+@import url('/docs/assets/docs-polish.css?v=4');
+#reference .explore-scalar-cta,
+#reference .generate-sdk-button,
+#reference button.selected-client-action[aria-haspopup='dialog'] {
+  display: none;
+}

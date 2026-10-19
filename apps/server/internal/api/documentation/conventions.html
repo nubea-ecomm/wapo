@@ -1,0 +1,117 @@
+{{define "conventions"}}
+<section id="pagination">
+  <h2>Pagination</h2>
+  <p>
+    Resource collections such as customers, connections, messages and conversations return
+    <code>data</code> with cursor metadata. Pass <code>meta.after</code> back as
+    <code>after</code> to get the next page.
+  </p>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Next page</span><button type="button" data-copy>Copy</button>
+    </div>
+    <pre><code>curl --get "$WAPO_URL/v1/customers" \
+  -H "X-API-Key: $WAPO_API_KEY" \
+  --data-urlencode "after=&lt;meta.after-from-previous-response&gt;"</code></pre>
+  </div>
+  <p>
+    Stop when <code>meta.has_more</code> is false. Treat cursors as opaque values.
+    Resource pages default to 50 items; use <code>limit</code> to request 1–100. Events
+    and delivery history have endpoint-specific limits; check the reference instead of
+    assuming every endpoint uses cursors.
+  </p>
+</section>
+<section id="errors">
+  <h2>Errors and rate limits</h2>
+  <p>
+    Wapo errors use an <code>error</code> object with a machine-readable
+    <code>code</code> and a human-readable <code>message</code>. Some upstream Graph
+    responses preserve Meta's own error structure.
+  </p>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Example / 401</span><button type="button" data-copy>Copy</button>
+    </div>
+    <pre><code>{ "error": { "code": "unauthorized", "message": "Invalid API key" } }</code></pre>
+  </div>
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>What to do</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>400 / 422</code></td>
+          <td>Correct the JSON, parameters or validation error.</td>
+        </tr>
+        <tr>
+          <td><code>401 / 403</code></td>
+          <td>Check the key, its tenant, account state and administrator scope.</td>
+        </tr>
+        <tr>
+          <td><code>404</code></td>
+          <td>The resource does not exist in the authenticated tenant.</td>
+        </tr>
+        <tr>
+          <td><code>409</code></td>
+          <td>Resolve the state conflict or uncertain idempotent request.</td>
+        </tr>
+        <tr>
+          <td><code>429</code></td>
+          <td>Wait for <code>Retry-After</code> before retrying.</td>
+        </tr>
+        <tr>
+          <td><code>501 / 503</code></td>
+          <td>The feature is not implemented or a required service is not configured.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Tenant API requests are limited to 300 per tenant per minute per API process. Console
+    login is limited to 10 attempts per remote IP per minute per process. Distributed
+    deployments need a shared edge limit.
+  </p>
+</section>
+<section id="idempotency">
+  <h2>Idempotency and retries</h2>
+  <p>
+    Send a stable <code>Idempotency-Key</code> when creating a message or replying.
+    Reusing a key with the same request replays the recorded result; reusing it with a
+    different request returns a conflict. The key is scoped to the tenant.
+  </p>
+  <div class="callout">
+    <strong>A timeout does not mean a message was not sent.</strong>
+    <p>
+      If the provider outcome is unknown, Wapo keeps the reservation and returns a
+      conflict on retry. Reconcile messages and webhook events before submitting a new
+      key. The SDK does not automatically retry sends.
+    </p>
+  </div>
+</section>
+<section id="administration">
+  <h2>Platform administration</h2>
+  <p>
+    Administrator endpoints manage tenants, users and tenant API keys. Use a console
+    session or a separate operator credential. Creating a tenant does not automatically
+    issue an integration key.
+  </p>
+  <p>
+    Deleting a tenant removes its local resources and keys permanently. Deleting a user
+    revokes all of that user's sessions. The last active administrator cannot be deleted
+    or deactivated.
+  </p>
+  <p>
+    WhatsApp is the only channel currently enabled in the public deployment. Automatic
+    carrier provisioning, shared provider billing and managed reconnect are not available
+    in standalone mode. The compatibility reference labels operations with limited
+    support.
+  </p>
+  <a class="docs-button" href="/docs?view=reference&amp;api=administration"
+    >Administration reference →</a
+  >
+</section>
+{{end}}

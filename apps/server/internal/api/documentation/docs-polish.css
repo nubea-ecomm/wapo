@@ -1,0 +1,224 @@
+:root[data-theme='dark'] {
+  --ink: #ededed;
+  --muted: #a3a3a3;
+  --secondary-ink: #c4c4c4;
+  --line: #292929;
+  --selected: #242424;
+}
+.docs-header {
+  gap: 28px;
+}
+.docs-header .header-links {
+  gap: 20px;
+}
+.docs-layout {
+  grid-template-columns: 256px minmax(0, 850px) 200px;
+  max-width: 1500px;
+}
+.guide-sidebar {
+  padding: 28px 18px;
+}
+.guide-sidebar nav a {
+  font-size: 13px;
+  padding: 8px 12px;
+  line-height: 1.5;
+}
+.guide-nav-group summary {
+  font-size: 12px;
+}
+.guide-content {
+  padding: 48px 52px 24px;
+}
+.guide-content h1 {
+  font-size: 36px;
+  letter-spacing: -1.2px;
+}
+.guide-content h2 {
+  font-size: 24px;
+  letter-spacing: -0.65px;
+}
+.guide-content p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--secondary-ink);
+}
+.guide-content .intro {
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 620px;
+}
+.guide-content section {
+  padding-block: 38px;
+}
+.guide-content .intro-section {
+  padding-top: 0;
+  padding-bottom: 36px;
+}
+.code-block {
+  border-radius: 8px;
+}
+.code-heading {
+  padding: 10px 14px;
+  font-size: 11px;
+}
+.code-block pre {
+  padding: 20px;
+  line-height: 1.8;
+}
+.code-block pre code {
+  font-size: 12px;
+}
+.guide-context {
+  font-size: 12px;
+  padding-top: 48px;
+}
+.context-note {
+  font-size: 11px;
+}
+.api-address,
+.api-address code {
+  font-size: 12px;
+}
+.docs-button {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+#reference .scalar-api-reference {
+  --scalar-font-size-1: 24px;
+  --scalar-font-size-2: 16px;
+  --scalar-font-size-3: 14px;
+  --scalar-paragraph: 14px;
+  --scalar-small: 13px;
+  --scalar-mini: 12px;
+  --scalar-sidebar-width: 256px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius: 6px;
+}
+@media (min-width: 1500px) {
+  .docs-layout {
+    grid-template-columns: 256px minmax(0, 850px) 200px;
+  }
+  .guide-content {
+    padding-inline: 52px;
+  }
+}
+@media (max-width: 1150px) {
+  .docs-layout {
+    grid-template-columns: 232px minmax(0, 1fr);
+  }
+  .guide-content {
+    padding-inline: 32px;
+  }
+}
+@media (max-width: 720px) {
+  .docs-layout {
+    display: block;
+  }
+  .guide-sidebar {
+    padding: 0 20px;
+  }
+  .guide-content {
+    padding: 28px 20px 20px;
+  }
+  .guide-content h1 {
+    font-size: 30px;
+  }
+  .guide-content h2 {
+    font-size: 22px;
+  }
+  .guide-content .intro {
+    font-size: 15px;
+  }
+  .guide-content section {
+    padding-block: 30px;
+  }
+  .code-block pre {
+    padding: 14px;
+  }
+  .code-block pre code {
+    font-size: 11px;
+  }
+  .docs-button {
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+}
+#reference .introduction-section {
+  padding-block: 52px;
+}
+#reference .section-header-wrapper {
+  column-gap: 32px;
+}
+@media (max-width: 720px) {
+  #reference .introduction-section {
+    padding-block: 32px;
+  }
+}
+.docs-search-trigger {
+  height: 34px;
+  min-width: 220px;
+  padding: 0 10px;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1;
+}
+.docs-search-trigger > svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+.docs-search-trigger kbd {
+  font-size: 10px;
+  padding: 3px 5px;
+  line-height: 1;
+}
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+}
+#reference .document-selector {
+  padding: 12px 12px 0;
+}
+#reference .document-selector > div > button {
+  height: 34px;
+  padding: 0 10px;
+  gap: 8px;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+}
+#reference .document-selector button > span {
+  font-size: 13px;
+  line-height: 20px;
+}
+#reference aside button:has(.sidebar-search-placeholder) {
+  height: 34px;
+  padding: 0 9px;
+  gap: 7px;
+  font-size: 13px;
+}
+#reference .sidebar-search-placeholder {
+  font-size: 13px;
+}
+#reference aside button:has(.sidebar-search-placeholder) > svg {
+  width: 15px;
+  height: 15px;
+}
+#reference aside button:has(.sidebar-search-placeholder) > span:last-child {
+  padding: 3px 5px;
+  font-size: 10px;
+  line-height: 1;
+}
+@media (max-width: 850px) {
+  .docs-search-trigger {
+    min-width: 34px;
+    width: 34px;
+    justify-content: center;
+    padding: 0;
+    font-size: 0;
+  }
+}

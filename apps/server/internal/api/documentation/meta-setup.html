@@ -1,0 +1,314 @@
+{{define "meta-setup"}}
+<section id="meta-setup">
+  <h2>Configure your Meta application</h2>
+  <p>
+    Configure the instance once. Customers then authorize their own numbers through setup
+    links.
+  </p>
+  <h3>Choose the installation model</h3>
+  <p>
+    Wapo is open source. A business running its own installation supplies its own Meta app
+    and account credentials. An operator connecting other businesses through a hosted
+    installation completes the provider enrollment and review required for that app. Each
+    self-hosted operator repeats the applicable setup. Open-source licensing does not
+    grant Meta permissions or determine who controls an installation's data.
+  </p>
+  <h3>1. Create an app and copy its credentials</h3>
+  <p>
+    Open
+    <a href="https://developers.facebook.com/apps/" target="_blank" rel="noreferrer"
+      >Meta for Developers</a
+    >. Create an app with the WhatsApp use case and associate your business portfolio. In
+    <strong>App settings → Basic</strong>, copy <strong>App ID</strong> and reveal
+    <strong>App Secret</strong>.
+  </p>
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Where to get it</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>META_APP_ID</code></td>
+          <td>App settings → Basic → App ID.</td>
+        </tr>
+        <tr>
+          <td><code>META_APP_SECRET</code></td>
+          <td>App settings → Basic → App Secret → Show.</td>
+        </tr>
+        <tr>
+          <td><code>META_EMBEDDED_SIGNUP_CONFIG_ID</code></td>
+          <td>
+            Facebook Login for Business → Configurations. Create a WhatsApp Embedded
+            Signup configuration and copy its Configuration ID. The Embedded Signup
+            Builder may expose this configuration for your app.
+          </td>
+        </tr>
+        <tr>
+          <td><code>META_VERIFY_TOKEN</code></td>
+          <td>
+            You generate this value. It is not issued by Meta. Use the same value in the
+            webhook configuration.
+          </td>
+        </tr>
+        <tr>
+          <td><code>META_GRAPH_VERSION</code></td>
+          <td>
+            The Graph API version used by this deployment, currently configured as
+            <code>v24.0</code>. Check compatibility before changing it.
+          </td>
+        </tr>
+        <tr>
+          <td><code>PUBLIC_URL</code></td>
+          <td>
+            Your API's public HTTPS address. Meta must reach it. Local development needs
+            an HTTPS tunnel to port 8080.
+          </td>
+        </tr>
+        <tr>
+          <td><code>WEB_ORIGIN</code></td>
+          <td>
+            The console origin, including scheme and port. This controls Wapo CORS; it
+            does not configure Meta domains.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The configuration ID belongs to the login configuration. It is different from App ID,
+    business portfolio ID, WABA ID and Phone Number ID.
+  </p>
+  <h3>Enroll as a provider for customer onboarding</h3>
+  <p>
+    Open <strong>Use cases → WhatsApp → Customize → Quickstart</strong>, then
+    <strong>Become a Tech Provider → Continue onboarding</strong>. Select the independent
+    Tech Provider route if you operate independently, or the Solution Partner route
+    matching your actual arrangement. The owner reviews the terms. Continue to
+    <strong>Onboarding</strong> and complete the associated business verification.
+    Provider enrollment, business verification, App Review and publication are separate.
+  </p>
+  <p>
+    If Onboarding is blank, return to Quickstart and check enrollment. In an observed
+    setup, the onboarding pagelet redirected to Quickstart and failed with error 1007;
+    completing enrollment restored the page. This does not explain every error 1007. After
+    enrollment, check <strong>WhatsApp → Embedded Signup Builder</strong> and
+    <strong>Facebook Login for Business → Configurations</strong> for the WhatsApp
+    variation. A general Facebook login configuration alone is insufficient.
+  </p>
+  <p>Dashboard URL recipes (replace APP_ID and BUSINESS_ID):</p>
+  <div class="code-block">
+    <pre><code>https://developers.facebook.com/apps/APP_ID/use_cases/customize/wa-dev-quickstart/?product_route=whatsapp-business&amp;business_id=BUSINESS_ID&amp;use_case_enum=WHATSAPP_BUSINESS_MESSAGING&amp;selected_tab=wa-dev-quickstart
+https://developers.facebook.com/apps/APP_ID/use_cases/customize/onboard/?product_route=whatsapp-business&amp;business_id=BUSINESS_ID&amp;use_case_enum=WHATSAPP_BUSINESS_MESSAGING&amp;selected_tab=onboard
+https://developers.facebook.com/apps/APP_ID/app-review/submissions/?business_id=BUSINESS_ID</code></pre>
+  </div>
+  <h3>2. Save the server environment</h3>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>.env</span><button type="button" data-copy>Copy</button>
+    </div>
+    <pre><code>META_APP_ID=&lt;app-id&gt;
+META_APP_SECRET=&lt;app-secret&gt;
+META_EMBEDDED_SIGNUP_CONFIG_ID=&lt;configuration-id&gt;
+META_VERIFY_TOKEN=&lt;your-random-token&gt;
+META_GRAPH_VERSION=v24.0
+PUBLIC_URL=https://api.example.com
+WEB_ORIGIN=https://console.example.com</code></pre>
+  </div>
+  <p>
+    Keep secrets in the server environment. Do not prefix them with <code>VITE_</code>.
+    Leave the existing database, encryption and administrator settings in place.
+  </p>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Generate a verification token</span
+      ><button type="button" data-copy>Copy</button>
+    </div>
+    <pre><code>openssl rand -hex 32</code></pre>
+  </div>
+  <p>
+    Copy the generated value into <code>META_VERIFY_TOKEN</code>, then recreate the
+    services from the repository root:
+  </p>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Apply configuration</span><button type="button" data-copy>Copy</button>
+    </div>
+    <pre><code>docker compose up -d --build migrate api worker</code></pre>
+  </div>
+  <h3>3. Configure domains and the webhook</h3>
+  <p>
+    Add the public API hostname to App Domains. Allow its HTTPS setup-page origin in the
+    JavaScript SDK settings of Facebook Login for Business. Review Valid OAuth Redirect
+    URIs for your login configuration. A webhook callback is a separate endpoint.
+  </p>
+  <p>
+    In the WhatsApp webhook configuration, use the selected project's callback shown in
+    <strong>Console → Configuration → WhatsApp</strong>:
+  </p>
+  <div class="code-block">
+    <pre><code>https://api.example.com/hooks/meta/PROJECT_ID</code></pre>
+  </div>
+  <p>
+    Enter your <code>META_VERIFY_TOKEN</code> as the verification token and choose Verify
+    and save. Subscribe to <code>messages</code> and <code>account_update</code>. For
+    Coexistence, also enable <code>smb_message_echoes</code>, <code>history</code> and
+    <code>smb_app_state_sync</code> where Meta makes them available. Wapo subscribes the
+    authorized WABA with a project callback override during setup.
+  </p>
+  <h3>4. Verify the installation</h3>
+  <p>
+    Use “Verify configuration” in the console. This checks whether environment values are
+    present; it does not validate App Review or account permissions.
+  </p>
+  <p>
+    To test the webhook handshake, export the same values in your shell and replace
+    PROJECT_ID:
+  </p>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Webhook handshake</span><button type="button" data-copy>Copy</button>
+    </div>
+    <pre><code>curl -G "$PUBLIC_URL/hooks/meta/PROJECT_ID" \
+  --data-urlencode 'hub.mode=subscribe' \
+  --data-urlencode "hub.verify_token=$META_VERIFY_TOKEN" \
+  --data-urlencode 'hub.challenge=wapo-check'</code></pre>
+  </div>
+  <p>
+    The response must be <code>wapo-check</code>. Then create a customer, generate a setup
+    link, authorize a number and check its connection status. Coexistence requires an
+    eligible WhatsApp Business App number and the corresponding signup configuration.
+  </p>
+  <h3>5. Connect external customers</h3>
+  <p>
+    Development mode is limited to app-role users. External businesses require the
+    business verification, review and access requested by Meta. Check
+    <code>whatsapp_business_management</code>,
+    <code>whatsapp_business_messaging</code> and any additional permission required by
+    your Embedded Signup configuration.
+  </p>
+  <h3>App Review checklist</h3>
+  <p>
+    Open <strong>Review → App Review</strong> or <strong>Edit App Review</strong> in
+    Onboarding. Check the actual submission status: an onboarding card saying “In review”
+    can still lead to a draft marked <strong>Not submitted (Sin enviar)</strong>.
+  </p>
+  <ol>
+    <li>
+      Complete verification and Basic settings: icon, category, contact email, public
+      privacy policy and data-deletion information for this installation.
+    </li>
+    <li>
+      In Allowed usage, explain messaging and authorized account/template management.
+      Review public_profile and any additional permission requested by your configuration.
+      Describe implemented features and the actual operator of this open-source
+      installation.
+    </li>
+    <li>
+      Upload the recordings requested for each permission: send from Wapo and show receipt
+      in WhatsApp for messaging; demonstrate template creation and management for
+      management. Use real test workflows and hide credentials.
+    </li>
+    <li>
+      Complete the required API calls and check the form's counters. The observed form
+      required one call per WhatsApp permission and allowed up to 24 hours for
+      recognition.
+    </li>
+    <li>
+      In Data handling, identify actual hosting/service providers, the responsible person
+      or entity and country. Answer government-request history and implemented policies
+      truthfully. Open-source status does not replace these answers.
+    </li>
+    <li>
+      Provide stable public reviewer access, dedicated test credentials and exact
+      reproduction steps. An API tunnel does not expose a localhost console.
+    </li>
+    <li>
+      Save and review the draft, submit when complete, monitor follow-up requests and
+      complete Publish requirements before inviting external businesses.
+    </li>
+  </ol>
+  <p>
+    A successful login code alone is not completed WhatsApp authorization: Wapo also needs
+    the WhatsApp session event identifying the WABA. Verify sending, receiving, webhook
+    delivery and template operations. Connection health may report payment or messaging
+    restrictions even with a valid token. Local mocked tests do not establish production
+    approval. Dashboard paths were observed on October 18, 2026 and can vary.
+  </p>
+  <h3>Manual connection credentials</h3>
+  <p>
+    For an existing Cloud API number, WhatsApp → API Setup shows its Phone Number ID and
+    WABA ID. Use an authorized access token for that account in
+    <strong>Connections → Connect WhatsApp → Use Meta credentials</strong>. The test token
+    shown by Meta can expire. For a managed server integration, configure an authorized
+    system user and account assets in your business settings.
+  </p>
+  <p>
+    These three values belong to a connection, not the global environment. Setup links
+    obtain the customer's token through the server-side code exchange; the customer does
+    not share your app secret.
+  </p>
+  <h3>Troubleshooting</h3>
+  <div class="docs-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>Check</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Webhook verification fails</td>
+          <td>
+            Public HTTPS URL, correct project callback, matching verification token and
+            restarted API.
+          </td>
+        </tr>
+        <tr>
+          <td>Signup does not open</td>
+          <td>
+            App ID and Configuration ID from the same app, enabled JavaScript SDK login,
+            allowed SDK domain and app-role access. For login without WhatsApp assets,
+            check provider enrollment and the WhatsApp Builder configuration.
+          </td>
+        </tr>
+        <tr>
+          <td>Missing permissions</td>
+          <td>Account access, app review and advanced permissions in Meta.</td>
+        </tr>
+        <tr>
+          <td>Coexistence is missing</td>
+          <td>Business App signup variation and number eligibility.</td>
+        </tr>
+        <tr>
+          <td>Variables remain missing</td>
+          <td>
+            Edit the server .env and recreate the API process. Reloading the console does
+            not reload server variables.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Source:
+    <a
+      href="https://github.com/fbsamples/business-messaging-sample-tech-provider-app#3-meta-developer-app"
+      target="_blank"
+      rel="noreferrer"
+      >Meta's sample application</a
+    >
+    and
+    <a
+      href="https://www.postman.com/meta/whatsapp-business-platform/documentation/du6gzjv/embedded-signup"
+      target="_blank"
+      rel="noreferrer"
+      >Meta's Embedded Signup collection</a
+    >. Dashboard labels can vary by app configuration.
+  </p>
+</section>
+{{end}}
