@@ -88,16 +88,21 @@ func (s *Server) apiKeys(w http.ResponseWriter, r *http.Request, p, id string) {
 
 		write(w, 201, store.Object{"data": store.Object{"id": id, "name": name, "prefix": prefix, "key": secret}})
 	case r.Method == "DELETE" && id != "":
-		tag, e := s.Store.Pool.Exec(r.Context(), "UPDATE api_keys SET revoked_at=COALESCE(revoked_at,now()) WHERE project_id=$1 AND id=$2", p, id)
+		var hash string
+
+		e := s.Store.Pool.QueryRow(r.Context(), "UPDATE api_keys SET revoked_at=COALESCE(revoked_at,now()) WHERE project_id=$1 AND id=$2 RETURNING hash", p, id).Scan(&hash)
 		if e != nil {
+			if errors.Is(e, pgx.ErrNoRows) {
+				fail(w, 404, "not_found", "API key not found")
+				return
+			}
+
 			dbError(w, e)
+
 			return
 		}
 
-		if tag.RowsAffected() == 0 {
-			fail(w, 404, "not_found", "API key not found")
-			return
-		}
+		s.Store.InvalidateAuthentication(hash)
 
 		write(w, 200, store.Object{"data": store.Object{"id": id, "revoked": true}})
 	default:

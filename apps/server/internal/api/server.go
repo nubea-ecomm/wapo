@@ -3,8 +3,11 @@ package api
 import (
 	"context"
 	"log/slog"
+	"math"
 	"net/http"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"wapo.local/server/internal/channel"
@@ -15,17 +18,51 @@ import (
 type contextKey string
 
 type Server struct {
-	Store  *store.Store
-	Config config.Config
-	Meta   channel.WhatsApp
-	HTTP   *http.Client
+	Store        *store.Store
+	Config       config.Config
+	Meta         channel.WhatsApp
+	HTTP         *http.Client
+	adminKeyHash string
+	logQueue     chan requestLogCommand
+	logDone      chan struct{}
+	startLog     sync.Once
+	closeLog     sync.Once
+	droppedLogs  atomic.Uint64
+	logSequence  atomic.Uint64
+	logEvery     uint64
 }
 
 func New(s *store.Store, c config.Config) *Server {
-	return &Server{Store: s, Config: c, Meta: channel.WhatsApp{BaseURL: c.MetaURL, Version: c.MetaVersion}, HTTP: &http.Client{Timeout: 25 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
+	adminKeyHash := ""
+	if c.AdminKey != "" {
+		adminKeyHash = store.Hash(c.AdminKey)
+	}
+
+	logEvery := uint64(0)
+	if c.RequestLogSampleRate > 0 {
+		logEvery = uint64(math.Ceil(1 / c.RequestLogSampleRate))
+	}
+
+	server := &Server{Store: s, Config: c, Meta: channel.WhatsApp{BaseURL: c.MetaURL, Version: c.MetaVersion}, HTTP: &http.Client{Timeout: 25 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}, adminKeyHash: adminKeyHash, logQueue: make(chan requestLogCommand, 65536), logDone: make(chan struct{}), logEvery: logEvery}
+
+	return server
+}
+
+func (s *Server) Close() {
+	s.closeLog.Do(func() {
+		s.startRequestLogWriter()
+		close(s.logQueue)
+		<-s.logDone
+	})
+}
+
+func (s *Server) startRequestLogWriter() {
+	s.startLog.Do(func() { go s.runRequestLogWriter() })
 }
 
 func (s *Server) Handler() http.Handler {
+	s.startRequestLogWriter()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /auth/v1/me", s.consoleProfile)
 	mux.HandleFunc("PATCH /auth/v1/me", s.updateConsoleProfile)

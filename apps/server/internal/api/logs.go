@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
@@ -24,6 +25,10 @@ func (s *Server) logs(w http.ResponseWriter, r *http.Request, id string) {
 		fail(w, 405, "method_not_allowed", "Use GET")
 		return
 	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second)
+	s.flushRequestLogs(ctx)
+	cancel()
 
 	if id != "" {
 		s.logDetail(w, r, id)

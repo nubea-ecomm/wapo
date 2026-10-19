@@ -21,6 +21,7 @@ jobs:
       - name: Prepare isolated local configuration
         run: |
           cp .env.example .env
+          sed -i 's/^REQUEST_LOG_SAMPLE_RATE=.*/REQUEST_LOG_SAMPLE_RATE=1/' .env
           echo "BOOTSTRAP_API_KEY=$(openssl rand -hex 32)" >> .env
           echo "ADMIN_API_KEY=$(openssl rand -hex 32)" >> .env
           echo "ADMIN_PASSWORD=$(openssl rand -hex 24)" >> .env

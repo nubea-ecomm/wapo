@@ -3,9 +3,12 @@ package config
 import (
 	"encoding/base64"
 	"fmt"
+	"math"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -18,6 +21,11 @@ type Config struct {
 	AdminEmail, AdminPassword                                      string
 	AdminKey                                                       string
 	MetaAppID, MetaConfigID                                        string
+	PublicRateLimit                                                int
+	DBMaxConns, DBMinConns                                         int32
+	AuthCacheTTL                                                   time.Duration
+	AuthCacheEntries                                               int
+	RequestLogSampleRate                                           float64
 }
 
 func Env(name, fallback string) string {
@@ -37,6 +45,31 @@ func Load() (Config, error) {
 	c.MetaConfigID = os.Getenv("META_EMBEDDED_SIGNUP_CONFIG_ID")
 
 	var err error
+
+	if c.PublicRateLimit, err = envInt("PUBLIC_RATE_LIMIT_PER_MINUTE", 0); err != nil || c.PublicRateLimit < 0 {
+		return c, fmt.Errorf("PUBLIC_RATE_LIMIT_PER_MINUTE must be a non-negative integer")
+	}
+
+	if c.AuthCacheEntries, err = envInt("AUTH_CACHE_ENTRIES", 100000); err != nil || c.AuthCacheEntries < 0 {
+		return c, fmt.Errorf("AUTH_CACHE_ENTRIES must be a non-negative integer")
+	}
+
+	if c.AuthCacheTTL, err = time.ParseDuration(Env("AUTH_CACHE_TTL", "5s")); err != nil || c.AuthCacheTTL < 0 {
+		return c, fmt.Errorf("AUTH_CACHE_TTL must be a non-negative duration")
+	}
+
+	if c.RequestLogSampleRate, err = strconv.ParseFloat(Env("REQUEST_LOG_SAMPLE_RATE", "0.01"), 64); err != nil || math.IsNaN(c.RequestLogSampleRate) || c.RequestLogSampleRate < 0 || c.RequestLogSampleRate > 1 {
+		return c, fmt.Errorf("REQUEST_LOG_SAMPLE_RATE must be between 0 and 1")
+	}
+
+	maxConns, maxErr := envInt("DB_MAX_CONNS", 40)
+	minConns, minErr := envInt("DB_MIN_CONNS", 4)
+
+	if maxErr != nil || minErr != nil || maxConns < 1 || minConns < 0 || minConns > maxConns {
+		return c, fmt.Errorf("DB_MAX_CONNS and DB_MIN_CONNS must define a valid non-negative pool range")
+	}
+
+	c.DBMaxConns, c.DBMinConns = int32(maxConns), int32(minConns)
 
 	c.EncryptionKey, err = base64.StdEncoding.DecodeString(os.Getenv("ENCRYPTION_KEY"))
 
@@ -77,6 +110,11 @@ func Load() (Config, error) {
 	c.PublicURL = strings.TrimRight(c.PublicURL, "/")
 
 	return c, nil
+}
+
+func envInt(name string, fallback int) (int, error) {
+	value := Env(name, strconv.Itoa(fallback))
+	return strconv.Atoi(value)
 }
 
 // EnabledChannels defines the connectors exposed by this deployment.

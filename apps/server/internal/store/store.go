@@ -6,6 +6,8 @@ import (
 	"crypto/cipher"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -15,12 +17,51 @@ type Object = map[string]any
 var ErrNotFound = errors.New("not found")
 
 type Store struct {
-	Pool *pgxpool.Pool
-	aead cipher.AEAD
+	Pool       *pgxpool.Pool
+	aead       cipher.AEAD
+	auth       authCache
+	rateLeases sync.Map
 }
 
-func Open(ctx context.Context, dsn string, key []byte) (*Store, error) {
-	pool, e := pgxpool.New(ctx, dsn)
+type Options struct {
+	MaxConns, MinConns int32
+	AuthCacheTTL       time.Duration
+	AuthCacheEntries   int
+}
+
+type authCacheEntry struct {
+	project string
+	expires time.Time
+}
+
+type authCache struct {
+	sync.RWMutex
+	entries map[string]authCacheEntry
+	ttl     time.Duration
+	maximum int
+}
+
+func Open(ctx context.Context, dsn string, key []byte, options ...Options) (*Store, error) {
+	poolConfig, e := pgxpool.ParseConfig(dsn)
+	if e != nil {
+		return nil, e
+	}
+
+	var option Options
+
+	if len(options) > 0 {
+		option = options[0]
+	}
+
+	if option.MaxConns > 0 {
+		poolConfig.MaxConns = option.MaxConns
+	}
+
+	if option.MinConns >= 0 && option.MinConns <= poolConfig.MaxConns {
+		poolConfig.MinConns = option.MinConns
+	}
+
+	pool, e := pgxpool.NewWithConfig(ctx, poolConfig)
 	if e != nil {
 		return nil, e
 	}
@@ -42,7 +83,7 @@ func Open(ctx context.Context, dsn string, key []byte) (*Store, error) {
 		return nil, e
 	}
 
-	return &Store{pool, a}, nil
+	return &Store{Pool: pool, aead: a, auth: authCache{entries: make(map[string]authCacheEntry), ttl: option.AuthCacheTTL, maximum: option.AuthCacheEntries}}, nil
 }
 
 func (s *Store) Bootstrap(ctx context.Context, project, key string) error {
@@ -81,9 +122,65 @@ func (s *Store) Bootstrap(ctx context.Context, project, key string) error {
 }
 
 func (s *Store) Authenticate(ctx context.Context, key string) (string, error) {
+	return s.AuthenticateHash(ctx, Hash(key))
+}
+
+func (s *Store) AuthenticateHash(ctx context.Context, hash string) (string, error) {
+	if project, ok := s.cachedAuthentication(hash); ok {
+		return project, nil
+	}
+
 	var p string
 
-	e := s.Pool.QueryRow(ctx, "SELECT k.project_id FROM api_keys k JOIN projects p ON p.id=k.project_id WHERE k.hash=$1 AND k.revoked_at IS NULL AND p.status='active'", Hash(key)).Scan(&p)
+	e := s.Pool.QueryRow(ctx, "SELECT k.project_id FROM api_keys k JOIN projects p ON p.id=k.project_id WHERE k.hash=$1 AND k.revoked_at IS NULL AND p.status='active'", hash).Scan(&p)
+	if e == nil {
+		s.cacheAuthentication(hash, p)
+	}
 
 	return p, e
+}
+
+func (s *Store) cachedAuthentication(hash string) (string, bool) {
+	if s.auth.ttl <= 0 || s.auth.maximum <= 0 {
+		return "", false
+	}
+
+	s.auth.RLock()
+	entry, ok := s.auth.entries[hash]
+	s.auth.RUnlock()
+
+	return entry.project, ok && time.Now().Before(entry.expires)
+}
+
+func (s *Store) cacheAuthentication(hash, project string) {
+	if s.auth.ttl <= 0 || s.auth.maximum <= 0 {
+		return
+	}
+
+	s.auth.Lock()
+	// Clearing at the bound keeps the hot path O(1) and puts a hard ceiling on
+	// memory. A cache miss only falls back to the authoritative database.
+	if len(s.auth.entries) >= s.auth.maximum {
+		clear(s.auth.entries)
+	}
+
+	s.auth.entries[hash] = authCacheEntry{project: project, expires: time.Now().Add(s.auth.ttl)}
+	s.auth.Unlock()
+}
+
+func (s *Store) InvalidateAuthentication(hash string) {
+	s.auth.Lock()
+	delete(s.auth.entries, hash)
+	s.auth.Unlock()
+}
+
+func (s *Store) InvalidateProjectAuthentication(project string) {
+	s.auth.Lock()
+	for hash, entry := range s.auth.entries {
+		if entry.project == project {
+			delete(s.auth.entries, hash)
+		}
+	}
+
+	s.auth.Unlock()
 }
