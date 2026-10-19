@@ -160,7 +160,3 @@ export const I18nContext = createContext<{
 export function useI18n() {
   return useContext(I18nContext)
 }
-export function browserLanguage(): Language {
-  const value = navigator.language.toLowerCase()
-  return value.startsWith('pt') ? 'pt' : value.startsWith('en') ? 'en' : 'es'
-}

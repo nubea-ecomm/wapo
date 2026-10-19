@@ -1,10 +1,10 @@
 import { useEffect, type ReactNode } from 'react'
 import { useSession } from './session-context'
-import { browserLanguage, I18nContext, messages } from './i18n'
+import { I18nContext, messages } from './i18n'
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const { session } = useSession()
-  const language = session?.user?.language || browserLanguage()
+  const language = session?.user?.language || 'es'
   useEffect(() => {
     document.documentElement.lang = language
   }, [language])
