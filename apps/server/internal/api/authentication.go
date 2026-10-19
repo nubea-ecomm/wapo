@@ -19,18 +19,17 @@ func credential(r *http.Request) string {
 	return strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 }
 
-func (s *Server) isOperator(r *http.Request, key string) bool {
-	if s.Config.AdminKey != "" && subtle.ConstantTimeCompare([]byte(store.Hash(key)), []byte(store.Hash(s.Config.AdminKey))) == 1 {
-		return true
+func (s *Server) isTechnicalOperator(key string) bool {
+	return s.isTechnicalOperatorHash(store.Hash(key))
+}
+
+func (s *Server) isTechnicalOperatorHash(hash string) bool {
+	configuredHash := s.adminKeyHash
+	if configuredHash == "" && s.Config.AdminKey != "" {
+		configuredHash = store.Hash(s.Config.AdminKey)
 	}
 
-	if !strings.HasPrefix(key, "wapo_session_") {
-		return false
-	}
-
-	user, e := s.Store.AuthenticateSession(r.Context(), key)
-
-	return e == nil && user.Role == "admin" && user.AllProjects
+	return configuredHash != "" && subtle.ConstantTimeCompare([]byte(hash), []byte(configuredHash)) == 1
 }
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {

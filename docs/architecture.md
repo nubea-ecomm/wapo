@@ -98,9 +98,13 @@ and has separate credentials. Bridge resources remain upstream and are not mirro
 into native collections or the native dashboard. Never mix native customer IDs
 with bridged customer IDs.
 
-Rate limiting is 300 requests/project/minute and ten login attempts/source/minute.
-Counters are hashed and stored in PostgreSQL, so API replicas share the same quota.
-Public onboarding and webhook ingress should still use an edge abuse-control layer.
+Login limiting is ten attempts/source/minute. Public API quotas belong at the edge
+for high-throughput deployments; `PUBLIC_RATE_LIMIT_PER_MINUTE=0` leaves the
+in-process fallback disabled. A positive value enables a shared PostgreSQL quota.
+Replicas reserve small token blocks so the fallback does not write its hot counter
+on every request, while PostgreSQL still prevents the configured global total from
+being exceeded. Public onboarding and webhook ingress should also use an edge
+abuse-control layer.
 CORS permits the comma-separated WEB_ORIGIN allowlist. HTTP localhost, 127.0.0.1
 and ::1 are aliases only on the same configured local port; production origins
 require exact matches. hosted onboarding
@@ -108,6 +112,13 @@ completion additionally checks the exact PUBLIC_URL origin when Origin is presen
 Local Compose ports bind to loopback; public hosting needs HTTPS termination,
 network configuration, backups and an actual domain. No cloud deployment is
 performed by creating this repository.
+
+Positive API-key authentication results use a bounded five-second in-process cache
+by default. Local revocations invalidate immediately; replicas converge within
+`AUTH_CACHE_TTL`. Set the TTL to zero when revocation must be synchronous across
+replicas, or use a deployment-level invalidation mechanism. PostgreSQL pool bounds
+are explicit per replica through `DB_MIN_CONNS` and `DB_MAX_CONNS`; their aggregate
+must stay within the database connection budget.
 
 Webhook egress rejects private/reserved addresses during DNS resolution and pins
 the dialed IP to prevent DNS rebinding. Redirects and environment proxies are
@@ -122,6 +133,9 @@ onboarding claims are released after 15 minutes and rate-limit counters after te
 Authenticated administrative operations are written to `admin_audit_logs` with the
 actor, normalized route, request ID, status and duration. Bodies, credentials and
 headers are never recorded.
+Batched API telemetry preserves every error and samples successful requests according
+to `REQUEST_LOG_SAMPLE_RATE` (1% by default). This bounds write amplification at high
+traffic; administrative audits, domain events and message records are never sampled.
 
 ## Extension roadmap
 

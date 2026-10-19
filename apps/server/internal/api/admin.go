@@ -12,11 +12,21 @@ import (
 func (s *Server) adminAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		key := credential(r)
-		user, e := s.Store.AuthenticateSession(r.Context(), key)
+
+		var (
+			user store.ConsoleUser
+			e    error
+		)
+
+		if strings.HasPrefix(key, "wapo_session_") {
+			user, e = s.Store.AuthenticateSession(r.Context(), key)
+		}
+
 		authenticated := strings.HasPrefix(key, "wapo_session_") && e == nil
 		listing := r.Method == "GET" && (r.URL.Path == "/admin/v1/tenants" || r.URL.Path == "/admin/v1/me")
+		operator := s.isTechnicalOperator(key) || (authenticated && user.Role == "admin" && user.AllProjects)
 
-		if !s.isOperator(r, key) && !(authenticated && listing) {
+		if !operator && !(authenticated && listing) {
 			status := 401
 			if authenticated {
 				status = 403
@@ -138,6 +148,10 @@ func (s *Server) admin(w http.ResponseWriter, r *http.Request) {
 	if e != nil {
 		dbError(w, notFound(e))
 		return
+	}
+
+	if status != "" {
+		s.Store.InvalidateProjectAuthentication(tenant)
 	}
 
 	write(w, 200, store.Object{"data": store.Object{"id": id, "name": actualName, "status": actualStatus}})

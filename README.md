@@ -137,6 +137,15 @@ pnpm test:contract      # Requires built wapo-api image and local Compose Postgr
 pnpm test:e2e           # Requires running API + local .env; starts Vite automatically.
 ```
 
+The reproducible k6 workload mixes 80% lightweight authenticated reads with 20%
+message-history queries. Point it at a disposable project; arrival rate and duration
+are configurable without editing the script:
+
+```bash
+BASE_URL=http://localhost:8080 API_KEY='<project-key>' \
+  RATE=1000 DURATION=30s k6 run tests/load/public-api.js
+```
+
 Playwright uses Chrome on macOS by default when available. On Linux/CI install
 Chromium with `pnpm exec playwright install --with-deps chromium`; the configuration
 then uses Playwright's bundled browser. Set CHROME_PATH to use another executable.
@@ -215,7 +224,9 @@ the latest webhook delivery state. `/v1/logs` supports source, time window,
 search, error and cursor filters. `/v1/logs/{id}` returns project-scoped detail
 with secret-like payload fields redacted. API logs start at deployment; historical
 API traffic, full request bodies and anonymous authentication failures are not
-reconstructed. The time filter and API log retention both cover up to 30 days.
+reconstructed. API errors are retained while successful requests are sampled at 1%
+by default (`REQUEST_LOG_SAMPLE_RATE`). The time filter and API log retention both
+cover up to 30 days.
 
 Administrative operations have a separate durable audit trail containing actor,
 normalized route, request ID, status and duration without request bodies or secrets.

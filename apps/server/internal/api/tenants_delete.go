@@ -52,5 +52,7 @@ func (s *Server) deleteTenant(w http.ResponseWriter, r *http.Request, id string)
 		return
 	}
 
+	s.Store.InvalidateProjectAuthentication(id)
+
 	w.WriteHeader(http.StatusNoContent)
 }

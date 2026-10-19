@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -13,16 +14,29 @@ func ConversationID(connection, contact string) string {
 }
 
 func (s *Store) ServiceWindow(ctx context.Context, project, connection, contact string) (bool, time.Time, error) {
-	var lastInbound *time.Time
+	var raw *string
 
-	err := s.Pool.QueryRow(ctx, `SELECT max(created_at) FROM resources WHERE project_id=$1 AND kind='messages' AND data->>'connection_id'=$2 AND data->>'direction'='inbound' AND data->>'from'=$3`, project, connection, contact).Scan(&lastInbound)
+	err := s.Pool.QueryRow(ctx, `SELECT data->>'service_window_expires_at' FROM resources WHERE project_id=$1 AND kind='conversations' AND id=$2`, project, ConversationID(connection, contact)).Scan(&raw)
 
-	if err != nil || lastInbound == nil {
+	if errors.Is(err, pgx.ErrNoRows) {
+		return false, time.Time{}, nil
+	}
+
+	if err != nil {
 		return false, time.Time{}, err
 	}
 
-	expiresAt := lastInbound.UTC().Add(24 * time.Hour)
+	if raw == nil || *raw == "" {
+		return false, time.Time{}, nil
+	}
 
+	expiresAt, err := time.Parse(time.RFC3339Nano, *raw)
+	if err != nil {
+		return false, time.Time{}, err
+	}
+
+	// Inbound persistence updates this summary in the same transaction as the
+	// message. Reading it by primary key avoids scanning an account's history.
 	return time.Now().Before(expiresAt), expiresAt, nil
 }
 

@@ -55,7 +55,7 @@ func run() error {
 	defer stop()
 
 	connectCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	s, e := store.Open(connectCtx, c.DatabaseURL, c.EncryptionKey)
+	s, e := store.Open(connectCtx, c.DatabaseURL, c.EncryptionKey, store.Options{MaxConns: c.DBMaxConns, MinConns: c.DBMinConns, AuthCacheTTL: c.AuthCacheTTL, AuthCacheEntries: c.AuthCacheEntries})
 
 	cancel()
 
@@ -101,7 +101,10 @@ func run() error {
 		return nil
 	}
 
-	srv := &http.Server{Addr: c.Addr, Handler: api.New(s, c).Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 40 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
+	apiServer := api.New(s, c)
+	defer apiServer.Close()
+
+	srv := &http.Server{Addr: c.Addr, Handler: apiServer.Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 40 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
 	done := make(chan error, 1)
 
 	go func() { done <- srv.ListenAndServe() }()

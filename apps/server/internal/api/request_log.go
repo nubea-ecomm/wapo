@@ -15,6 +15,17 @@ type logResponse struct {
 	status int
 }
 
+type requestLogEntry struct {
+	id, projectID, requestID, method, path string
+	status                                 int
+	duration                               float64
+}
+
+type requestLogCommand struct {
+	entry *requestLogEntry
+	flush chan struct{}
+}
+
 func (w *logResponse) WriteHeader(status int) {
 	if w.status != 0 {
 		return
@@ -55,14 +66,9 @@ func (s *Server) serveLogged(w http.ResponseWriter, r *http.Request, next http.H
 			status = 500
 		}
 
-		elapsed := float64(time.Since(started).Microseconds()) / 1000
-		ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), time.Second)
-
-		defer cancel()
-
-		_, e := s.Store.Pool.Exec(ctx, `INSERT INTO request_logs(id,project_id,request_id,method,path,status,duration_ms) VALUES($1,$2,$3,$4,$5,$6,$7)`, store.ID("log"), project(r), w.Header().Get("X-Request-ID"), r.Method, logPath(r.URL.Path), status, elapsed)
-		if e != nil {
-			slog.Warn("request log persistence failed", "request_id", w.Header().Get("X-Request-ID"))
+		if s.shouldLogRequest(status) {
+			elapsed := float64(time.Since(started).Microseconds()) / 1000
+			s.enqueueRequestLog(requestLogEntry{id: store.ID("log"), projectID: project(r), requestID: w.Header().Get("X-Request-ID"), method: r.Method, path: logPath(r.URL.Path), status: status, duration: elapsed})
 		}
 
 		if recovered != nil {
@@ -71,6 +77,117 @@ func (s *Server) serveLogged(w http.ResponseWriter, r *http.Request, next http.H
 	}()
 
 	next.ServeHTTP(response, r)
+}
+
+func (s *Server) shouldLogRequest(status int) bool {
+	if status >= 400 {
+		return true
+	}
+
+	if s.logEvery == 0 {
+		return false
+	}
+
+	if s.logEvery == 1 {
+		return true
+	}
+
+	return s.logSequence.Add(1)%s.logEvery == 0
+}
+
+func (s *Server) enqueueRequestLog(entry requestLogEntry) {
+	select {
+	case s.logQueue <- requestLogCommand{entry: &entry}:
+	default:
+		// Telemetry must never apply backpressure to message delivery. The bounded
+		// queue makes overload explicit while protecting API memory and latency.
+		if dropped := s.droppedLogs.Add(1); dropped == 1 || dropped%10000 == 0 {
+			slog.Warn("request log queue full", "dropped", dropped)
+		}
+	}
+}
+
+func (s *Server) flushRequestLogs(ctx context.Context) {
+	done := make(chan struct{})
+	select {
+	case s.logQueue <- requestLogCommand{flush: done}:
+	case <-ctx.Done():
+		return
+	}
+
+	select {
+	case <-done:
+	case <-ctx.Done():
+	}
+}
+
+func (s *Server) runRequestLogWriter() {
+	defer close(s.logDone)
+
+	ticker := time.NewTicker(20 * time.Millisecond)
+
+	defer ticker.Stop()
+
+	batch := make([]requestLogEntry, 0, 256)
+	flush := func() {
+		if len(batch) == 0 {
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		if e := s.persistRequestLogs(ctx, batch); e != nil {
+			slog.Warn("request log batch persistence failed", "count", len(batch), "error", e)
+		}
+
+		cancel()
+
+		batch = batch[:0]
+	}
+
+	for {
+		select {
+		case command, ok := <-s.logQueue:
+			if !ok {
+				flush()
+				return
+			}
+
+			if command.entry != nil {
+				batch = append(batch, *command.entry)
+			}
+
+			if len(batch) == cap(batch) || command.flush != nil {
+				flush()
+			}
+
+			if command.flush != nil {
+				close(command.flush)
+			}
+		case <-ticker.C:
+			flush()
+		}
+	}
+}
+
+func (s *Server) persistRequestLogs(ctx context.Context, entries []requestLogEntry) error {
+	ids, projects, requests := make([]string, len(entries)), make([]string, len(entries)), make([]string, len(entries))
+	methods, paths := make([]string, len(entries)), make([]string, len(entries))
+	statuses, durations := make([]int32, len(entries)), make([]float64, len(entries))
+
+	for i, entry := range entries {
+		ids[i], projects[i], requests[i] = entry.id, entry.projectID, entry.requestID
+		methods[i], paths[i] = entry.method, entry.path
+		statuses[i], durations[i] = int32(entry.status), entry.duration
+	}
+
+	_, e := s.Store.Pool.Exec(ctx, `
+		INSERT INTO request_logs(id,project_id,request_id,method,path,status,duration_ms)
+		SELECT u.id,u.project_id,u.request_id,u.method,u.path,u.status,u.duration_ms
+		FROM unnest($1::text[],$2::text[],$3::text[],$4::text[],$5::text[],$6::integer[],$7::double precision[])
+		 AS u(id,project_id,request_id,method,path,status,duration_ms)
+		JOIN projects p ON p.id=u.project_id`, ids, projects, requests, methods, paths, statuses, durations)
+
+	return e
 }
 
 func (s *Server) serveAdminLogged(w http.ResponseWriter, r *http.Request, next http.Handler, actorType, actorID string) {
