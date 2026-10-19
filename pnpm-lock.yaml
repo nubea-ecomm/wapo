@@ -53,15 +53,15 @@ importers:
       '@fontsource/geist':
         specifier: ^5.3.0
         version: 5.3.0
+      '@nubea-ecomm/wapo-sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@7.3.7(@types/node@22.20.5)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
       '@tanstack/react-query':
         specifier: ^5.104.3
         version: 5.104.3(react@19.3.1)
-      '@wapo/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

@@ -1,7 +1,7 @@
 import { ProjectAvatar } from './project-avatar'
 import { useState } from 'react'
 import { Check, ChevronsUpDown } from 'lucide-react'
-import type { Page, Project } from '@wapo/sdk'
+import type { Page, Project } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
 import { Button } from './ui/button'

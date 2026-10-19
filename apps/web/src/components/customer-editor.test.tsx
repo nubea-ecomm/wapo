@@ -2,7 +2,7 @@ import { it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { WapoClient, WapoAdminClient } from '@wapo/sdk'
+import { WapoClient, WapoAdminClient } from '@nubea-ecomm/wapo-sdk'
 import { SessionContext } from '../app/session-context'
 import { CustomerEditor } from './customer-editor'
 

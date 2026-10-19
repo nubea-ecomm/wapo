@@ -10,7 +10,7 @@ import {
   TableCell,
 } from '../components/ui/table'
 import { useState } from 'react'
-import type { ApiKey, Page } from '@wapo/sdk'
+import type { ApiKey, Page } from '@nubea-ecomm/wapo-sdk'
 import { Copy, KeyRound, Check } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'

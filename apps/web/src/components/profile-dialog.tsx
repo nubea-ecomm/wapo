@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Shuffle } from 'lucide-react'
-import { WapoError } from '@wapo/sdk'
+import { WapoError } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useI18n, type Language } from '../app/i18n'
 import { FormDialog } from './form-dialog'

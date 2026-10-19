@@ -11,11 +11,12 @@
     "test:contract": "node --test scripts/upstream-contract.test.mjs",
     "test:openapi": "node scripts/check-openapi.mjs",
     "test:migrations": "node --test scripts/check-migrations.test.mjs && node scripts/check-migrations.mjs",
+    "test:sdk-release": "node --test scripts/check-sdk-release.test.mjs && node scripts/check-sdk-release.mjs",
     "format": "prettier --write . && eslint . --fix",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
     "test:web": "pnpm --filter @wapo/web test",
-    "test": "pnpm --filter @wapo/sdk build && pnpm test:sdk && pnpm test:web && pnpm test:openapi && pnpm test:migrations",
+    "test": "pnpm --filter @nubea-ecomm/wapo-sdk build && pnpm test:sdk && pnpm test:sdk-release && pnpm test:web && pnpm test:openapi && pnpm test:migrations",
     "test:e2e": "playwright test",
     "postinstall": "node scripts/copy-docs-assets.mjs"
   },

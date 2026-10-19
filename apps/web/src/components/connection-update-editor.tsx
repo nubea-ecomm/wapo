@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { KeyRound, Pencil } from 'lucide-react'
-import { WapoError, type Connection } from '@wapo/sdk'
+import { WapoError, type Connection } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { FormDialog } from './form-dialog'

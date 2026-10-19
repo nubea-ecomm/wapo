@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Connection } from '@wapo/sdk'
+import type { Connection } from '@nubea-ecomm/wapo-sdk'
 import { usePaged } from '../hooks/use-paged'
 import {
   PageHeader,

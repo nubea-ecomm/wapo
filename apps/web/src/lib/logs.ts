@@ -1,4 +1,4 @@
-import type { LogEntry } from '@wapo/sdk'
+import type { LogEntry } from '@nubea-ecomm/wapo-sdk'
 
 export const logSources = [
   { id: '', label: 'Todos', color: '' },

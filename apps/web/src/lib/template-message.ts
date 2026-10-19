@@ -1,4 +1,4 @@
-import type { MessageTemplate } from '@wapo/sdk'
+import type { MessageTemplate } from '@nubea-ecomm/wapo-sdk'
 
 export interface TemplateParameterField {
   key: string

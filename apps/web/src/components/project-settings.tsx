@@ -1,6 +1,6 @@
 import { permissions } from '../app/permissions'
 import { useState } from 'react'
-import type { ProjectSettings as Project } from '@wapo/sdk'
+import type { ProjectSettings as Project } from '@nubea-ecomm/wapo-sdk'
 import { Building2, Upload, Save, Trash2 } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'

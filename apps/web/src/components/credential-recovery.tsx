@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { KeyRound, RefreshCw } from 'lucide-react'
-import type { Connection } from '@wapo/sdk'
+import type { Connection } from '@nubea-ecomm/wapo-sdk'
 import { permissions } from '../app/permissions'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'

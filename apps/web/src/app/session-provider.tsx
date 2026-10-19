@@ -4,7 +4,7 @@ import {
   WapoClient,
   WapoAuthClient,
   WapoError,
-} from '@wapo/sdk'
+} from '@nubea-ecomm/wapo-sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { persistSession, restoreSession } from './session-storage'
 import { SessionContext, type Session } from './session-context'

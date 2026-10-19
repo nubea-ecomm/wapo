@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Connection, Conversation, Message } from '@wapo/sdk'
+import type { Connection, Conversation, Message } from '@nubea-ecomm/wapo-sdk'
 import {
   ArrowLeft,
   CheckCheck,

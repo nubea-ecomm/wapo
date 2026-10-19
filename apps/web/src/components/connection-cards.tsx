@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageCircle, Pencil } from 'lucide-react'
-import type { Connection } from '@wapo/sdk'
+import type { Connection } from '@nubea-ecomm/wapo-sdk'
 import { useI18n } from '../app/i18n'
 import { Button } from './ui/button'
 import { Status } from './ui'

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronRight, KeyRound } from 'lucide-react'
-import type { Customer, Page } from '@wapo/sdk'
+import type { Customer, Page } from '@nubea-ecomm/wapo-sdk'
 import { useApi } from '../hooks/use-api'
 import { FormDialog } from './form-dialog'
 import { CustomerOnboarding } from './customer-onboarding'

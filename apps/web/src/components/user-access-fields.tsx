@@ -1,4 +1,4 @@
-import type { Page, Project, UserRole } from '@wapo/sdk'
+import type { Page, Project, UserRole } from '@nubea-ecomm/wapo-sdk'
 import { useState } from 'react'
 import { useApi } from '../hooks/use-api'
 import { Field, ErrorNotice, Loading } from './ui'

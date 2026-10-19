@@ -1,4 +1,4 @@
-import type { Message } from '@wapo/sdk'
+import type { Message } from '@nubea-ecomm/wapo-sdk'
 import { currentLocale } from './locale'
 
 export function messageText(message?: Message): string {

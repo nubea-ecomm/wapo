@@ -164,6 +164,23 @@ checksum-checked and applied once. Do not edit an applied migration.
 
 Apache-2.0 licensed. External providers retain their own fees and requirements.
 
+## JavaScript and TypeScript SDK
+
+The public SDK package is `@nubea-ecomm/wapo-sdk`:
+
+```bash
+npm install @nubea-ecomm/wapo-sdk
+```
+
+SDK releases use GitHub tags matching `sdk-v<package-version>`. Publishing is
+performed by `.github/workflows/publish-sdk.yml` with npm Trusted Publishing and
+provenance. For the first version only, ensure the `nubea-ecomm` organization
+exists on npm and create the public package with a temporary `NPM_TOKEN` repository
+secret. Then configure its npm Trusted Publisher for organization `nubea-ecomm`,
+repository `wapo`, workflow `publish-sdk.yml`, allow direct publishing, and delete
+the secret. The workflow rejects tags that do not exactly match
+`packages/sdk/package.json` or commits not contained in `main`.
+
 Console user sessions survive refresh in the same browser tab until their 12-hour
 expiry or logout. The tab stores the session token and selected tenant in
 `sessionStorage`, or `localStorage` when “Recordarme” is checked; passwords and

@@ -10,7 +10,7 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@wapo/sdk": ["../../packages/sdk/src/index.ts"],
+      "@nubea-ecomm/wapo-sdk": ["../../packages/sdk/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },

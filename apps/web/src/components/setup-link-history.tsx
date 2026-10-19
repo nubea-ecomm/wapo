@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { SetupLink } from '@wapo/sdk'
+import type { SetupLink } from '@nubea-ecomm/wapo-sdk'
 import { ConfirmButton, Status } from './ui'
 import { dateLabel } from '../lib/message-format'
 

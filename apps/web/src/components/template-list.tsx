@@ -1,6 +1,6 @@
 import { TemplateHistory } from './template-history'
 import { useState } from 'react'
-import type { Connection, MessageTemplate } from '@wapo/sdk'
+import type { Connection, MessageTemplate } from '@nubea-ecomm/wapo-sdk'
 import { Plus, RefreshCw, Search, Send } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { permissions } from '../app/permissions'

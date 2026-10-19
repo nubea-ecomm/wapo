@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
-import type { Connection, Page } from '@wapo/sdk'
+import type { Connection, Page } from '@nubea-ecomm/wapo-sdk'
 import { useApi } from '../hooks/use-api'
 import { WhatsAppIcon } from './icons/whatsapp-icon'
 import { NativeSelect } from './ui/native-select'

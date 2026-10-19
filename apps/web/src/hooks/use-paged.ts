@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import type { Page } from '@wapo/sdk'
+import type { Page } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 
 export function usePaged<T>(path: string, poll = false) {

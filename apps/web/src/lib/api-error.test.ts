@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { WapoError } from '@wapo/sdk'
+import { WapoError } from '@nubea-ecomm/wapo-sdk'
 import { apiErrorCode, isCredentialExpired } from './api-error'
 
 describe('API error classification', () => {

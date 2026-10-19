@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ConsoleUser } from '@wapo/sdk'
+import type { ConsoleUser } from '@nubea-ecomm/wapo-sdk'
 import {
   MoreHorizontal,
   KeyRound,

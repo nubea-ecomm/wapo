@@ -1,4 +1,4 @@
-import type { Webhook } from '@wapo/sdk'
+import type { Webhook } from '@nubea-ecomm/wapo-sdk'
 import { Webhook as WebhookIcon } from 'lucide-react'
 import { Panel, Empty, Status } from './ui'
 import { ResourceActions } from './resource-actions'
