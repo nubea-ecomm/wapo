@@ -323,7 +323,9 @@ test('administrator signs in with email and password and manages users inside th
     page.getByRole('heading', { name: 'Usuarios', exact: true }),
   ).toBeVisible()
   await expect(page.getByText(env.ADMIN_EMAIL, { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Invitar usuario', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Invitar usuario', exact: true })
+    .click()
   const userName = `Test administrator ${Date.now()}`
 
   await page.getByLabel('Nombre del usuario').fill(userName)

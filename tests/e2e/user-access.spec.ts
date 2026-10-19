@@ -23,7 +23,9 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
     .click()
   await page.getByRole('button', { name, exact: true }).click()
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click()
-  await page.getByRole('button', { name: 'Invitar usuario', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Invitar usuario', exact: true })
+    .click()
   await page.getByLabel('Nombre del usuario', { exact: true }).fill(name)
   await page.getByLabel('Email del usuario', { exact: true }).fill(email)
   await page.getByLabel('Contraseña inicial', { exact: true }).fill(password)
