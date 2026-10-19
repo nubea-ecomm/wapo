@@ -13,15 +13,18 @@ func (c Config) AllowsOrigin(origin string) bool {
 	if e != nil || incoming.Host == "" || incoming.User != nil || incoming.Path != "" || incoming.RawQuery != "" || incoming.Fragment != "" {
 		return false
 	}
+
 	for _, raw := range strings.Split(c.WebOrigin, ",") {
 		allowed := strings.TrimSpace(raw)
 		if origin == allowed {
 			return true
 		}
+
 		u, e := url.Parse(allowed)
 		if e == nil && u.Scheme == "http" && incoming.Scheme == "http" && loopback(u.Hostname()) && loopback(incoming.Hostname()) && u.Port() == incoming.Port() {
 			return true
 		}
 	}
+
 	return false
 }

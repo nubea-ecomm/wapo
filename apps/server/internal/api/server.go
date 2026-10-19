@@ -24,6 +24,7 @@ type Server struct {
 func New(s *store.Store, c config.Config) *Server {
 	return &Server{Store: s, Config: c, Meta: channel.WhatsApp{BaseURL: c.MetaURL, Version: c.MetaVersion}, HTTP: &http.Client{Timeout: 25 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
 }
+
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /auth/v1/me", s.consoleProfile)
@@ -34,10 +35,12 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second)
 		defer cancel()
+
 		if s.Store.Pool.Ping(ctx) != nil {
 			fail(w, 503, "not_ready", "Database unavailable")
 			return
 		}
+
 		write(w, 200, store.Object{"status": "ready"})
 	})
 	mux.HandleFunc("GET /openapi.json", func(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +62,7 @@ func (s *Server) Handler() http.Handler {
 	mux.Handle("/v1/", s.auth(http.HandlerFunc(s.native)))
 	mux.Handle("/platform/v1/", s.auth(http.HandlerFunc(s.compatPlatform)))
 	mux.Handle("/meta/whatsapp/", s.auth(http.HandlerFunc(s.compatMeta)))
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -66,9 +70,11 @@ func (s *Server) Handler() http.Handler {
 				fail(w, 500, "internal_error", "Unexpected server error")
 			}
 		}()
+
 		w.Header().Set("X-Request-ID", store.ID("req"))
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
+
 		if origin := r.Header.Get("Origin"); s.Config.AllowsOrigin(origin) || s.setupRequestOrigin(r, origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
@@ -76,17 +82,21 @@ func (s *Server) Handler() http.Handler {
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID, Retry-After")
 		}
+
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(204)
 			return
 		}
+
 		limit := int64(2 << 20)
 		if strings.HasPrefix(r.URL.Path, "/meta/whatsapp/") && (strings.HasSuffix(r.URL.Path, "/media") || strings.HasSuffix(r.URL.Path, "/assets")) {
 			limit = 100 << 20
 		}
+
 		if r.URL.Path == "/v1/project" {
 			limit = 8 << 20
 		}
+
 		r.Body = http.MaxBytesReader(w, r.Body, limit)
 		mux.ServeHTTP(w, r)
 	})

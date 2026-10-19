@@ -1,0 +1,26 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - wsl_v5
+  settings:
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+      case-max-lines: 0
+      cuddle-max-statements: 1
+      default: default
+      enable:
+        - after-block
+        - after-decl
+        - cuddle-group
+
+formatters:
+  enable:
+    - gofumpt
+
+run:
+  go: "1.26"
+  timeout: 5m

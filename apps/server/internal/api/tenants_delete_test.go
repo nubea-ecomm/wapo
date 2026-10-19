@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"testing"
+
 	"wapo.local/server/internal/store"
 )
 
@@ -22,20 +23,26 @@ func TestDeleteTenantRemovesDataRevokesKeysAndDoesNotBootstrapAgain(t *testing.T
 	expect(t, status, 401, o)
 	status, o = request(t, h.URL, admin, "DELETE", "/admin/v1/tenants/"+project, nil, "")
 	expect(t, status, 204, o)
+
 	for _, table := range []string{"resources", "requests", "events", "deliveries", "api_keys", "whatsapp_accounts"} {
 		var count int
+
 		if e := server.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM "+table+" WHERE project_id=$1", project).Scan(&count); e != nil {
 			t.Fatal(e)
 		}
+
 		if count != 0 {
 			t.Fatalf("%s retains %d rows", table, count)
 		}
 	}
+
 	status, o = request(t, h.URL, key, "GET", "/v1/me", nil, "")
 	expect(t, status, 401, o)
+
 	if e := server.Store.Bootstrap(ctx, project, key); e != nil {
 		t.Fatal(e)
 	}
+
 	status, o = request(t, h.URL, key, "GET", "/v1/me", nil, "")
 	expect(t, status, 401, o)
 	status, o = request(t, h.URL, admin, "DELETE", "/admin/v1/tenants/"+project, nil, "")

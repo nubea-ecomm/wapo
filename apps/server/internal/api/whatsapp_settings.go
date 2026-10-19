@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strings"
+
 	"wapo.local/server/internal/store"
 )
 
@@ -11,6 +12,7 @@ func (s *Server) whatsappSettings(w http.ResponseWriter, r *http.Request) {
 		fail(w, 405, "method_not_allowed", "Use GET")
 		return
 	}
+
 	// Expose presence only. App secrets and verification tokens never leave the server.
 	write(w, 200, store.Object{"data": store.Object{
 		"onboarding_ready": s.onboardingReady(),

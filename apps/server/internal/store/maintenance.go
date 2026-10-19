@@ -19,11 +19,13 @@ type MaintenanceResult struct {
 
 func (s *Store) Maintain(ctx context.Context) (MaintenanceResult, error) {
 	result := MaintenanceResult{}
+
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
 		return result, err
 	}
 	defer tx.Rollback(ctx)
+
 	queries := []struct {
 		target *int64
 		sql    string
@@ -42,8 +44,10 @@ func (s *Store) Maintain(ctx context.Context) (MaintenanceResult, error) {
 		if queryErr != nil {
 			return result, queryErr
 		}
+
 		*query.target = tag.RowsAffected()
 	}
+
 	return result, tx.Commit(ctx)
 }
 
@@ -51,13 +55,17 @@ func (s *Store) RunMaintenance(ctx context.Context) {
 	run := func() {
 		maintenanceCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 		defer cancel()
+
 		if _, err := s.Maintain(maintenanceCtx); err != nil && ctx.Err() == nil {
 			slog.Error("storage maintenance failed", "error", err)
 		}
 	}
 	run()
+
 	ticker := time.NewTicker(6 * time.Hour)
+
 	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():

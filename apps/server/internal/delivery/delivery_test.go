@@ -12,13 +12,16 @@ func TestPrivateAndMappedDestinationsDenied(t *testing.T) {
 			t.Errorf("accepted %s", ip)
 		}
 	}
+
 	if !publicIP(net.ParseIP("8.8.8.8")) {
 		t.Fatal("rejected public address")
 	}
 }
+
 func TestSignatureUsesRawBytes(t *testing.T) {
 	body := []byte(`{ "hello": "world" }`)
 	sig := Signature(body, "secret")
+
 	if !Verify(body, "secret", sig) || Verify([]byte(`{"hello":"world"}`), "secret", sig) || Verify(body, "secret", "bad") || Verify(body, "", sig) {
 		t.Fatal("signature boundary broken")
 	}
@@ -29,10 +32,12 @@ func TestDeliveryOutcomeRetriesThenFailsAtTheBound(t *testing.T) {
 	if state != "pending" || delay != 2*time.Second {
 		t.Fatalf("first failure outcome = %s, %s", state, delay)
 	}
+
 	state, delay = deliveryOutcome(503, 8)
 	if state != "failed" || delay != 256*time.Second {
 		t.Fatalf("terminal failure outcome = %s, %s", state, delay)
 	}
+
 	state, _ = deliveryOutcome(204, 8)
 	if state != "delivered" {
 		t.Fatalf("successful retry outcome = %s", state)

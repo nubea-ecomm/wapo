@@ -35,7 +35,9 @@ func (Webchat) Send(_ context.Context, _ store.Object, _ string, payload store.O
 	if payload["type"] != "text" {
 		return Result{}, fmt.Errorf("webchat currently supports text only")
 	}
+
 	id := store.ID("msg")
+
 	return Result{id, store.Object{"id": id, "status": "sent"}}, nil
 }
 
@@ -48,26 +50,34 @@ type WhatsApp struct {
 func (WhatsApp) Capabilities() Capabilities { return Capabilities{true, true, true, true} }
 func (w WhatsApp) Send(ctx context.Context, c store.Object, token string, payload store.Object) (Result, error) {
 	b, _ := json.Marshal(payload)
+
 	status, raw, e := w.Call(ctx, http.MethodPost, w.Version+"/"+url.PathEscape(c["external_id"].(string))+"/"+w.messageEndpoint(), token, b, "")
 	if e != nil {
 		return Result{}, e
 	}
+
 	if status < 200 || status >= 300 {
 		return Result{}, &ProviderError{status, raw}
 	}
+
 	var o store.Object
+
 	if e = json.Unmarshal(raw, &o); e != nil {
 		return Result{}, e
 	}
+
 	messages, _ := o["messages"].([]any)
 	if len(messages) == 0 {
 		return Result{}, fmt.Errorf("provider response has no message id")
 	}
+
 	m, _ := messages[0].(map[string]any)
 	id, _ := m["id"].(string)
+
 	if id == "" {
 		return Result{}, fmt.Errorf("provider response has no message id")
 	}
+
 	return Result{id, o}, nil
 }
 
@@ -82,27 +92,34 @@ func (w WhatsApp) Call(ctx context.Context, method, path, token string, body []b
 	if query != "" {
 		u += "?" + query
 	}
+
 	req, e := http.NewRequestWithContext(ctx, method, u, bytes.NewReader(body))
 	if e != nil {
 		return 0, nil, e
 	}
+
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	}
+
 	req.Header.Set("Content-Type", "application/json")
+
 	client := w.Client
 	if client == nil {
 		client = &http.Client{Timeout: 25 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	}
+
 	res, e := client.Do(req)
 	if e != nil {
 		return 0, nil, e
 	}
 	defer res.Body.Close()
+
 	raw, e := io.ReadAll(io.LimitReader(res.Body, 8<<20))
 	if e != nil {
 		return 0, nil, e
 	}
+
 	return res.StatusCode, raw, nil
 }
 
@@ -110,5 +127,6 @@ func (w WhatsApp) messageEndpoint() string {
 	if w.MessageEndpoint == "marketing_messages" {
 		return w.MessageEndpoint
 	}
+
 	return "messages"
 }

@@ -14,10 +14,12 @@ func validateCustomer(input store.Object) error {
 			}
 		}
 	}
+
 	if value, present := input["metadata"]; present {
 		if _, ok := value.(map[string]any); !ok {
 			return fmt.Errorf("metadata must be a JSON object")
 		}
 	}
+
 	return nil
 }

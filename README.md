@@ -130,6 +130,7 @@ pnpm lint
 pnpm typecheck
 pnpm build
 pnpm test
+make lint-go             # Go formatting and logical whitespace checks.
 make test-go             # Unit tests; database integration tests skip without TEST_DATABASE_URL.
 make test-integration    # Requires the local Compose PostgreSQL service.
 pnpm test:contract      # Requires built wapo-api image and local Compose PostgreSQL.

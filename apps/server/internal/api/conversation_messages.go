@@ -14,8 +14,10 @@ func (s *Server) listConversationMessages(w http.ResponseWriter, r *http.Request
 		} else {
 			dbError(w, err)
 		}
+
 		return
 	}
+
 	for _, message := range rows {
 		if str(message, "display_text") == "" {
 			if rendered := s.renderTemplateMessage(r.Context(), project(r), connection, message); rendered != "" {
@@ -23,5 +25,6 @@ func (s *Server) listConversationMessages(w http.ResponseWriter, r *http.Request
 			}
 		}
 	}
+
 	write(w, 200, store.Object{"data": rows, "meta": store.Object{"has_more": next != "", "after": next}, "paging": store.Object{"cursors": store.Object{"after": next}}})
 }

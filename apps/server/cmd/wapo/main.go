@@ -26,72 +26,99 @@ func main() {
 		os.Exit(1)
 	}
 }
+
 func run() error {
 	if len(os.Args) > 1 && os.Args[1] == "secrets" {
 		b := make([]byte, 32)
 		if _, e := rand.Read(b); e != nil {
 			return e
 		}
+
 		fmt.Println("BOOTSTRAP_API_KEY=wapo_" + base64.RawURLEncoding.EncodeToString(b))
+
 		if _, e := rand.Read(b); e != nil {
 			return e
 		}
+
 		fmt.Println("ENCRYPTION_KEY=" + base64.StdEncoding.EncodeToString(b))
+
 		return nil
 	}
+
 	c, e := config.Load()
 	if e != nil {
 		return e
 	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+
 	defer stop()
+
 	connectCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	s, e := store.Open(connectCtx, c.DatabaseURL, c.EncryptionKey)
+
 	cancel()
+
 	if e != nil {
 		return e
 	}
+
 	defer s.Pool.Close()
+
 	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		return s.Migrate(ctx, config.Env("MIGRATIONS_FILE", "migrations/001_initial.sql"))
 	}
+
 	if c.APIKey != "" {
 		if e = s.Bootstrap(ctx, c.ProjectID, c.APIKey); e != nil {
 			return e
 		}
 	}
+
 	if len(os.Args) > 1 && os.Args[1] == "bootstrap" {
 		if c.APIKey == "" {
 			return fmt.Errorf("BOOTSTRAP_API_KEY is required")
 		}
+
 		slog.Info("project and API key registered", "project", c.ProjectID)
+
 		return nil
 	}
+
 	if c.AdminEmail != "" && c.AdminPassword != "" && !(len(os.Args) > 1 && os.Args[1] == "worker") {
 		if e = s.BootstrapUser(ctx, c.AdminEmail, c.AdminPassword); e != nil {
 			return e
 		}
 	}
+
 	if len(os.Args) > 1 && os.Args[1] == "worker" {
 		go templatesync.Run(ctx, s, channel.WhatsApp{BaseURL: c.MetaURL, Version: c.MetaVersion})
 		go api.New(s, c).RunConnectionHealth(ctx)
 		go s.RunMaintenance(ctx)
+
 		delivery.Run(ctx, s, c.AllowPrivateWebhooks)
+
 		return nil
 	}
+
 	srv := &http.Server{Addr: c.Addr, Handler: api.New(s, c).Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 40 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 << 10}
 	done := make(chan error, 1)
+
 	go func() { done <- srv.ListenAndServe() }()
+
 	slog.Info("API listening", "address", c.Addr)
+
 	select {
 	case e := <-done:
 		if e != http.ErrServerClosed {
 			return e
 		}
+
 		return nil
 	case <-ctx.Done():
 		shutdown, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
+
 		return srv.Shutdown(shutdown)
 	}
 }
