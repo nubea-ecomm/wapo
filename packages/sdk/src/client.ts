@@ -68,6 +68,13 @@ export class WapoClient extends Transport {
   }) {
     return this.request<{ data: Connection }>('POST', '/v1/connections', input)
   }
+  updateConnection(id: string, input: { name?: string; access_token?: string }) {
+    return this.request<{ data: Connection }>(
+      'PATCH',
+      `/v1/connections/${encode(id)}`,
+      input,
+    )
+  }
   deleteConnection(id: string) {
     return this.request('DELETE', `/v1/connections/${encode(id)}`)
   }

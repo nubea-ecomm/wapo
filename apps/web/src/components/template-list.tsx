@@ -5,11 +5,10 @@ import { Plus, RefreshCw, Search } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { permissions } from '../app/permissions'
 import { usePaged } from '../hooks/use-paged'
-import { Panel, Loading, Empty, ErrorNotice, LoadMore } from './ui'
+import { Panel, Loading, Empty, ErrorNotice, LoadMore, Status } from './ui'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { NativeSelect } from './ui/native-select'
-import { Badge } from './ui/badge'
 import { Table, TableHeader, TableBody, TableHead, TableCell, TableRow } from './ui/table'
 import { FormDialog } from './form-dialog'
 import { CopyCode } from './copy-code'
@@ -125,17 +124,20 @@ export function TemplateList({
                   <TableCell>{template.language}</TableCell>
                   <TableCell>{template.category}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {(
-                        {
-                          APPROVED: 'Aprobado',
-                          PENDING: 'En revisión',
-                          REJECTED: 'Rechazado',
-                          PAUSED: 'Pausado',
-                          DISABLED: 'Deshabilitado',
-                        } as Record<string, string>
-                      )[template.status] || template.status}
-                    </Badge>
+                    <Status
+                      value={template.status}
+                      label={
+                        (
+                          {
+                            APPROVED: 'Aprobado',
+                            PENDING: 'En revisión',
+                            REJECTED: 'Rechazado',
+                            PAUSED: 'Pausado',
+                            DISABLED: 'Deshabilitado',
+                          } as Record<string, string>
+                        )[template.status]
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               ))}

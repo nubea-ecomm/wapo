@@ -31,9 +31,14 @@ test('customer and connection details list and create templates using a fake pro
     business_account_id: '123456',
     external_id: '123456789',
     display_phone_number: '+123456789',
+    connection_type: 'dedicated',
+    health_status: 'warning',
+    health_issues: 2,
+    credential_status: 'valid',
   }
   const templates: Record<string, unknown>[] = []
   let submitted: Record<string, unknown> | null = null
+  let connectionUpdate: Record<string, unknown> | null = null
   let credentialExpired = false
   await page.route('**/v1/connections**', async (route) => {
     const request = route.request(),
@@ -59,9 +64,13 @@ test('customer and connection details list and create templates using a fake pro
           },
         })
       else await route.fulfill({ json: { data: templates } })
-    } else if (url.pathname.endsWith('/con_template_ui'))
+    } else if (url.pathname.endsWith('/con_template_ui')) {
+      if (request.method() === 'PATCH') {
+        connectionUpdate = request.postDataJSON()
+        Object.assign(connection, { name: connectionUpdate?.name })
+      }
       await route.fulfill({ json: { data: connection } })
-    else if (url.pathname === '/v1/connections')
+    } else if (url.pathname === '/v1/connections')
       await route.fulfill({ json: { data: [connection] } })
     else await route.continue()
   })
@@ -95,6 +104,9 @@ test('customer and connection details list and create templates using a fake pro
   await expect(
     page.getByRole('button', { name: 'order_update', exact: true }),
   ).toBeVisible()
+  await expect(
+    page.getByRole('table').getByText('En revisión', { exact: true }),
+  ).toHaveClass(/amber/)
   expect(submitted).toMatchObject({
     name: 'order_update',
     language: 'es',
@@ -132,12 +144,35 @@ test('customer and connection details list and create templates using a fake pro
     path: 'artifacts/connection-templates.png',
     animations: 'disabled',
   })
-  await page.route('**/v1/customers/*/setup_links', async (route) => {
-    if (route.request().method() !== 'POST') return route.continue()
-    await route.fulfill({
-      status: 201,
-      json: { data: { url: 'http://localhost:8080/setup/reconnect/token' } },
-    })
+  await page.evaluate(() => localStorage.removeItem('wapo.connections-view'))
+  await page
+    .getByRole('navigation', { name: 'Navegación principal' })
+    .getByRole('link', { name: 'Conexiones', exact: true })
+    .click()
+  const connected = page.getByText('Conectada', { exact: true })
+  await expect(connected).toBeVisible()
+  await expect(connected).toHaveClass(/emerald/)
+  await expect(page.getByText('2 problemas detectados', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Ver como tabla', exact: true }).click()
+  await expect(
+    page.getByRole('columnheader', { name: 'Conexión', exact: true }),
+  ).toBeVisible()
+  await page.reload()
+  await expect(
+    page.getByRole('button', { name: 'Ver como tabla', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: 'Ver como cards', exact: true }).click()
+  await page.getByRole('button', { name: 'Editar', exact: true }).click()
+  const edit = page.getByRole('dialog', { name: 'Editar conexión', exact: true })
+  await edit.getByLabel('Nombre', { exact: true }).fill('WhatsApp renovado')
+  await edit.getByLabel('Nuevo access token', { exact: true }).fill('replacement-token')
+  await edit.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
+  await expect(
+    page.getByRole('link', { name: 'WhatsApp renovado', exact: true }),
+  ).toBeVisible()
+  expect(connectionUpdate).toEqual({
+    name: 'WhatsApp renovado',
+    access_token: 'replacement-token',
   })
   credentialExpired = true
   await page.getByRole('link', { name: 'Templates', exact: true }).first().click()
@@ -147,8 +182,7 @@ test('customer and connection details list and create templates using a fake pro
   await expect(
     page.getByText('Error validating access token', { exact: false }),
   ).toHaveCount(0)
-  await page.getByRole('button', { name: 'Reconectar WhatsApp', exact: true }).click()
-  await expect(page.getByLabel('Enlace de onboarding')).toHaveValue(
-    'http://localhost:8080/setup/reconnect/token',
-  )
+  await expect(
+    page.getByRole('button', { name: 'Reconectar WhatsApp', exact: true }),
+  ).toBeVisible()
 })

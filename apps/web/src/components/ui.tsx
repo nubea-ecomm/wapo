@@ -95,34 +95,138 @@ export function ErrorNotice({ error }: { error: unknown }) {
 export function Loading({ variant = 'list' }: { variant?: SkeletonVariant }) {
   return <ContentSkeleton variant={variant} />
 }
-export function Status({ value }: { value: string }) {
+export function Status({ value, label }: { value: string; label?: string }) {
+  const presentation = (
+    {
+      active: [
+        'Activo',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      connected: [
+        'Conectada',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      healthy: [
+        'Saludable',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      approved: [
+        'Aprobado',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      delivered: [
+        'Entregado',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      read: [
+        'Leído',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      completed: [
+        'Completado',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      used: [
+        'Usado',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      pass: [
+        'Correcto',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      configured: [
+        'Configurado',
+        'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+      ],
+      onboarding: [
+        'Configurando',
+        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
+      ],
+      processing: [
+        'Procesando',
+        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
+      ],
+      queued: [
+        'En cola',
+        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
+      ],
+      sent: [
+        'Enviado',
+        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
+      ],
+      received: [
+        'Recibido',
+        'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
+      ],
+      pending: [
+        'Pendiente',
+        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
+      ],
+      retrying: [
+        'Reintentando',
+        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
+      ],
+      warning: [
+        'Revisar',
+        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
+      ],
+      paused: [
+        'Pausado',
+        'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
+      ],
+      credential_expired: [
+        'Token vencido',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      failed: [
+        'Falló',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      rejected: [
+        'Rechazado',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      disabled: [
+        'Deshabilitado',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      expired: [
+        'Vencido',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      onboarding_failed: [
+        'Configuración fallida',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      error: [
+        'Con problemas',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      suspended: [
+        'Suspendido',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      revoked: [
+        'Revocado',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      inactive: [
+        'Inactivo',
+        'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
+      ],
+      disconnected: ['Desconectada', 'border-border bg-muted/40 text-muted-foreground'],
+      closed: ['Cerrado', 'border-border bg-muted/40 text-muted-foreground'],
+      cancelled: ['Cancelado', 'border-border bg-muted/40 text-muted-foreground'],
+      unknown: ['Sin comprobar', 'border-border bg-muted/40 text-muted-foreground'],
+    } as Record<string, [string, string]>
+  )[value.toLowerCase()] || [
+    value.replaceAll('_', ' '),
+    'border-border bg-muted/40 text-muted-foreground',
+  ]
   return (
-    <Badge
-      variant="outline"
-      className={
-        ['failed', 'onboarding_failed', 'suspended', 'revoked', 'inactive'].includes(
-          value,
-        )
-          ? 'border-red-200 bg-red-50 text-red-700'
-          : 'bg-muted/50 text-muted-foreground'
-      }
-    >
+    <Badge variant="outline" className={presentation[1]}>
       <span className="size-1.5 rounded-full bg-current" />
-      {(
-        {
-          active: 'Activo',
-          inactive: 'Inactivo',
-          revoked: 'Revocada',
-          suspended: 'Suspendido',
-          connected: 'Conectada',
-          disconnected: 'Desconectada',
-          pending: 'Pendiente',
-          failed: 'Fallida',
-          delivered: 'Entregada',
-          queued: 'En cola',
-          retrying: 'Reintentando',
-        } as Record<string, string>
-      )[value] || value}
+      {label || presentation[0]}
     </Badge>
   )
 }
