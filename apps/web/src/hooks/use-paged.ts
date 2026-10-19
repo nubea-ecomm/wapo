@@ -17,5 +17,8 @@ export function usePaged<T>(path: string, poll = false) {
     refetchInterval: poll ? 5000 : false,
     retry: false,
   })
-  return { ...result, items: result.data?.pages.flatMap((page) => page.data) || [] }
+  return {
+    ...result,
+    items: result.data?.pages.flatMap((page) => page.data) || [],
+  }
 }

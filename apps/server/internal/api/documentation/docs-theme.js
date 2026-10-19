@@ -35,9 +35,13 @@ function setDocsTheme(theme, persist = true) {
 }
 document.addEventListener('DOMContentLoaded', () => {
   setDocsTheme(document.documentElement.dataset.theme, false)
-  document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
-    setDocsTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')
-  })
+  document
+    .querySelector('[data-theme-toggle]')
+    ?.addEventListener('click', () => {
+      setDocsTheme(
+        document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark',
+      )
+    })
 })
 systemTheme.addEventListener('change', () => {
   let saved = null

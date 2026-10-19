@@ -10,7 +10,11 @@ export class WapoAuthClient extends Transport {
     language?: ConsoleUser['language']
     avatar_variant?: number
   }) {
-    return this.request<{ data: { user: ConsoleUser } }>('PATCH', '/auth/v1/me', input)
+    return this.request<{ data: { user: ConsoleUser } }>(
+      'PATCH',
+      '/auth/v1/me',
+      input,
+    )
   }
   login(email: string, password: string) {
     return this.request<{

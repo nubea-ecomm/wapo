@@ -42,7 +42,11 @@ export function AccountMenu() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="account-trigger" aria-label={t('userMenu')}>
+          <Button
+            variant="ghost"
+            className="account-trigger"
+            aria-label={t('userMenu')}
+          >
             <UserAvatar
               id={session?.user?.id || 'operator'}
               name={session?.user?.name || t('administrator')}
@@ -55,7 +59,10 @@ export function AccountMenu() {
             <ChevronDown className="text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuContent
+          align="end"
+          className="w-56"
+        >
           <DropdownMenuLabel className="truncate">
             {session?.user?.email || t('apiAccess')}
           </DropdownMenuLabel>
@@ -79,7 +86,10 @@ export function AccountMenu() {
             </DropdownMenuItem>
           )}
           {avatarError && (
-            <DropdownMenuLabel role="alert" className="text-destructive">
+            <DropdownMenuLabel
+              role="alert"
+              className="text-destructive"
+            >
               {t('profileError')}
             </DropdownMenuLabel>
           )}

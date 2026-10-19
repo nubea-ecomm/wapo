@@ -2,31 +2,64 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
     <meta
       name="description"
       content="Build with the Wapo WhatsApp API. Quickstart guides, authentication, customer onboarding, messaging and signed webhooks."
     />
     <title>Wapo / API documentation</title>
-    <link rel="icon" href="/docs/assets/favicon.svg?v=3" />
+    <link
+      rel="icon"
+      href="/docs/assets/favicon.svg?v=3"
+    />
     <script src="/docs/assets/docs-theme.js?v=3"></script>
-    <link rel="stylesheet" href="/docs/assets/docs.css?v=2" />
-    <script defer src="/docs/assets/docs-search.js?v=2"></script>
-    <script defer src="/docs/assets/docs.js?v=2"></script>
+    <link
+      rel="stylesheet"
+      href="/docs/assets/docs.css?v=2"
+    />
+    <script
+      defer
+      src="/docs/assets/docs-search.js?v=2"
+    ></script>
+    <script
+      defer
+      src="/docs/assets/docs.js?v=2"
+    ></script>
   </head>
   <body>
-    <a class="skip-link" href="#content">Skip to content</a>
+    <a
+      class="skip-link"
+      href="#content"
+      >Skip to content</a
+    >
     <header class="docs-header">
-      <a class="docs-brand" href="/docs"
-        ><img src="/docs/assets/wapo-wordmark.svg?v=1" alt="Wapo" /><span
-          >developers</span
-        ></a
+      <a
+        class="docs-brand"
+        href="/docs"
+        ><img
+          src="/docs/assets/wapo-wordmark.svg?v=1"
+          alt="Wapo"
+        /><span>developers</span></a
       >
       <nav aria-label="Documentation">
-        <a href="/docs" data-tab="guides">Guides</a
-        ><a href="/docs?view=reference" data-tab="reference">API reference</a>
+        <a
+          href="/docs"
+          data-tab="guides"
+          >Guides</a
+        ><a
+          href="/docs?view=reference"
+          data-tab="reference"
+          >API reference</a
+        >
       </nav>
-      <button type="button" class="docs-search-trigger" data-open-search>
+      <button
+        type="button"
+        class="docs-search-trigger"
+        data-open-search
+      >
         <svg
           width="15"
           height="15"
@@ -36,7 +69,11 @@
           stroke-width="1.7"
           aria-hidden="true"
         >
-          <circle cx="10.5" cy="10.5" r="6.5" />
+          <circle
+            cx="10.5"
+            cy="10.5"
+            r="6.5"
+          />
           <path d="m16 16 4.5 4.5" />
         </svg>
         Search guides<kbd>⌘K</kbd>
@@ -70,29 +107,47 @@
           stroke-width="1.6"
           aria-hidden="true"
         >
-          <circle cx="12" cy="12" r="4" />
+          <circle
+            cx="12"
+            cy="12"
+            r="4"
+          />
           <path
             d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
           />
         </svg>
       </button>
       <div class="header-links">
-        <a href="/openapi.json" download="wapo-openapi.json"
+        <a
+          href="/openapi.json"
+          download="wapo-openapi.json"
           >OpenAPI <span aria-hidden="true">↓</span></a
-        ><a class="console-link" href="{{.ConsoleURL}}"
+        ><a
+          class="console-link"
+          href="{{.ConsoleURL}}"
           >Console <span aria-hidden="true">↗</span></a
         >
       </div>
     </header>
     <div id="guides">{{template "guides" .}}</div>
-    <main id="reference" hidden aria-label="Interactive API reference">
-      <div class="reference-loading" role="status">Loading API reference…</div>
+    <main
+      id="reference"
+      hidden
+      aria-label="Interactive API reference"
+    >
+      <div
+        class="reference-loading"
+        role="status"
+      >
+        Loading API reference…
+      </div>
     </main>
     {{template "search" .}}
     <noscript
       ><p class="noscript">
-        Guides work without JavaScript. The interactive reference requires JavaScript. You
-        can also <a href="/openapi.json">download the OpenAPI document</a>.
+        Guides work without JavaScript. The interactive reference requires
+        JavaScript. You can also
+        <a href="/openapi.json">download the OpenAPI document</a>.
       </p></noscript
     >
   </body>

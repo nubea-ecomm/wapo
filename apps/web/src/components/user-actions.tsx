@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import type { ConsoleUser } from '@wapo/sdk'
-import { MoreHorizontal, KeyRound, Trash2, UserCheck, UserX, Shield } from 'lucide-react'
+import {
+  MoreHorizontal,
+  KeyRound,
+  Trash2,
+  UserCheck,
+  UserX,
+  Shield,
+} from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { Button } from './ui/button'
@@ -46,7 +53,11 @@ export function UserActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Acciones de ${user.name}`}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Acciones de ${user.name}`}
+          >
             <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>
@@ -106,7 +117,9 @@ export function UserActions({
           </AlertDialogHeader>
           <ErrorNotice error={change.error} />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={change.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={change.isPending}>
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               variant={action === 'delete' ? 'destructive' : 'default'}
               disabled={change.isPending}

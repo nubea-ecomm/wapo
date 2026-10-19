@@ -25,7 +25,10 @@ export function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <a className="login-brand" href="#/">
+        <a
+          className="login-brand"
+          href="#/"
+        >
           <WapoLogo />
         </a>
         <section className="login-panel">
@@ -75,7 +78,10 @@ export function LoginPage() {
               {t('remember')}
             </Label>
             <ErrorNotice error={error} />
-            <Button className="w-full" disabled={busy}>
+            <Button
+              className="w-full"
+              disabled={busy}
+            >
               {busy ? t('signingIn') : t('signInAction')}
             </Button>
           </form>

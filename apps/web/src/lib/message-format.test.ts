@@ -27,7 +27,10 @@ describe('provider message presentation', () => {
   })
   it('renders text and unsupported media without treating provider content as markup', () => {
     expect(
-      messageText({ ...base, payload: { text: { body: '<script>hello</script>' } } }),
+      messageText({
+        ...base,
+        payload: { text: { body: '<script>hello</script>' } },
+      }),
     ).toBe('<script>hello</script>')
     expect(messageText({ ...base, payload: { type: 'image' } })).toBe('[image]')
     expect(messageText()).toBe('')

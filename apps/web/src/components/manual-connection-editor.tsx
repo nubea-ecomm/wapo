@@ -57,10 +57,16 @@ export function ManualConnectionEditor({ onClose }: { onClose: () => void }) {
           </Field>
         </div>
         <Field label="Customer">
-          <NativeSelect value={customer} onChange={(e) => setCustomer(e.target.value)}>
+          <NativeSelect
+            value={customer}
+            onChange={(e) => setCustomer(e.target.value)}
+          >
             <option value="">Conexión del proyecto</option>
             {customers.data?.data.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option
+                key={c.id}
+                value={c.id}
+              >
                 {c.name}
               </option>
             ))}
@@ -103,10 +109,19 @@ export function ManualConnectionEditor({ onClose }: { onClose: () => void }) {
         <ErrorNotice error={create.error} />
         <ErrorNotice error={customers.error} />
         <div className="row-actions">
-          <Button variant="outline" size="default" type="button" onClick={onClose}>
+          <Button
+            variant="outline"
+            size="default"
+            type="button"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button variant="default" size="default" disabled={create.isPending}>
+          <Button
+            variant="default"
+            size="default"
+            disabled={create.isPending}
+          >
             <WhatsAppIcon />
             {create.isPending ? 'Conectando…' : 'Conectar WhatsApp'}
           </Button>

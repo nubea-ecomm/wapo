@@ -5,11 +5,18 @@
   <p>
     The instance administrator first configures the Meta application in
     <strong>Console → Configuration → WhatsApp</strong>. Check
-    <code>onboarding_ready</code> on <code>GET /v1/me</code> before creating a setup link.
+    <code>onboarding_ready</code> on <code>GET /v1/me</code> before creating a
+    setup link.
   </p>
   <div class="code-block">
     <div class="code-heading">
-      <span>Create a setup link</span><button type="button" data-copy>Copy</button>
+      <span>Create a setup link</span
+      ><button
+        type="button"
+        data-copy
+      >
+        Copy
+      </button>
     </div>
     <pre><code>curl -X POST "$WAPO_URL/v1/customers/CUSTOMER_ID/setup_links" \
   -H "X-API-Key: $WAPO_API_KEY" \
@@ -20,9 +27,9 @@
   }'</code></pre>
   </div>
   <p>
-    Share <code>data.url</code> with the customer. Links expire after 30 days by default
-    and can be revoked. Authorized list and get requests can retrieve the URL; its token
-    is encrypted at rest.
+    Share <code>data.url</code> with the customer. Links expire after 30 days by
+    default and can be revoked. Authorized list and get requests can retrieve
+    the URL; its token is encrypted at rest.
   </p>
   <div class="docs-table">
     <table>
@@ -36,8 +43,8 @@
         <tr>
           <td><code>coexistence</code></td>
           <td>
-            Continue using WhatsApp Business App alongside the API, subject to Meta
-            eligibility.
+            Continue using WhatsApp Business App alongside the API, subject to
+            Meta eligibility.
           </td>
         </tr>
         <tr>
@@ -48,28 +55,37 @@
     </table>
   </div>
   <p>
-    Offering both types lets the customer choose on the hosted page. Send just one type to
-    restrict the link. After authorization, listen for
-    <code>whatsapp.phone_number.created</code> or list <code>GET /v1/connections</code>.
+    Offering both types lets the customer choose on the hosted page. Send just
+    one type to restrict the link. After authorization, listen for
+    <code>whatsapp.phone_number.created</code> or list
+    <code>GET /v1/connections</code>.
   </p>
   <div class="callout">
     <strong>Already have a configured Cloud API number?</strong>
     <p>
-      Use <code>POST /v1/connections</code> with <code>channel: "whatsapp"</code>, its
-      Meta phone number ID, WABA ID and access token. Wapo verifies number ownership
-      before storing the credentials.
+      Use <code>POST /v1/connections</code> with
+      <code>channel: "whatsapp"</code>, its Meta phone number ID, WABA ID and
+      access token. Wapo verifies number ownership before storing the
+      credentials.
     </p>
   </div>
 </section>
 <section id="messages">
   <h2>Send a WhatsApp message</h2>
   <p>
-    Choose a connected number from <code>GET /v1/connections</code>. Use its Wapo
-    <code>id</code>, not its Meta phone number ID, as <code>connection_id</code>.
+    Choose a connected number from <code>GET /v1/connections</code>. Use its
+    Wapo <code>id</code>, not its Meta phone number ID, as
+    <code>connection_id</code>.
   </p>
   <div class="code-block">
     <div class="code-heading">
-      <span>Send text</span><button type="button" data-copy>Copy</button>
+      <span>Send text</span
+      ><button
+        type="button"
+        data-copy
+      >
+        Copy
+      </button>
     </div>
     <pre><code>curl -X POST "$WAPO_URL/v1/messages" \
   -H "X-API-Key: $WAPO_API_KEY" \
@@ -85,37 +101,44 @@
   }'</code></pre>
   </div>
   <p>
-    Free-form text requires an open WhatsApp customer service window. Outside that window,
-    use an approved template in the message <code>payload</code>. Meta policies and
-    message pricing still apply.
+    Free-form text requires an open WhatsApp customer service window. Outside
+    that window, use an approved template in the message <code>payload</code>.
+    Meta policies and message pricing still apply.
   </p>
   <h3>Follow the conversation</h3>
   <p>
     List <code>GET /v1/conversations</code>, load
     <code>GET /v1/conversations/{id}/messages</code>, then reply with
-    <code>POST /v1/conversations/{id}/messages</code>. Patch a conversation to assign it
-    or change its status to <code>open</code> or <code>closed</code>.
+    <code>POST /v1/conversations/{id}/messages</code>. Patch a conversation to
+    assign it or change its status to <code>open</code> or <code>closed</code>.
   </p>
   <p>
-    A successful send means Meta accepted the request. Delivery and read status arrive
-    later through events; do not treat an accepted response as delivery confirmation.
+    A successful send means Meta accepted the request. Delivery and read status
+    arrive later through events; do not treat an accepted response as delivery
+    confirmation.
   </p>
 </section>
 <section id="branding">
   <h2>Project branding</h2>
   <p>
-    A project is the tenant isolation boundary. Set its name, logo, accent color and
-    hosted-link theme in Console → Configuration → Project, or use
+    A project is the tenant isolation boundary. Set its name, logo, accent color
+    and hosted-link theme in Console → Configuration → Project, or use
     <code>PATCH /v1/project</code>.
   </p>
   <p>
-    Existing setup links use the latest saved identity. Logos accept PNG or JPEG data URLs
-    up to 5 MiB decoded. Send an empty <code>logo_data_url</code> to remove a logo.
-    Omitted fields stay unchanged.
+    Existing setup links use the latest saved identity. Logos accept PNG or JPEG
+    data URLs up to 5 MiB decoded. Send an empty <code>logo_data_url</code> to
+    remove a logo. Omitted fields stay unchanged.
   </p>
   <div class="code-block">
     <div class="code-heading">
-      <span>Update branding</span><button type="button" data-copy>Copy</button>
+      <span>Update branding</span
+      ><button
+        type="button"
+        data-copy
+      >
+        Copy
+      </button>
     </div>
     <pre><code>curl -X PATCH "$WAPO_URL/v1/project" \
   -H "X-API-Key: $WAPO_API_KEY" \

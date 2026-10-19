@@ -30,7 +30,9 @@ export function ConnectionUpdateEditor({
     <FormDialog
       title="Editar conexión"
       description={
-        connection.display_phone_number || connection.external_id || connection.id
+        connection.display_phone_number ||
+        connection.external_id ||
+        connection.id
       }
       onClose={onClose}
     >
@@ -41,7 +43,10 @@ export function ConnectionUpdateEditor({
           update.mutate()
         }}
       >
-        <Field label="Nombre" hint="Se muestra en Conexiones, Templates y Chats.">
+        <Field
+          label="Nombre"
+          hint="Se muestra en Conexiones, Templates y Chats."
+        >
           <Input
             autoFocus
             value={name}
@@ -56,12 +61,16 @@ export function ConnectionUpdateEditor({
             <div>
               <h3 className="text-sm font-medium">Rotar access token</h3>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Es opcional. Wapo verificará que el token nuevo tenga acceso al mismo
-                número y cuenta antes de reemplazar la credencial cifrada actual.
+                Es opcional. Wapo verificará que el token nuevo tenga acceso al
+                mismo número y cuenta antes de reemplazar la credencial cifrada
+                actual.
               </p>
             </div>
           </div>
-          <Field label="Nuevo access token" hint="Dejalo vacío para conservar el actual.">
+          <Field
+            label="Nuevo access token"
+            hint="Dejalo vacío para conservar el actual."
+          >
             <Input
               type="password"
               autoComplete="off"
@@ -72,7 +81,9 @@ export function ConnectionUpdateEditor({
           </Field>
         </div>
         <ErrorNotice
-          error={update.error ? new Error(connectionUpdateError(update.error)) : null}
+          error={
+            update.error ? new Error(connectionUpdateError(update.error)) : null
+          }
         />
         <div className="flex justify-end gap-2 border-t pt-4">
           <Button
@@ -100,7 +111,9 @@ function connectionUpdateError(error: unknown) {
   if (error.status === 405) {
     return 'El servidor todavía no admite esta edición. Reiniciá el API actualizado y volvé a intentar.'
   }
-  const body = error.body as { error?: { code?: string | number; message?: string } }
+  const body = error.body as {
+    error?: { code?: string | number; message?: string }
+  }
   const code = body?.error?.code
   if (code === 190 || code === 'credential_expired') {
     return 'Meta rechazó el token porque venció o dejó de ser válido. Generá una credencial nueva y volvé a intentar.'
@@ -114,5 +127,8 @@ function connectionUpdateError(error: unknown) {
   if (code === 'provider_unavailable') {
     return 'No pudimos comunicarnos con Meta para verificar el token. Intentá nuevamente en unos minutos.'
   }
-  return body?.error?.message || 'No pudimos guardar los cambios. Intentá nuevamente.'
+  return (
+    body?.error?.message ||
+    'No pudimos guardar los cambios. Intentá nuevamente.'
+  )
 }

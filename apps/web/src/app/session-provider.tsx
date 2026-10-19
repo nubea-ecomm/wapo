@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { WapoAdminClient, WapoClient, WapoAuthClient, WapoError } from '@wapo/sdk'
+import {
+  WapoAdminClient,
+  WapoClient,
+  WapoAuthClient,
+  WapoError,
+} from '@wapo/sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { persistSession, restoreSession } from './session-storage'
 import { SessionContext, type Session } from './session-context'
@@ -44,10 +49,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           if (!current || current.key !== key) return current
           const active =
             projects.data.find(
-              (project) => project.id === current.tenantId && project.status === 'active',
+              (project) =>
+                project.id === current.tenantId && project.status === 'active',
             ) || projects.data.find((project) => project.status === 'active')
           const updated =
-            JSON.stringify(profile.data.user) !== JSON.stringify(current.user) ||
+            JSON.stringify(profile.data.user) !==
+              JSON.stringify(current.user) ||
             current.tenantId !== (active?.id || '') ||
             current.tenantName !== (active?.name || '')
           if (!updated) return current
@@ -117,10 +124,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     remember = false,
   ) {
     const normalized = url.replace(/\/$/, '')
-    const result = await new WapoAuthClient({ baseUrl: normalized, apiKey: '' }).login(
-      email,
-      password,
-    )
+    const result = await new WapoAuthClient({
+      baseUrl: normalized,
+      apiKey: '',
+    }).login(email, password)
     const tenants = await new WapoAdminClient({
       baseUrl: normalized,
       apiKey: result.data.token,
@@ -145,7 +152,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryClient.clear()
     setSession((current) =>
       current
-        ? { ...current, id: crypto.randomUUID(), tenantId: id, tenantName: name }
+        ? {
+            ...current,
+            id: crypto.randomUUID(),
+            tenantId: id,
+            tenantName: name,
+          }
         : null,
     )
   }
@@ -175,7 +187,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       apiKey: session.key,
     }).updateProfile(input)
     setSession((current) =>
-      current ? { ...current, id: crypto.randomUUID(), user: result.data.user } : null,
+      current
+        ? { ...current, id: crypto.randomUUID(), user: result.data.user }
+        : null,
     )
   }
   return (

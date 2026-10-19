@@ -62,7 +62,10 @@ function ProjectSettingsForm({ project }: { project: Project }) {
       }}
       className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"
     >
-      <fieldset disabled={!canManageProject} className="min-w-0">
+      <fieldset
+        disabled={!canManageProject}
+        className="min-w-0"
+      >
         <Panel title="General">
           <Field label="Nombre del proyecto">
             <Input
@@ -165,7 +168,9 @@ function ProjectSettingsForm({ project }: { project: Project }) {
               <NativeSelect
                 value={branding.theme}
                 onChange={(event) =>
-                  updateBranding({ theme: event.target.value as 'light' | 'dark' })
+                  updateBranding({
+                    theme: event.target.value as 'light' | 'dark',
+                  })
                 }
               >
                 <option value="light">Claro</option>
@@ -176,7 +181,10 @@ function ProjectSettingsForm({ project }: { project: Project }) {
         </Panel>
         <ErrorNotice error={fileError || save.error} />
         <div className="mb-5 flex items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground" role="status">
+          <p
+            className="text-xs text-muted-foreground"
+            role="status"
+          >
             {save.isPending
               ? 'Guardando…'
               : saved
@@ -192,7 +200,10 @@ function ProjectSettingsForm({ project }: { project: Project }) {
           </Button>
         </div>
       </fieldset>
-      <ProjectBrandingPreview name={name} branding={branding} />
+      <ProjectBrandingPreview
+        name={name}
+        branding={branding}
+      />
     </form>
   )
 }

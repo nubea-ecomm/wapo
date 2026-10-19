@@ -9,7 +9,14 @@ import { Panel, Loading, Empty, ErrorNotice, LoadMore, Status } from './ui'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { NativeSelect } from './ui/native-select'
-import { Table, TableHeader, TableBody, TableHead, TableCell, TableRow } from './ui/table'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableCell,
+  TableRow,
+} from './ui/table'
 import { FormDialog } from './form-dialog'
 import { CopyCode } from './copy-code'
 import { TemplateEditor } from './template-editor'
@@ -39,14 +46,17 @@ export function TemplateList({
     `/v1/${customerId ? 'customers' : 'connections'}/${encodeURIComponent(customerId || connectionId)}/templates${params.size ? `?${params}` : ''}`,
   )
   const filtered = templates.items.filter((template) =>
-    `${template.name} ${template.language}`.toLowerCase().includes(search.toLowerCase()),
+    `${template.name} ${template.language}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   )
   const credentialExpired = isCredentialExpired(templates.error)
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
-          Los templates se comparten entre los números de la misma cuenta de WhatsApp.
+          Los templates se comparten entre los números de la misma cuenta de
+          WhatsApp.
         </p>
         <div className="flex gap-2">
           <Button
@@ -167,7 +177,9 @@ export function TemplateList({
         )}
         {!templates.isLoading && !templates.error && !filtered.length && (
           <Empty title="Sin templates">
-            {search ? 'Probá con otro nombre.' : 'Creá un template o revisá otra cuenta.'}
+            {search
+              ? 'Probá con otro nombre.'
+              : 'Creá un template o revisá otra cuenta.'}
           </Empty>
         )}
       </Panel>
@@ -177,7 +189,10 @@ export function TemplateList({
         load={() => void templates.fetchNextPage()}
       />
       {creating && (
-        <TemplateEditor connectionId={connectionId} onClose={() => setCreating(false)} />
+        <TemplateEditor
+          connectionId={connectionId}
+          onClose={() => setCreating(false)}
+        />
       )}
       {selected && (
         <FormDialog
@@ -199,45 +214,59 @@ export function TemplateList({
               <div className="max-w-lg rounded-xl rounded-tl-sm border bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/35 dark:text-emerald-50">
                 {templatePreview(selected, {}).map((part, index) =>
                   part.type === 'header' ? (
-                    <strong className="mb-2 block" key={index}>
+                    <strong
+                      className="mb-2 block"
+                      key={index}
+                    >
                       {part.text}
                     </strong>
                   ) : part.type === 'footer' ? (
-                    <small className="mt-3 block opacity-65" key={index}>
+                    <small
+                      className="mt-3 block opacity-65"
+                      key={index}
+                    >
                       {part.text}
                     </small>
                   ) : (
-                    <p className="whitespace-pre-wrap" key={index}>
+                    <p
+                      className="whitespace-pre-wrap"
+                      key={index}
+                    >
                       {part.text}
                     </p>
                   ),
                 )}
               </div>
             </section>
-            {selected.rejected_reason && selected.rejected_reason !== 'NONE' && (
-              <p className="rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-                {selected.rejected_reason}
-              </p>
-            )}
-            <TemplateHistory connectionId={connectionId} templateId={selected.id} />
+            {selected.rejected_reason &&
+              selected.rejected_reason !== 'NONE' && (
+                <p className="rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                  {selected.rejected_reason}
+                </p>
+              )}
+            <TemplateHistory
+              connectionId={connectionId}
+              templateId={selected.id}
+            />
             <details className="border-t pt-3">
               <summary className="cursor-pointer text-xs text-muted-foreground">
                 Ver definición JSON
               </summary>
               <CopyCode value={JSON.stringify(selected, null, 2)} />
             </details>
-            {selected.status === 'APPROVED' && permissions(session).canWrite && (
-              <div className="flex justify-end border-t pt-4">
-                <Button
-                  onClick={() => {
-                    setSelected(null)
-                    setTesting(selected)
-                  }}
-                >
-                  <Send /> Probar template
-                </Button>
-              </div>
-            )}
+            {selected.status === 'APPROVED' &&
+              permissions(session).canWrite && (
+                <div className="flex justify-end border-t pt-4">
+                  <Button
+                    onClick={() => {
+                      setSelected(null)
+                      setTesting(selected)
+                    }}
+                  >
+                    <Send /> Probar template
+                  </Button>
+                </div>
+              )}
           </div>
         </FormDialog>
       )}

@@ -2,7 +2,14 @@ import type { Webhook } from '@wapo/sdk'
 import { Webhook as WebhookIcon } from 'lucide-react'
 import { Panel, Empty, Status } from './ui'
 import { ResourceActions } from './resource-actions'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './ui/table'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from './ui/table'
 
 export function WebhookSubscriptions({
   hooks,
@@ -43,7 +50,9 @@ export function WebhookSubscriptions({
                         {h.url}
                       </span>
                       <small>
-                        {h.connection_id ? 'Conexión específica' : 'Todo el proyecto'}
+                        {h.connection_id
+                          ? 'Conexión específica'
+                          : 'Todo el proyecto'}
                       </small>
                     </div>
                   </div>
@@ -51,7 +60,10 @@ export function WebhookSubscriptions({
                 <TableCell>
                   <div className="flex max-w-72 flex-wrap gap-1">
                     {h.events.map((event) => (
-                      <code className="rounded border bg-muted px-1.5 py-0.5" key={event}>
+                      <code
+                        className="rounded border bg-muted px-1.5 py-0.5"
+                        key={event}
+                      >
                         {event}
                       </code>
                     ))}

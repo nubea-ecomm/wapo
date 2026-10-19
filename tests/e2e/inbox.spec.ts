@@ -107,13 +107,23 @@ test('inbox uses the 24-hour state machine and responsive conversation layout', 
     })
   })
   await page.getByRole('link', { name: 'Chats', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Inbox', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Inbox', exact: true }),
+  ).toBeVisible()
   await page.getByRole('button', { name: /Ana Cliente/ }).click()
-  await expect(page.getByText('Requiere template', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('Requiere template', { exact: true }),
+  ).toBeVisible()
   await expect(page.getByLabel('Responder conversación')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Enviar template', exact: true }).click()
-  const templateDialog = page.getByRole('dialog', { name: 'Retomar conversación' })
-  await expect(templateDialog.getByLabel('Destinatario')).toHaveValue('5491155550000')
+  await page
+    .getByRole('button', { name: 'Enviar template', exact: true })
+    .click()
+  const templateDialog = page.getByRole('dialog', {
+    name: 'Retomar conversación',
+  })
+  await expect(templateDialog.getByLabel('Destinatario')).toHaveValue(
+    '5491155550000',
+  )
   await templateDialog
     .getByRole('button', { name: 'Enviar template', exact: true })
     .click()
@@ -131,5 +141,7 @@ test('inbox uses the 24-hour state machine and responsive conversation layout', 
     page.getByRole('button', { name: 'Volver a conversaciones' }),
   ).toBeVisible()
   await page.getByRole('button', { name: 'Volver a conversaciones' }).click()
-  await expect(page.getByRole('heading', { name: 'Inbox', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Inbox', exact: true }),
+  ).toBeVisible()
 })

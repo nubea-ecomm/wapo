@@ -12,7 +12,8 @@ test('send uses stable idempotency key, bounded request and project authenticati
     },
   })
   assert.equal(
-    (await client.sendText('con-1', 'visitor', 'Hello', 'logical-send-1')).data.id,
+    (await client.sendText('con-1', 'visitor', 'Hello', 'logical-send-1')).data
+      .id,
     'msg-1',
   )
   assert.equal(captured.url, 'https://wapo.example/v1/messages')
@@ -29,7 +30,10 @@ test('typed errors preserve status without automatic retries', async () => {
     apiKey: 'key',
     fetch: async () => {
       calls++
-      return Response.json({ error: { code: 'send_unresolved' } }, { status: 409 })
+      return Response.json(
+        { error: { code: 'send_unresolved' } },
+        { status: 409 },
+      )
     },
   })
   await assert.rejects(

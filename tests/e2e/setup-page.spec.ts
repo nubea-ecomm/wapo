@@ -48,9 +48,13 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       await route.fulfill({ json: { data: {} } })
     })
     await page.goto('http://localhost:8080/setup/test/preview')
-    await expect(page.getByRole('button', { name: 'Usar mi app' })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Usar mi app' }),
+    ).toBeVisible()
     if (allowed.length === 1)
-      await expect(page.getByRole('button', { name: 'Usar un número' })).toBeHidden()
+      await expect(
+        page.getByRole('button', { name: 'Usar un número' }),
+      ).toBeHidden()
     else {
       await page.getByRole('button', { name: 'Usar un número' }).click()
       await expect(
@@ -70,10 +74,15 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       animations: 'disabled',
     })
     await page.getByRole('button', { name: 'Usar mi app' }).click()
-    await expect(page.locator('#step-two')).toHaveAttribute('aria-current', 'step')
+    await expect(page.locator('#step-two')).toHaveAttribute(
+      'aria-current',
+      'step',
+    )
     await expect(page.locator('#instructions li')).toHaveCount(3)
     expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
     ).toBe(true)
     await page.screenshot({
       path: 'artifacts/setup-authorize-mobile.png',
@@ -97,8 +106,14 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
     await page.getByRole('button', { name: 'Continuar con Meta' }).click()
     await expect(page.getByRole('status')).toContainText('Acceso autorizado')
     await page.clock.runFor(16000)
-    await expect(page.getByRole('status')).toContainText('no confirmó una cuenta')
-    await expect(page.getByRole('button', { name: 'Continuar con Meta' })).toBeEnabled()
-    await expect(page.getByRole('button', { name: 'Cambiar tipo' })).toBeEnabled()
+    await expect(page.getByRole('status')).toContainText(
+      'no confirmó una cuenta',
+    )
+    await expect(
+      page.getByRole('button', { name: 'Continuar con Meta' }),
+    ).toBeEnabled()
+    await expect(
+      page.getByRole('button', { name: 'Cambiar tipo' }),
+    ).toBeEnabled()
   })
 }

@@ -16,7 +16,9 @@ const TemplatesPage = lazy(() =>
   import('../pages/templates-page').then((m) => ({ default: m.TemplatesPage })),
 )
 const EntityDetailPage = lazy(() =>
-  import('../pages/entity-detail-page').then((m) => ({ default: m.EntityDetailPage })),
+  import('../pages/entity-detail-page').then((m) => ({
+    default: m.EntityDetailPage,
+  })),
 )
 const OverviewPage = lazy(() =>
   import('../pages/overview-page').then((m) => ({ default: m.OverviewPage })),
@@ -28,7 +30,9 @@ const CustomersPage = lazy(() =>
   import('../pages/customers-page').then((m) => ({ default: m.CustomersPage })),
 )
 const ConnectionsPage = lazy(() =>
-  import('../pages/connections-page').then((m) => ({ default: m.ConnectionsPage })),
+  import('../pages/connections-page').then((m) => ({
+    default: m.ConnectionsPage,
+  })),
 )
 const ApiKeysPage = lazy(() =>
   import('../pages/api-keys-page').then((m) => ({ default: m.ApiKeysPage })),
@@ -56,23 +60,67 @@ export function App() {
       <Routes>
         <Route element={<AppShell />}>
           <Route element={<PermissionGuard />}>
-            <Route index element={<OverviewPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="tenants" element={<TenantsPage />} />
-            <Route path="templates" element={<TemplatesPage />} />
-            <Route path="customers/:id" element={<EntityDetailPage kind="customers" />} />
+            <Route
+              index
+              element={<OverviewPage />}
+            />
+            <Route
+              path="users"
+              element={<UsersPage />}
+            />
+            <Route
+              path="tenants"
+              element={<TenantsPage />}
+            />
+            <Route
+              path="templates"
+              element={<TemplatesPage />}
+            />
+            <Route
+              path="customers/:id"
+              element={<EntityDetailPage kind="customers" />}
+            />
             <Route
               path="connections/:id"
               element={<EntityDetailPage kind="connections" />}
             />
-            <Route path="customers" element={<CustomersPage />} />
-            <Route path="connections" element={<ConnectionsPage />} />
-            <Route path="api-keys" element={<ApiKeysPage />} />
-            <Route path="inbox" element={<InboxPage />} />
-            <Route path="webhooks" element={<WebhooksPage />} />
-            <Route path="events" element={<EventsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route
+              path="customers"
+              element={<CustomersPage />}
+            />
+            <Route
+              path="connections"
+              element={<ConnectionsPage />}
+            />
+            <Route
+              path="api-keys"
+              element={<ApiKeysPage />}
+            />
+            <Route
+              path="inbox"
+              element={<InboxPage />}
+            />
+            <Route
+              path="webhooks"
+              element={<WebhooksPage />}
+            />
+            <Route
+              path="events"
+              element={<EventsPage />}
+            />
+            <Route
+              path="settings"
+              element={<SettingsPage />}
+            />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to="/"
+                  replace
+                />
+              }
+            />
           </Route>
         </Route>
       </Routes>
@@ -86,6 +134,9 @@ function PermissionGuard() {
   return permissions(session).canVisit(location.pathname) ? (
     <Outlet />
   ) : (
-    <Navigate to="/" replace />
+    <Navigate
+      to="/"
+      replace
+    />
   )
 }

@@ -8,57 +8,93 @@
     >
       On this page <span>⌄</span>
     </button>
-    <nav id="guide-navigation" aria-label="Guide sections">
-      <details class="guide-nav-group" open>
+    <nav
+      id="guide-navigation"
+      aria-label="Guide sections"
+    >
+      <details
+        class="guide-nav-group"
+        open
+      >
         <summary>Get started</summary>
         <a href="#overview">Overview</a><a href="#quickstart">Quickstart</a
         ><a href="#authentication">Authentication</a>
       </details>
-      <details class="guide-nav-group" open>
+      <details
+        class="guide-nav-group"
+        open
+      >
         <summary>WhatsApp</summary>
         <a href="#customers">Customers &amp; connections</a
         ><a href="#meta-setup">Configure Meta</a
         ><a href="#onboarding">Customer onboarding</a
-        ><a href="#branding">Project branding</a><a href="#messages">Send messages</a
-        ><a href="#templates">Templates</a><a href="#template-events">Template events</a
-        ><a href="#meta-api">Meta API</a><a href="#webhooks">Receive webhooks</a>
+        ><a href="#branding">Project branding</a
+        ><a href="#messages">Send messages</a><a href="#templates">Templates</a
+        ><a href="#template-events">Template events</a
+        ><a href="#meta-api">Meta API</a
+        ><a href="#webhooks">Receive webhooks</a>
       </details>
-      <details class="guide-nav-group" open>
+      <details
+        class="guide-nav-group"
+        open
+      >
         <summary>API conventions</summary>
-        <a href="#pagination">Pagination</a><a href="#errors">Errors &amp; rate limits</a
+        <a href="#pagination">Pagination</a
+        ><a href="#errors">Errors &amp; rate limits</a
         ><a href="#idempotency">Idempotency</a
         ><a href="#administration">Administration</a>
       </details>
-      <a class="sidebar-reference" href="/docs?view=reference">Browse all endpoints ↗</a>
+      <a
+        class="sidebar-reference"
+        href="/docs?view=reference"
+        >Browse all endpoints ↗</a
+      >
     </nav>
   </aside>
-  <main id="content" class="guide-content">
-    <section id="overview" class="intro-section">
-      <div class="eyebrow"><span class="version">API v1</span> Documentation</div>
+  <main
+    id="content"
+    class="guide-content"
+  >
+    <section
+      id="overview"
+      class="intro-section"
+    >
+      <div class="eyebrow">
+        <span class="version">API v1</span> Documentation
+      </div>
       <h1>Wapo API</h1>
       <p class="intro">
-        Connect WhatsApp accounts, send messages and manage customer conversations from
-        your application.
+        Connect WhatsApp accounts, send messages and manage customer
+        conversations from your application.
       </p>
       <div class="intro-actions">
-        <a class="docs-button primary" href="#quickstart"
+        <a
+          class="docs-button primary"
+          href="#quickstart"
           >Make your first request <span>→</span></a
-        ><a class="docs-button" href="/docs?view=reference">Explore the reference</a>
+        ><a
+          class="docs-button"
+          href="/docs?view=reference"
+          >Explore the reference</a
+        >
       </div>
       <div class="api-address">
         <span>Base URL</span><code data-api-origin>http://localhost:8080</code
         ><span class="version">REST / JSON</span>
       </div>
     </section>
-    {{template "getting-started" .}} {{template "meta-setup" .}} {{template "messaging"
-    .}} {{template "webhooks" .}} {{template "templates" .}} {{template "conventions" .}}
+    {{template "getting-started" .}} {{template "meta-setup" .}} {{template
+    "messaging" .}} {{template "webhooks" .}} {{template "templates" .}}
+    {{template "conventions" .}}
     <footer class="docs-footer">
-      <span>Wapo / Apache 2.0</span><a href="/docs?view=reference">API reference →</a>
+      <span>Wapo / Apache 2.0</span
+      ><a href="/docs?view=reference">API reference →</a>
     </footer>
   </main>
   <aside class="guide-context">
     <p>In this guide</p>
-    <a href="#quickstart">First request</a><a href="#onboarding">Connect a customer</a
+    <a href="#quickstart">First request</a
+    ><a href="#onboarding">Connect a customer</a
     ><a href="#messages">Send a message</a><a href="#webhooks">Handle events</a>
     <div class="context-note">
       Examples use placeholders. Create your own tenant key in the console.

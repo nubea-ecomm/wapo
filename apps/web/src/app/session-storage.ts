@@ -5,7 +5,9 @@ const storageKey = 'wapo.console-session'
 export function restoreSession(): Session | null {
   try {
     const value = JSON.parse(
-      sessionStorage.getItem(storageKey) || localStorage.getItem(storageKey) || 'null',
+      sessionStorage.getItem(storageKey) ||
+        localStorage.getItem(storageKey) ||
+        'null',
     )
     if (
       value?.user &&

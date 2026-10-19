@@ -37,7 +37,9 @@ it('scopes operator requests explicitly and clears the session without persistin
       if (url.endsWith('/admin/v1/me'))
         return Response.json({ data: { role: 'operator' } })
       if (url.endsWith('/tenants'))
-        return Response.json({ data: [{ id: 'tenant-a', name: 'A', status: 'active' }] })
+        return Response.json({
+          data: [{ id: 'tenant-a', name: 'A', status: 'active' }],
+        })
       return Response.json({ data: { project_id: 'tenant-b' } })
     }),
   )
@@ -52,7 +54,9 @@ it('scopes operator requests explicitly and clears the session without persistin
   await user.click(screen.getByText('Switch'))
   expect(screen.getByText('tenant-b')).toBeInTheDocument()
   await user.click(screen.getByText('Request'))
-  await waitFor(() => expect(calls.at(-1)?.headers['X-Tenant-ID']).toBe('tenant-b'))
+  await waitFor(() =>
+    expect(calls.at(-1)?.headers['X-Tenant-ID']).toBe('tenant-b'),
+  )
   expect(calls.at(-1)?.headers['X-API-Key']).toBe('operator-secret')
   expect(localStorage.length).toBe(0)
   expect(sessionStorage.length).toBe(0)

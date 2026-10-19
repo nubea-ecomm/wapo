@@ -78,10 +78,19 @@ export function UserEditor({
             required
           />
         </Field>
-        {!user && <UserAccessFields value={access} onChange={setAccess} />}
+        {!user && (
+          <UserAccessFields
+            value={access}
+            onChange={setAccess}
+          />
+        )}
         <ErrorNotice error={save.error} />
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button

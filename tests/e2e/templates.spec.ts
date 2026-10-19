@@ -10,16 +10,21 @@ test('customer and connection details list and create templates using a fake pro
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
   await page.getByRole('button', { name: 'Iniciar sesión' }).click()
   await page.getByRole('link', { name: 'Proyectos', exact: true }).click()
-  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Nuevo proyecto', exact: true })
+    .click()
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill(name)
-  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Crear proyecto', exact: true })
+    .click()
   await page.getByRole('button', { name, exact: true }).click()
   await page.getByRole('link', { name: 'Customers', exact: true }).click()
   await page.getByRole('button', { name: 'Nuevo customer' }).click()
   await page.getByLabel('Nombre', { exact: true }).fill(name)
   const created = page.waitForResponse(
     (response) =>
-      response.url().endsWith('/v1/customers') && response.request().method() === 'POST',
+      response.url().endsWith('/v1/customers') &&
+      response.request().method() === 'POST',
   )
   await page.getByRole('button', { name: 'Guardar customer' }).click()
   const customerId = (await (await created).json()).data.id
@@ -54,7 +59,9 @@ test('customer and connection details list and create templates using a fake pro
         templates.push({ ...submitted, id: 'tpl_ui', status: 'PENDING' })
         await route.fulfill({
           status: 201,
-          json: { data: { id: 'tpl_ui', status: 'PENDING', category: 'UTILITY' } },
+          json: {
+            data: { id: 'tpl_ui', status: 'PENDING', category: 'UTILITY' },
+          },
         })
       } else if (credentialExpired)
         await route.fulfill({
@@ -62,7 +69,8 @@ test('customer and connection details list and create templates using a fake pro
           json: {
             error: {
               code: 'credential_expired',
-              message: 'WhatsApp credentials expired. Reconnect the number to continue.',
+              message:
+                'WhatsApp credentials expired. Reconnect the number to continue.',
             },
           },
         })
@@ -113,8 +121,12 @@ test('customer and connection details list and create templates using a fake pro
   })
   await page.getByRole('button', { name, exact: true }).click()
   const metrics = page.getByRole('region', { name: 'Métricas del customer' })
-  await expect(metrics.getByText('Sin fallas de entrega', { exact: true })).toBeVisible()
-  await expect(metrics.getByText('Sin conexiones', { exact: true })).toBeVisible()
+  await expect(
+    metrics.getByText('Sin fallas de entrega', { exact: true }),
+  ).toBeVisible()
+  await expect(
+    metrics.getByText('Sin conexiones', { exact: true }),
+  ).toBeVisible()
   const metricResponse = page.waitForResponse((response) =>
     response.url().includes(`/customers/${customerId}/metrics?days=7`),
   )
@@ -127,14 +139,18 @@ test('customer and connection details list and create templates using a fake pro
   })
   await page.getByRole('tab', { name: 'Templates', exact: true }).click()
   await expect(page.getByText('Sin templates', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Crear template', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Crear template', exact: true })
+    .click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Nombre', { exact: true }).fill('order_update')
   await dialog
     .getByLabel('Mensaje', { exact: true })
     .fill('Hola {{1}}, recibimos tu pedido.')
   await dialog.getByLabel('Ejemplo {{1}}', { exact: true }).fill('Ana')
-  await dialog.getByRole('button', { name: 'Enviar a revisión', exact: true }).click()
+  await dialog
+    .getByRole('button', { name: 'Enviar a revisión', exact: true })
+    .click()
   await expect(
     page.getByRole('button', { name: 'order_update', exact: true }),
   ).toBeVisible()
@@ -157,7 +173,10 @@ test('customer and connection details list and create templates using a fake pro
   await expect(
     page.getByRole('link', { name: 'WhatsApp de prueba', exact: true }),
   ).toBeVisible()
-  await page.getByRole('link', { name: 'Templates', exact: true }).last().click()
+  await page
+    .getByRole('link', { name: 'Templates', exact: true })
+    .last()
+    .click()
   await expect(
     page.getByRole('heading', { name: 'WhatsApp de prueba', exact: true }),
   ).toBeVisible()
@@ -186,8 +205,12 @@ test('customer and connection details list and create templates using a fake pro
   const connected = page.getByText('Conectada', { exact: true })
   await expect(connected).toBeVisible()
   await expect(connected).toHaveClass(/emerald/)
-  await expect(page.getByText('2 problemas detectados', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Ver como tabla', exact: true }).click()
+  await expect(
+    page.getByText('2 problemas detectados', { exact: true }),
+  ).toBeVisible()
+  await page
+    .getByRole('button', { name: 'Ver como tabla', exact: true })
+    .click()
   await expect(
     page.getByRole('columnheader', { name: 'Conexión', exact: true }),
   ).toBeVisible()
@@ -195,12 +218,21 @@ test('customer and connection details list and create templates using a fake pro
   await expect(
     page.getByRole('button', { name: 'Ver como tabla', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true')
-  await page.getByRole('button', { name: 'Ver como cards', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Ver como cards', exact: true })
+    .click()
   await page.getByRole('button', { name: 'Editar', exact: true }).click()
-  const edit = page.getByRole('dialog', { name: 'Editar conexión', exact: true })
+  const edit = page.getByRole('dialog', {
+    name: 'Editar conexión',
+    exact: true,
+  })
   await edit.getByLabel('Nombre', { exact: true }).fill('WhatsApp renovado')
-  await edit.getByLabel('Nuevo access token', { exact: true }).fill('replacement-token')
-  await edit.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
+  await edit
+    .getByLabel('Nuevo access token', { exact: true })
+    .fill('replacement-token')
+  await edit
+    .getByRole('button', { name: 'Guardar cambios', exact: true })
+    .click()
   await expect(
     page.getByRole('link', { name: 'WhatsApp renovado', exact: true }),
   ).toBeVisible()
@@ -216,26 +248,43 @@ test('customer and connection details list and create templates using a fake pro
     status: 'APPROVED',
     components: [
       { type: 'HEADER', text: 'Hola {{1}}' },
-      { type: 'BODY', text: 'El producto {{1}} volvió al stock. Miralo en {{2}}' },
+      {
+        type: 'BODY',
+        text: 'El producto {{1}} volvió al stock. Miralo en {{2}}',
+      },
       { type: 'FOOTER', text: 'Respondé si necesitás ayuda' },
     ],
   })
-  await page.getByRole('link', { name: 'Templates', exact: true }).first().click()
-  await page.getByRole('button', { name: 'Probar back_in_stock', exact: true }).click()
-  const testTemplate = page.getByRole('dialog', { name: 'Probar template', exact: true })
+  await page
+    .getByRole('link', { name: 'Templates', exact: true })
+    .first()
+    .click()
+  await page
+    .getByRole('button', { name: 'Probar back_in_stock', exact: true })
+    .click()
+  const testTemplate = page.getByRole('dialog', {
+    name: 'Probar template',
+    exact: true,
+  })
   await testTemplate
     .getByLabel('Destinatario', { exact: true })
     .fill('+54 9 11 5555-0000')
   await testTemplate.getByLabel('Encabezado · parámetro 1').fill('Ana')
   await testTemplate.getByLabel('Mensaje · parámetro 1').fill('Café')
-  await testTemplate.getByLabel('Mensaje · parámetro 2').fill('https://example.com/cafe')
+  await testTemplate
+    .getByLabel('Mensaje · parámetro 2')
+    .fill('https://example.com/cafe')
   rejectRecipient = true
-  await testTemplate.getByRole('button', { name: 'Enviar template', exact: true }).click()
+  await testTemplate
+    .getByRole('button', { name: 'Enviar template', exact: true })
+    .click()
   await expect(
     testTemplate.getByText('Meta está en modo de prueba', { exact: false }),
   ).toBeVisible()
   rejectRecipient = false
-  await testTemplate.getByRole('button', { name: 'Enviar template', exact: true }).click()
+  await testTemplate
+    .getByRole('button', { name: 'Enviar template', exact: true })
+    .click()
   await expect(testTemplate).not.toBeVisible()
   expect(sentMessage).toMatchObject({
     connection_id: connection.id,
@@ -263,7 +312,10 @@ test('customer and connection details list and create templates using a fake pro
     .getByRole('navigation', { name: 'Navegación principal' })
     .getByRole('link', { name: 'Conexiones', exact: true })
     .click()
-  await page.getByRole('link', { name: 'Templates', exact: true }).first().click()
+  await page
+    .getByRole('link', { name: 'Templates', exact: true })
+    .first()
+    .click()
   await expect(
     page.getByRole('heading', { name: 'La autorización de Meta venció' }),
   ).toBeVisible()

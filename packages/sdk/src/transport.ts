@@ -37,7 +37,9 @@ export class Transport {
         headers: {
           'X-API-Key': this.options.apiKey,
           'Content-Type': 'application/json',
-          ...(this.options.tenantId ? { 'X-Tenant-ID': this.options.tenantId } : {}),
+          ...(this.options.tenantId
+            ? { 'X-Tenant-ID': this.options.tenantId }
+            : {}),
           ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -45,7 +47,8 @@ export class Transport {
         redirect: 'error',
       },
     )
-    const data: unknown = response.status === 204 ? undefined : await response.json()
+    const data: unknown =
+      response.status === 204 ? undefined : await response.json()
     if (!response.ok) throw new WapoError(response.status, data)
     return data as T
   }

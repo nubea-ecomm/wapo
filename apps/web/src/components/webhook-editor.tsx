@@ -44,7 +44,10 @@ export function WebhookEditor({ onClose }: { onClose: () => void }) {
     onClose()
   })
   return (
-    <FormDialog title="Nuevo webhook" onClose={onClose}>
+    <FormDialog
+      title="Nuevo webhook"
+      onClose={onClose}
+    >
       <form
         className="form-stack"
         onSubmit={(e) => {
@@ -78,7 +81,10 @@ export function WebhookEditor({ onClose }: { onClose: () => void }) {
           >
             <option value="">Todo el proyecto</option>
             {connections.data?.data.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option
+                key={c.id}
+                value={c.id}
+              >
                 {c.name || c.id}
               </option>
             ))}
@@ -103,7 +109,11 @@ export function WebhookEditor({ onClose }: { onClose: () => void }) {
           ))}
         </fieldset>
         <ErrorNotice error={create.error || connections.error} />
-        <Button variant="default" size="default" disabled={create.isPending}>
+        <Button
+          variant="default"
+          size="default"
+          disabled={create.isPending}
+        >
           {create.isPending ? 'Creando…' : 'Crear webhook'}
         </Button>
       </form>

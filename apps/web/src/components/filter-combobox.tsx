@@ -34,7 +34,10 @@ export function FilterCombobox({
   const listID = useId()
   const selected = options.find((option) => option.value === value)
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -53,7 +56,10 @@ export function FilterCombobox({
         className="w-[var(--radix-popover-trigger-width)] min-w-52 p-0"
       >
         <Command>
-          <CommandInput placeholder={searchPlaceholder} aria-label={`Buscar ${label}`} />
+          <CommandInput
+            placeholder={searchPlaceholder}
+            aria-label={`Buscar ${label}`}
+          />
           <CommandList id={listID}>
             <CommandEmpty>Sin resultados.</CommandEmpty>
             <CommandGroup>
@@ -66,8 +72,12 @@ export function FilterCombobox({
                     setOpen(false)
                   }}
                 >
-                  <span className="min-w-0 flex-1 truncate">{option.label}</span>
-                  {option.value === value && <Check className="ml-auto size-4" />}
+                  <span className="min-w-0 flex-1 truncate">
+                    {option.label}
+                  </span>
+                  {option.value === value && (
+                    <Check className="ml-auto size-4" />
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

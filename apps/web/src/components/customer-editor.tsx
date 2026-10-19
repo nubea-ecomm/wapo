@@ -36,7 +36,10 @@ export function CustomerEditor({
     onClose()
   })
   return (
-    <FormDialog title={customer ? 'Editar customer' : 'Nuevo customer'} onClose={onClose}>
+    <FormDialog
+      title={customer ? 'Editar customer' : 'Nuevo customer'}
+      onClose={onClose}
+    >
       <form
         className="form-stack"
         onSubmit={(e) => {
@@ -78,10 +81,19 @@ export function CustomerEditor({
         </Field>
         <ErrorNotice error={save.error} />
         <div className="row-actions">
-          <Button variant="outline" size="default" type="button" onClick={onClose}>
+          <Button
+            variant="outline"
+            size="default"
+            type="button"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
-          <Button variant="default" size="default" disabled={save.isPending}>
+          <Button
+            variant="default"
+            size="default"
+            disabled={save.isPending}
+          >
             {save.isPending ? 'Guardando…' : 'Guardar customer'}
           </Button>
         </div>

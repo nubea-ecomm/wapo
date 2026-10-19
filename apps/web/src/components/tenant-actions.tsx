@@ -47,7 +47,9 @@ export function TenantActions({
   const [toggling, setToggling] = useState(false)
   const active = tenant.status === 'active'
   const toggle = useAction(async () => {
-    await admin.updateTenant(tenant.id, { status: active ? 'suspended' : 'active' })
+    await admin.updateTenant(tenant.id, {
+      status: active ? 'suspended' : 'active',
+    })
     if (active && session?.tenantId === tenant.id) selectTenant('', '')
     setToggling(false)
   })
@@ -63,12 +65,21 @@ export function TenantActions({
             <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44">
-          <DropdownMenuItem disabled={!active} onSelect={onOpen}>
+        <DropdownMenuContent
+          align="end"
+          className="w-44"
+        >
+          <DropdownMenuItem
+            disabled={!active}
+            onSelect={onOpen}
+          >
             <ArrowUpRight />
             Abrir proyecto
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={!active} onSelect={onConfigure}>
+          <DropdownMenuItem
+            disabled={!active}
+            onSelect={onConfigure}
+          >
             <Settings2 />
             Configurar proyecto
           </DropdownMenuItem>
@@ -86,13 +97,20 @@ export function TenantActions({
             {active ? 'Suspender' : 'Reactivar'}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onSelect={() => setDeleting(true)}>
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => setDeleting(true)}
+          >
             <Trash2 />
             Eliminar proyecto
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <TenantDeleteDialog tenant={tenant} open={deleting} onOpenChange={setDeleting} />
+      <TenantDeleteDialog
+        tenant={tenant}
+        open={deleting}
+        onOpenChange={setDeleting}
+      />
       <AlertDialog
         open={toggling}
         onOpenChange={(open) => {
@@ -112,7 +130,9 @@ export function TenantActions({
           </AlertDialogHeader>
           <ErrorNotice error={toggle.error} />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={toggle.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={toggle.isPending}>
+              Cancelar
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={toggle.isPending}
               onClick={(event) => {

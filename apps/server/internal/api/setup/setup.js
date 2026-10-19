@@ -60,7 +60,9 @@ function showStep(authorize) {
   document
     .querySelector(authorize ? '#authorization-title' : '#choose h1')
     .setAttribute('tabindex', '-1')
-  document.querySelector(authorize ? '#authorization-title' : '#choose h1').focus()
+  document
+    .querySelector(authorize ? '#authorization-title' : '#choose h1')
+    .focus()
 }
 document.querySelectorAll('[data-select]').forEach((choice) => {
   choice.onclick = () => {
@@ -98,7 +100,8 @@ async function complete() {
     document.querySelector('.secure-note').hidden = true
     document.getElementById('authorization-title').textContent =
       'Tu número está conectado'
-    document.getElementById('description').textContent = 'Ya podés cerrar esta página.'
+    document.getElementById('description').textContent =
+      'Ya podés cerrar esta página.'
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
   } catch (e) {
     status.textContent =
@@ -121,7 +124,9 @@ window.addEventListener('message', (event) => {
     return
   }
   if (value?.type !== 'WA_EMBEDDED_SIGNUP' || !waiting) return
-  if (['FINISH', 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'].includes(value.event)) {
+  if (
+    ['FINISH', 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'].includes(value.event)
+  ) {
     if (!value.data?.waba_id) {
       stopWaiting(
         'Meta no devolvió la cuenta de WhatsApp. Revisá la configuración de registro integrado y volvé a intentar.',
@@ -174,7 +179,8 @@ fetch(endpoint, { cache: 'no-store' })
     script.src = 'https://connect.facebook.net/es_LA/sdk.js'
     script.async = true
     script.onerror = () => {
-      status.textContent = 'No se pudo cargar Meta. Revisá tu conexión o bloqueador.'
+      status.textContent =
+        'No se pudo cargar Meta. Revisá tu conexión o bloqueador.'
     }
     document.head.append(script)
   })

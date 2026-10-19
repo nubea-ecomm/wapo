@@ -29,7 +29,9 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
     setError(null)
     void updateProfile({ name, email, language, avatar_variant: avatar })
       .then(onClose)
-      .catch((error) => setError(new Error(profileUpdateError(error, t('profileError')))))
+      .catch((error) =>
+        setError(new Error(profileUpdateError(error, t('profileError')))),
+      )
       .finally(() => setBusy(false))
   }
 
@@ -39,7 +41,10 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
       description={t('profileDescription')}
       onClose={onClose}
     >
-      <form className="grid gap-4" onSubmit={submit}>
+      <form
+        className="grid gap-4"
+        onSubmit={submit}
+      >
         <div className="flex items-center gap-4 rounded-lg border p-3">
           <UserAvatar
             id={user.id}

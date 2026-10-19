@@ -26,10 +26,13 @@ export function CredentialRecovery({ connection }: { connection: Connection }) {
       <div className="flex items-start gap-3">
         <KeyRound className="mt-0.5 size-5 shrink-0" />
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold">La autorización de Meta venció</h3>
+          <h3 className="text-sm font-semibold">
+            La autorización de Meta venció
+          </h3>
           <p className="mt-1 text-xs leading-relaxed opacity-80">
-            Meta no permite renovar una credencial que ya expiró. El titular debe
-            autorizar nuevamente la cuenta; la conexión y su historial se conservan.
+            Meta no permite renovar una credencial que ya expiró. El titular
+            debe autorizar nuevamente la cuenta; la conexión y su historial se
+            conservan.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {connection.customer_id &&
@@ -40,12 +43,22 @@ export function CredentialRecovery({ connection }: { connection: Connection }) {
                 disabled={reconnect.isPending}
                 onClick={() => reconnect.mutate()}
               >
-                <RefreshCw className={reconnect.isPending ? 'animate-spin' : ''} />
-                {reconnect.isPending ? 'Generando enlace…' : 'Reconectar WhatsApp'}
+                <RefreshCw
+                  className={reconnect.isPending ? 'animate-spin' : ''}
+                />
+                {reconnect.isPending
+                  ? 'Generando enlace…'
+                  : 'Reconectar WhatsApp'}
               </Button>
             ) : (
-              <Button size="sm" variant="outline" asChild>
-                <Link to={`/connections/${encodeURIComponent(connection.id)}?tab=health`}>
+              <Button
+                size="sm"
+                variant="outline"
+                asChild
+              >
+                <Link
+                  to={`/connections/${encodeURIComponent(connection.id)}?tab=health`}
+                >
                   Ver diagnóstico
                 </Link>
               </Button>
@@ -53,8 +66,8 @@ export function CredentialRecovery({ connection }: { connection: Connection }) {
           </div>
           {reconnect.error && (
             <p className="mt-3 text-xs">
-              No pudimos generar el enlace. Revisá la configuración de Meta e intentá de
-              nuevo.
+              No pudimos generar el enlace. Revisá la configuración de Meta e
+              intentá de nuevo.
             </p>
           )}
         </div>

@@ -46,9 +46,10 @@ export function TenantDeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Eliminar proyecto</AlertDialogTitle>
           <AlertDialogDescription>
-            Se eliminará {tenant.name} y todos sus customers, conexiones, chats, mensajes,
-            webhooks y eventos de Wapo. Sus claves dejarán de funcionar. Esta acción es
-            permanente. Los números y cuentas externos se conservan.
+            Se eliminará {tenant.name} y todos sus customers, conexiones, chats,
+            mensajes, webhooks y eventos de Wapo. Sus claves dejarán de
+            funcionar. Esta acción es permanente. Los números y cuentas externos
+            se conservan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="grid gap-2">
@@ -64,7 +65,9 @@ export function TenantDeleteDialog({
         </div>
         <ErrorNotice error={remove.error} />
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={remove.isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel disabled={remove.isPending}>
+            Cancelar
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={confirmation !== tenant.name || remove.isPending}

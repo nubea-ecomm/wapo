@@ -46,7 +46,11 @@ export function TenantEditor({
         </Field>
         <ErrorNotice error={save.error} />
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button disabled={save.isPending}>

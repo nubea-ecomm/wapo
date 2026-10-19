@@ -22,11 +22,9 @@ const template: MessageTemplate = {
 
 describe('template message payloads', () => {
   it('builds ordered Meta parameters for each component', () => {
-    expect(templateParameterFields(template).map((field) => field.key)).toEqual([
-      'header:1',
-      'body:1',
-      'body:2',
-    ])
+    expect(templateParameterFields(template).map((field) => field.key)).toEqual(
+      ['header:1', 'body:1', 'body:2'],
+    )
     expect(
       templatePayload(template, {
         'header:1': 'Ana',
@@ -50,7 +48,11 @@ describe('template message payloads', () => {
   })
 
   it('renders a preview and normalizes the recipient', () => {
-    expect(templatePreview(template, { 'header:1': 'Ana' })[0].text).toBe('Hola Ana')
-    expect(normalizeWhatsAppRecipient('+54 9 11 5555-0000')).toBe('5491155550000')
+    expect(templatePreview(template, { 'header:1': 'Ana' })[0].text).toBe(
+      'Hola Ana',
+    )
+    expect(normalizeWhatsAppRecipient('+54 9 11 5555-0000')).toBe(
+      '5491155550000',
+    )
   })
 })

@@ -2,8 +2,8 @@
 <section id="templates">
   <h2>Templates</h2>
   <p>
-    Templates belong to a WhatsApp Business Account. Connections sharing that account see
-    the same templates.
+    Templates belong to a WhatsApp Business Account. Connections sharing that
+    account see the same templates.
   </p>
   <div class="code-block">
     <pre><code>curl "$WAPO_URL/v1/connections/CONNECTION_ID/templates" \
@@ -14,8 +14,9 @@ curl -X POST "$WAPO_URL/v1/connections/CONNECTION_ID/templates" \
   -d '{"name":"order_update","language":"es","category":"UTILITY","components":[{"type":"BODY","text":"Recibimos tu pedido."}]}'</code></pre>
   </div>
   <p>
-    Creation submits the template to Meta for review. It does not imply approval. For
-    customer routes, pass <code>connection_id</code> to select the account.
+    Creation submits the template to Meta for review. It does not imply
+    approval. For customer routes, pass <code>connection_id</code> to select the
+    account.
   </p>
 </section>
 <section id="template-events">
@@ -27,47 +28,50 @@ curl -X POST "$WAPO_URL/v1/connections/CONNECTION_ID/templates" \
     <code>whatsapp.template.quality_changed</code>.
   </p>
   <p>
-    Events include the current template, previous snapshot, revision and source. In Meta,
-    enable <code>message_template_status_update</code>,
+    Events include the current template, previous snapshot, revision and source.
+    In Meta, enable <code>message_template_status_update</code>,
     <code>template_category_update</code> and
-    <code>message_template_quality_update</code>. The worker reconciles pending accounts
-    after one minute and others after six hours, subject to queue size and provider
-    limits.
+    <code>message_template_quality_update</code>. The worker reconciles pending
+    accounts after one minute and others after six hours, subject to queue size
+    and provider limits.
   </p>
   <p>
-    Scheduled category changes do not replace the effective category until Meta applies
-    them. Repeated unchanged snapshots do not create new events. Signed webhook deliveries
-    can be retried; deduplicate their stable event IDs.
+    Scheduled category changes do not replace the effective category until Meta
+    applies them. Repeated unchanged snapshots do not create new events. Signed
+    webhook deliveries can be retried; deduplicate their stable event IDs.
   </p>
   <p>
-    The first synchronization establishes a baseline. Earlier changes and transitions
-    between polls cannot be reconstructed. Read the latest 100 changes from
+    The first synchronization establishes a baseline. Earlier changes and
+    transitions between polls cannot be reconstructed. Read the latest 100
+    changes from
     <code>GET /v1/connections/{id}/templates/{template_id}/history</code>.
   </p>
 </section>
 <section id="meta-api">
   <h2>Meta API</h2>
   <p>
-    Use <code>/meta/whatsapp/v24.0</code> with a project API key. The server selects the
-    stored connection token.
+    Use <code>/meta/whatsapp/v24.0</code> with a project API key. The server
+    selects the stored connection token.
   </p>
   <div class="code-block">
     <pre><code>curl "$WAPO_URL/meta/whatsapp/v24.0/WABA_ID/message_templates" \
   -H "X-API-Key: $WAPO_API_KEY"</code></pre>
   </div>
   <p>
-    The adapter handles templates, uploads, WhatsApp Flows, profiles, calls, blocks and
-    phone settings. Media and dataset IDs must have been observed through this project.
-    Flow IDs require an existing binding or a verified account context.
+    The adapter handles templates, uploads, WhatsApp Flows, profiles, calls,
+    blocks and phone settings. Media and dataset IDs must have been observed
+    through this project. Flow IDs require an existing binding or a verified
+    account context.
   </p>
   <p>
-    Stored reads only include data received by this instance. Reverse pagination, date
-    filters and provider-specific enrichments are not fully matched. Calling endpoints
-    relay signaling; supply your own audio server.
+    Stored reads only include data received by this instance. Reverse
+    pagination, date filters and provider-specific enrichments are not fully
+    matched. Calling endpoints relay signaling; supply your own audio server.
   </p>
   <p>
-    Automatic number provisioning, partner billing, broadcast scheduling, hosted function
-    execution, workflows and agent runs are not implemented in standalone mode.
+    Automatic number provisioning, partner billing, broadcast scheduling, hosted
+    function execution, workflows and agent runs are not implemented in
+    standalone mode.
   </p>
 </section>
 {{end}}

@@ -1,15 +1,30 @@
 <!doctype html>
-<html lang="es" data-theme="{{.Theme}}">
+<html
+  lang="es"
+  data-theme="{{.Theme}}"
+>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1"
+    />
+    <meta
+      name="referrer"
+      content="no-referrer"
+    />
     <title>Conectar WhatsApp / {{.Name}}</title>
-    <link rel="stylesheet" href="/setup/assets/setup.css" />
+    <link
+      rel="stylesheet"
+      href="/setup/assets/setup.css"
+    />
     <style>
       :root[data-theme] { --accent: {{.Accent}}; --accent-foreground: {{.Foreground}}; {{.Overrides}} }
     </style>
-    <script defer src="/setup/assets/setup.js"></script>
+    <script
+      defer
+      src="/setup/assets/setup.js"
+    ></script>
   </head>
   <body>
     <main>
@@ -22,8 +37,15 @@
         />{{end}}
         <strong>{{.Name}}</strong>
       </header>
-      <nav class="steps" aria-label="Progreso">
-        <span id="step-one" aria-current="step"><b>1</b> Tipo de conexión</span>
+      <nav
+        class="steps"
+        aria-label="Progreso"
+      >
+        <span
+          id="step-one"
+          aria-current="step"
+          ><b>1</b> Tipo de conexión</span
+        >
         <span class="step-line"></span>
         <span id="step-two"><b>2</b> Autorización</span>
       </nav>
@@ -33,9 +55,19 @@
           <h1>Conectá tu número</h1>
           <p>Elegí cómo vas a usar WhatsApp con {{.Name}}.</p>
         </div>
-        <div id="choices" class="choices" aria-busy="true">
-          <article class="choice" data-mode="coexistence" hidden>
-            <span class="choice-icon" aria-hidden="true"
+        <div
+          id="choices"
+          class="choices"
+          aria-busy="true"
+        >
+          <article
+            class="choice"
+            data-mode="coexistence"
+            hidden
+          >
+            <span
+              class="choice-icon"
+              aria-hidden="true"
               ><svg
                 viewBox="0 0 24 24"
                 width="23"
@@ -44,7 +76,13 @@
                 stroke="currentColor"
                 stroke-width="1.6"
               >
-                <rect x="6" y="2" width="12" height="20" rx="3" />
+                <rect
+                  x="6"
+                  y="2"
+                  width="12"
+                  height="20"
+                  rx="3"
+                />
                 <path d="M10 18h4" /></svg
             ></span>
             <div>
@@ -59,12 +97,21 @@
                 </ul>
               </details>
             </div>
-            <button class="choose-button" data-select="coexistence">
+            <button
+              class="choose-button"
+              data-select="coexistence"
+            >
               Usar mi app <span aria-hidden="true">↗</span>
             </button>
           </article>
-          <article class="choice" data-mode="dedicated" hidden>
-            <span class="choice-icon" aria-hidden="true"
+          <article
+            class="choice"
+            data-mode="dedicated"
+            hidden
+          >
+            <span
+              class="choice-icon"
+              aria-hidden="true"
               ><svg
                 viewBox="0 0 24 24"
                 width="23"
@@ -74,12 +121,20 @@
                 stroke-width="1.6"
               >
                 <path d="M6 2h8l4 4v16H6z" />
-                <rect x="9" y="10" width="6" height="7" rx="1" />
+                <rect
+                  x="9"
+                  y="10"
+                  width="6"
+                  height="7"
+                  rx="1"
+                />
                 <path d="M12 10v7M9 13h6" /></svg
             ></span>
             <div>
               <h2>Usar un número dedicado</h2>
-              <p>Conectá un número para enviar y recibir mensajes por la API.</p>
+              <p>
+                Conectá un número para enviar y recibir mensajes por la API.
+              </p>
               <details>
                 <summary>Qué necesitás</summary>
                 <ul>
@@ -89,14 +144,25 @@
                 </ul>
               </details>
             </div>
-            <button class="choose-button" data-select="dedicated">
+            <button
+              class="choose-button"
+              data-select="dedicated"
+            >
               Usar un número <span aria-hidden="true">↗</span>
             </button>
           </article>
         </div>
       </section>
-      <section id="authorize" hidden>
-        <button id="back" class="back">← Cambiar tipo de conexión</button>
+      <section
+        id="authorize"
+        hidden
+      >
+        <button
+          id="back"
+          class="back"
+        >
+          ← Cambiar tipo de conexión
+        </button>
         <div class="heading">
           <span class="eyebrow">AUTORIZACIÓN EN META</span>
           <h1 id="authorization-title">Conectá WhatsApp</h1>
@@ -105,16 +171,36 @@
         <div class="instructions">
           <h2>Así sigue la conexión</h2>
           <ol id="instructions"></ol>
-          <p id="requirement" class="notice"></p>
+          <p
+            id="requirement"
+            class="notice"
+          ></p>
         </div>
-        <button id="connect" disabled>Preparando Meta…</button>
-        <p class="secure-note">La autorización se completa en una ventana de Meta.</p>
+        <button
+          id="connect"
+          disabled
+        >
+          Preparando Meta…
+        </button>
+        <p class="secure-note">
+          La autorización se completa en una ventana de Meta.
+        </p>
       </section>
-      <select id="mode" hidden aria-label="Tipo de conexión"></select>
-      <p id="status" role="status" aria-live="polite">Cargando opciones…</p>
+      <select
+        id="mode"
+        hidden
+        aria-label="Tipo de conexión"
+      ></select>
+      <p
+        id="status"
+        role="status"
+        aria-live="polite"
+      >
+        Cargando opciones…
+      </p>
       <footer>
-        {{.Name}} recibe acceso a la cuenta que autorices. Podés administrar ese acceso en
-        Meta.
+        {{.Name}} recibe acceso a la cuenta que autorices. Podés administrar ese
+        acceso en Meta.
       </footer>
     </main>
   </body>

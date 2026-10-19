@@ -3,7 +3,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, it, vi } from 'vitest'
 import { I18nContext, messages } from '../app/i18n'
-import { SessionContext, type SessionContextValue } from '../app/session-context'
+import {
+  SessionContext,
+  type SessionContextValue,
+} from '../app/session-context'
 import { ProfileDialog } from './profile-dialog'
 
 it('submits editable profile fields and the selected language', async () => {
@@ -31,7 +34,10 @@ it('submits editable profile fields and the selected language', async () => {
       },
     },
     client: new WapoClient({ baseUrl: 'https://api.example', apiKey: 'token' }),
-    admin: new WapoAdminClient({ baseUrl: 'https://api.example', apiKey: 'token' }),
+    admin: new WapoAdminClient({
+      baseUrl: 'https://api.example',
+      apiKey: 'token',
+    }),
     connect: vi.fn(),
     connectUser: vi.fn(),
     selectTenant: vi.fn(),
@@ -40,7 +46,9 @@ it('submits editable profile fields and the selected language', async () => {
   }
   render(
     <SessionContext.Provider value={value}>
-      <I18nContext.Provider value={{ language: 'es', t: (key) => messages.es[key] }}>
+      <I18nContext.Provider
+        value={{ language: 'es', t: (key) => messages.es[key] }}
+      >
         <ProfileDialog onClose={onClose} />
       </I18nContext.Provider>
     </SessionContext.Provider>,

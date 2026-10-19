@@ -7,7 +7,8 @@ window.addEventListener('docs-theme-change', (event) => {
     Array.isArray(current) ? current.map(update) : update(current),
   )
 })
-const referenceView = new URLSearchParams(location.search).get('view') === 'reference'
+const referenceView =
+  new URLSearchParams(location.search).get('view') === 'reference'
 document.querySelectorAll('[data-tab]').forEach((link) => {
   if (link.dataset.tab === (referenceView ? 'reference' : 'guides'))
     link.setAttribute('aria-current', 'page')
@@ -78,12 +79,14 @@ async function loadReference() {
       script.onerror = reject
       window.document.head.append(script)
     })
-    const selected = new URLSearchParams(location.search).get('api') || 'messaging'
+    const selected =
+      new URLSearchParams(location.search).get('api') || 'messaging'
     const configurations = [
       {
         title: 'Messaging API',
         slug: 'messaging',
-        prefix: (path) => path.startsWith('/v1/') || path.startsWith('/public/'),
+        prefix: (path) =>
+          path.startsWith('/v1/') || path.startsWith('/public/'),
         description:
           'Tenant-scoped WhatsApp messaging. Authenticate with a tenant API key. Start with customers, connect a number, then send and receive messages.',
       },
@@ -100,7 +103,8 @@ async function loadReference() {
       {
         title: 'Compatibility API',
         slug: 'compatibility',
-        prefix: (path) => path.startsWith('/platform/') || path.startsWith('/meta/'),
+        prefix: (path) =>
+          path.startsWith('/platform/') || path.startsWith('/meta/'),
         description:
           'Alternate platform and Graph-shaped routes. Use the native Messaging API for new integrations. Unsupported standalone capabilities return 501; support is described per operation.',
       },
@@ -146,7 +150,9 @@ async function loadReference() {
             title: configuration.title,
             description: configuration.description,
           },
-          servers: [{ url: location.origin, description: 'Current Wapo instance' }],
+          servers: [
+            { url: location.origin, description: 'Current Wapo instance' },
+          ],
           'x-tagGroups': document['x-tagGroups']
             .map((group) => ({
               ...group,
@@ -162,7 +168,9 @@ async function loadReference() {
             }))
             .filter((group) => group.tags.length),
           paths: Object.fromEntries(
-            Object.entries(document.paths).filter(([path]) => configuration.prefix(path)),
+            Object.entries(document.paths).filter(([path]) =>
+              configuration.prefix(path),
+            ),
           ),
         },
       })),

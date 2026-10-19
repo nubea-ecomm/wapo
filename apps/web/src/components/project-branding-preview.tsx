@@ -39,7 +39,9 @@ export function ProjectBrandingPreview({
                 className="size-10 object-contain"
               />
             )}
-            <strong className="break-words text-sm">{name || 'Tu proyecto'}</strong>
+            <strong className="break-words text-sm">
+              {name || 'Tu proyecto'}
+            </strong>
           </div>
           <span style={{ color: branding.accent_color }}>
             <WhatsAppIcon size={28} />

@@ -147,7 +147,11 @@ export interface WhatsAppSettings {
 }
 
 export interface ProjectSettings extends Project {
-  branding: { logo_data_url: string; accent_color: string; theme: 'light' | 'dark' }
+  branding: {
+    logo_data_url: string
+    accent_color: string
+    theme: 'light' | 'dark'
+  }
 }
 
 export interface LogEntry {

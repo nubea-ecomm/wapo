@@ -23,11 +23,19 @@ export class WapoClient extends Transport {
     name?: string
     branding?: Partial<ProjectSettings['branding']>
   }) {
-    return this.request<{ data: ProjectSettings }>('PATCH', '/v1/project', input)
+    return this.request<{ data: ProjectSettings }>(
+      'PATCH',
+      '/v1/project',
+      input,
+    )
   }
   me() {
     return this.request<{
-      data: { project_id: string; compatibility_mode: boolean; onboarding_ready: boolean }
+      data: {
+        project_id: string
+        compatibility_mode: boolean
+        onboarding_ready: boolean
+      }
     }>('GET', '/v1/me')
   }
   listTemplates(connectionId: string, after = '') {
@@ -37,11 +45,9 @@ export class WapoClient extends Transport {
     )
   }
   createTemplate(connectionId: string, input: TemplateInput) {
-    return this.request<{ data: Pick<MessageTemplate, 'id' | 'status' | 'category'> }>(
-      'POST',
-      `/v1/connections/${encode(connectionId)}/templates`,
-      input,
-    )
+    return this.request<{
+      data: Pick<MessageTemplate, 'id' | 'status' | 'category'>
+    }>('POST', `/v1/connections/${encode(connectionId)}/templates`, input)
   }
   listCustomers() {
     return this.request<Page<Customer>>('GET', '/v1/customers')
@@ -50,7 +56,11 @@ export class WapoClient extends Transport {
     return this.request<{ data: Customer }>('POST', '/v1/customers', input)
   }
   updateCustomer(id: string, input: Partial<CustomerInput>) {
-    return this.request<{ data: Customer }>('PATCH', `/v1/customers/${encode(id)}`, input)
+    return this.request<{ data: Customer }>(
+      'PATCH',
+      `/v1/customers/${encode(id)}`,
+      input,
+    )
   }
   deleteCustomer(id: string) {
     return this.request('DELETE', `/v1/customers/${encode(id)}`)
@@ -68,7 +78,10 @@ export class WapoClient extends Transport {
   }) {
     return this.request<{ data: Connection }>('POST', '/v1/connections', input)
   }
-  updateConnection(id: string, input: { name?: string; access_token?: string }) {
+  updateConnection(
+    id: string,
+    input: { name?: string; access_token?: string },
+  ) {
     return this.request<{ data: Connection }>(
       'PATCH',
       `/v1/connections/${encode(id)}`,
@@ -84,7 +97,12 @@ export class WapoClient extends Transport {
       `/v1/messages${connectionId ? `?connection_id=${encode(connectionId)}` : ''}`,
     )
   }
-  sendText(connectionId: string, to: string, text: string, idempotencyKey: string) {
+  sendText(
+    connectionId: string,
+    to: string,
+    text: string,
+    idempotencyKey: string,
+  ) {
     return this.request<{ data: Message }>(
       'POST',
       '/v1/messages',
@@ -98,13 +116,20 @@ export class WapoClient extends Transport {
   sendTemplate(
     connectionId: string,
     to: string,
-    template: { name: string; language: { code: string }; components?: unknown[] },
+    template: {
+      name: string
+      language: { code: string }
+      components?: unknown[]
+    },
     idempotencyKey: string,
   ) {
     return this.request<{ data: Message }>(
       'POST',
       '/v1/messages',
-      { connection_id: connectionId, payload: { to, type: 'template', template } },
+      {
+        connection_id: connectionId,
+        payload: { to, type: 'template', template },
+      },
       idempotencyKey,
     )
   }
@@ -131,7 +156,11 @@ export class WapoClient extends Transport {
   }
   replyWithTemplate(
     id: string,
-    template: { name: string; language: { code: string }; components?: unknown[] },
+    template: {
+      name: string
+      language: { code: string }
+      components?: unknown[]
+    },
     idempotencyKey: string,
   ) {
     return this.request<{ data: Message }>(

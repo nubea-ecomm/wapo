@@ -19,7 +19,11 @@ import { Button } from '../components/ui/button'
 import { NativeSelect } from '../components/ui/native-select'
 import { WhatsAppIcon } from '../components/icons/whatsapp-icon'
 import { TemplateList } from '../components/template-list'
-export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }) {
+export function EntityDetailPage({
+  kind,
+}: {
+  kind: 'customers' | 'connections'
+}) {
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const entity = useApi<{ data: Customer & Connection }>(
@@ -32,7 +36,8 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
   )
   const [chosen, setChosen] = useState('')
   const current = entity.data?.data
-  const connections = kind === 'connections' && current ? [current] : related.items
+  const connections =
+    kind === 'connections' && current ? [current] : related.items
   const accounts = [
     ...new Map(
       connections
@@ -43,7 +48,8 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
         .map((connection) => [connection.business_account_id, connection]),
     ).values(),
   ]
-  const selected = accounts.find((connection) => connection.id === chosen) || accounts[0]
+  const selected =
+    accounts.find((connection) => connection.id === chosen) || accounts[0]
   const tab = params.get('tab') || 'overview'
   const tabs =
     kind === 'customers'
@@ -67,9 +73,13 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
         {kind === 'customers' ? 'Customers' : 'Conexiones'}
       </Link>
       <PageHeader
-        title={current?.name || (kind === 'customers' ? 'Customer' : 'Conexión')}
+        title={
+          current?.name || (kind === 'customers' ? 'Customer' : 'Conexión')
+        }
         description={
-          kind === 'customers' ? 'Datos y cuentas del negocio.' : 'Cuenta de WhatsApp.'
+          kind === 'customers'
+            ? 'Datos y cuentas del negocio.'
+            : 'Cuenta de WhatsApp.'
         }
       />
       <ErrorNotice error={entity.error} />
@@ -123,7 +133,12 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
                   )}
                 </dl>
                 {kind === 'connections' && (
-                  <Button variant="outline" size="sm" asChild className="mt-5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="mt-5"
+                  >
                     <Link to={`/inbox?connection=${encodeURIComponent(id)}`}>
                       <MessagesSquare />
                       Ver chats
@@ -154,10 +169,16 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
                     to={`/connections/${encodeURIComponent(connection.id)}`}
                     className="flex-1 text-sm font-medium hover:underline"
                   >
-                    {connection.name || connection.display_phone_number || 'WhatsApp'}
+                    {connection.name ||
+                      connection.display_phone_number ||
+                      'WhatsApp'}
                   </Link>
                   <Status value={connection.status} />
-                  <Button variant="outline" size="sm" asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                  >
                     <Link
                       to={`/connections/${encodeURIComponent(connection.id)}?tab=templates`}
                     >
@@ -179,7 +200,9 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
           {tab === 'templates' && (
             <>
               <ErrorNotice error={related.error} />
-              {kind === 'customers' && related.isLoading && <Loading variant="table" />}
+              {kind === 'customers' && related.isLoading && (
+                <Loading variant="table" />
+              )}
               {selected && (
                 <>
                   {accounts.length > 1 && (
@@ -190,7 +213,10 @@ export function EntityDetailPage({ kind }: { kind: 'customers' | 'connections' }
                         onChange={(event) => setChosen(event.target.value)}
                       >
                         {accounts.map((connection) => (
-                          <option key={connection.id} value={connection.id}>
+                          <option
+                            key={connection.id}
+                            value={connection.id}
+                          >
                             {connection.name ||
                               connection.display_phone_number ||
                               'WhatsApp'}

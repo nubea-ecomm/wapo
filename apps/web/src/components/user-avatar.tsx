@@ -29,16 +29,44 @@ export function UserAvatar({
       viewBox="0 0 40 40"
       className={`shrink-0 rounded-lg ${className}`}
     >
-      <rect width="40" height="40" rx="8" fill={bg} />
+      <rect
+        width="40"
+        height="40"
+        rx="8"
+        fill={bg}
+      />
       <g transform={`rotate(${tilt} 20 20)`}>
-        <rect x="7" y="6" width="26" height="31" rx={hash % 2 ? 13 : 9} fill={face} />
+        <rect
+          x="7"
+          y="6"
+          width="26"
+          height="31"
+          rx={hash % 2 ? 13 : 9}
+          fill={face}
+        />
         {hash % 2 ? (
-          <path d="M8 18V11Q20-1 32 11V15Q24 10 19 13Q13 18 8 18" fill={ink} />
+          <path
+            d="M8 18V11Q20-1 32 11V15Q24 10 19 13Q13 18 8 18"
+            fill={ink}
+          />
         ) : (
-          <path d="M9 13Q13 4 19 10Q27 3 32 13" fill={ink} />
+          <path
+            d="M9 13Q13 4 19 10Q27 3 32 13"
+            fill={ink}
+          />
         )}
-        <circle cx="15" cy="22" r="1.5" fill={ink} />
-        <circle cx="25" cy="22" r="1.5" fill={ink} />
+        <circle
+          cx="15"
+          cy="22"
+          r="1.5"
+          fill={ink}
+        />
+        <circle
+          cx="25"
+          cy="22"
+          r="1.5"
+          fill={ink}
+        />
         <path
           d={hash % 3 ? 'M16 28Q20 32 24 28' : 'M17 29H23'}
           fill="none"

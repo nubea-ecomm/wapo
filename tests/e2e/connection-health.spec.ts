@@ -81,13 +81,16 @@ test('connection diagnostics show billing errors and allow a fresh check', async
     path: 'artifacts/connection-health-desktop.png',
     animations: 'disabled',
   })
-  await page.getByRole('button', { name: 'Generar enlace de reconexión' }).click()
-  await expect(page.getByRole('link', { name: 'Abrir enlace' })).toHaveAttribute(
-    'href',
-    'https://connect.example/renew',
-  )
+  await page
+    .getByRole('button', { name: 'Generar enlace de reconexión' })
+    .click()
+  await expect(
+    page.getByRole('link', { name: 'Abrir enlace' }),
+  ).toHaveAttribute('href', 'https://connect.example/renew')
   await page.getByRole('button', { name: 'Comprobar ahora' }).click()
-  await expect(page.getByText('Hay datos sin confirmar', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('Hay datos sin confirmar', { exact: true }),
+  ).toBeVisible()
   await expect(
     page.getByText('Estado de pagos sin confirmar. Revisá la cuenta en Meta.', {
       exact: true,
@@ -95,6 +98,8 @@ test('connection diagnostics show billing errors and allow a fresh check', async
   ).toBeVisible()
   await page.setViewportSize({ width: 390, height: 844 })
   expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
   ).toBe(true)
 })

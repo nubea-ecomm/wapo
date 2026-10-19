@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { permissions } from './permissions'
 import type { Session } from './session-context'
 
-function session(role: 'admin' | 'member' | 'viewer' | 'billing', allProjects = false) {
+function session(
+  role: 'admin' | 'member' | 'viewer' | 'billing',
+  allProjects = false,
+) {
   return {
     id: 'session',
     url: 'http://localhost:8080',
@@ -27,7 +30,9 @@ describe('console permissions', () => {
   it('reserves platform administration for global administrators', () => {
     expect(permissions(session('admin', true)).canVisit('/users')).toBe(true)
     expect(permissions(session('admin')).canVisit('/users')).toBe(false)
-    expect(permissions(session('member', true)).canVisit('/tenants')).toBe(false)
+    expect(permissions(session('member', true)).canVisit('/tenants')).toBe(
+      false,
+    )
   })
 
   it('keeps API key management restricted to project administrators', () => {

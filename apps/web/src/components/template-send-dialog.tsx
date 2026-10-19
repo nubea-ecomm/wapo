@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, FileText, Phone, Send } from 'lucide-react'
-import { WapoError, type Connection, type Message, type MessageTemplate } from '@wapo/sdk'
+import {
+  WapoError,
+  type Connection,
+  type Message,
+  type MessageTemplate,
+} from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { usePaged } from '../hooks/use-paged'
@@ -37,7 +42,9 @@ export function TemplateSendDialog({
   const templates = usePaged<MessageTemplate>(
     `/v1/connections/${encodeURIComponent(connection.id)}/templates?status=APPROVED`,
   )
-  const approved = templates.items.filter((template) => template.status === 'APPROVED')
+  const approved = templates.items.filter(
+    (template) => template.status === 'APPROVED',
+  )
   const [templateId, setTemplateId] = useState(fixedTemplate?.id || '')
   const [to, setTo] = useState(recipient)
   const [values, setValues] = useState<Record<string, string>>({})
@@ -47,7 +54,8 @@ export function TemplateSendDialog({
   const fields = selected ? templateParameterFields(selected) : []
   const preview = selected ? templatePreview(selected, values) : []
   useEffect(() => {
-    if (!fixedTemplate && !templateId && approved[0]) setTemplateId(approved[0].id)
+    if (!fixedTemplate && !templateId && approved[0])
+      setTemplateId(approved[0].id)
   }, [approved, fixedTemplate, templateId])
   useEffect(() => {
     setValues({})
@@ -96,7 +104,10 @@ export function TemplateSendDialog({
         }}
       >
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Destinatario" hint="Incluí el código de país.">
+          <Field
+            label="Destinatario"
+            hint="Incluí el código de país."
+          >
             <div className="relative">
               <Phone className="absolute top-2.5 left-3 size-4 text-muted-foreground" />
               <Input
@@ -127,10 +138,15 @@ export function TemplateSendDialog({
                 required
               >
                 <option value="">
-                  {templates.isLoading ? 'Cargando templates…' : 'Elegí un template'}
+                  {templates.isLoading
+                    ? 'Cargando templates…'
+                    : 'Elegí un template'}
                 </option>
                 {approved.map((template) => (
-                  <option key={template.id} value={template.id}>
+                  <option
+                    key={template.id}
+                    value={template.id}
+                  >
                     {template.name} · {template.language}
                   </option>
                 ))}
@@ -141,8 +157,8 @@ export function TemplateSendDialog({
         {!fixedTemplate && templates.isLoading && <Loading variant="list" />}
         {!templates.isLoading && !fixedTemplate && !approved.length && (
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
-            Esta conexión no tiene templates aprobados. Creá uno y esperá la aprobación de
-            Meta antes de iniciar conversaciones.
+            Esta conexión no tiene templates aprobados. Creá uno y esperá la
+            aprobación de Meta antes de iniciar conversaciones.
           </div>
         )}
         {fields.length > 0 && (
@@ -155,7 +171,10 @@ export function TemplateSendDialog({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {fields.map((field) => (
-                <Field key={field.key} label={field.label}>
+                <Field
+                  key={field.key}
+                  label={field.label}
+                >
                   <Input
                     value={values[field.key] || ''}
                     onChange={(event) => {
@@ -181,15 +200,24 @@ export function TemplateSendDialog({
             <div className="max-w-lg rounded-xl rounded-tl-sm border bg-emerald-50 p-4 text-sm text-emerald-950 shadow-xs dark:border-emerald-900 dark:bg-emerald-950/35 dark:text-emerald-50">
               {preview.map((part, index) =>
                 part.type === 'header' ? (
-                  <strong className="mb-2 block" key={index}>
+                  <strong
+                    className="mb-2 block"
+                    key={index}
+                  >
                     {part.text}
                   </strong>
                 ) : part.type === 'footer' ? (
-                  <small className="mt-3 block opacity-65" key={index}>
+                  <small
+                    className="mt-3 block opacity-65"
+                    key={index}
+                  >
                     {part.text}
                   </small>
                 ) : (
-                  <p className="whitespace-pre-wrap" key={index}>
+                  <p
+                    className="whitespace-pre-wrap"
+                    key={index}
+                  >
                     {part.text}
                   </p>
                 ),
@@ -198,18 +226,30 @@ export function TemplateSendDialog({
           </section>
         )}
         <ErrorNotice
-          error={send.error ? new Error(templateSendError(send.error)) : templates.error}
+          error={
+            send.error
+              ? new Error(templateSendError(send.error))
+              : templates.error
+          }
         />
         <div className="flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:justify-between">
           <div>
             {onBack && (
-              <Button type="button" variant="ghost" onClick={onBack}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onBack}
+              >
                 <ArrowLeft /> Volver
               </Button>
             )}
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+            >
               Cancelar
             </Button>
             <Button disabled={!valid || send.isPending}>
@@ -225,7 +265,11 @@ export function TemplateSendDialog({
 function templateSendError(error: unknown) {
   if (!(error instanceof WapoError)) return 'No pudimos enviar el template.'
   const body = error.body as {
-    error?: { code?: number | string; message?: string; error_user_msg?: string }
+    error?: {
+      code?: number | string
+      message?: string
+      error_user_msg?: string
+    }
   }
   const code = Number(body?.error?.code)
   if (code === 131030) {

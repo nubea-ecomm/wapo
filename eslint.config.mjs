@@ -40,4 +40,45 @@ export default [
     rules: { 'react-refresh/only-export-components': 'off' },
   },
   prettier,
+  {
+    files: ['**/*.{ts,tsx,js,mjs}'],
+    rules: {
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: 'import', next: '*' },
+        { blankLine: 'never', prev: 'import', next: 'import' },
+        {
+          blankLine: 'always',
+          prev: ['const', 'let', 'var'],
+          next: '*',
+        },
+        {
+          blankLine: 'never',
+          prev: ['const', 'let', 'var'],
+          next: ['const', 'let', 'var'],
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: ['if', 'for', 'while', 'do', 'switch', 'try'],
+        },
+        {
+          blankLine: 'always',
+          prev: ['if', 'for', 'while', 'do', 'switch', 'try'],
+          next: '*',
+        },
+        { blankLine: 'always', prev: '*', next: 'return' },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: ['function', 'class'],
+        },
+        {
+          blankLine: 'always',
+          prev: ['function', 'class'],
+          next: '*',
+        },
+      ],
+    },
+  },
 ]

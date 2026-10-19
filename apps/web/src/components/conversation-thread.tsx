@@ -23,7 +23,13 @@ import { WhatsAppIcon } from './icons/whatsapp-icon'
 import { TemplateSendDialog } from './template-send-dialog'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
-export function ConversationThread({ id, onBack }: { id: string; onBack?: () => void }) {
+export function ConversationThread({
+  id,
+  onBack,
+}: {
+  id: string
+  onBack?: () => void
+}) {
   const { client, session } = useSession()
   const readOnly = !permissions(session).canWrite
   const [text, setText] = useState('')
@@ -93,7 +99,10 @@ export function ConversationThread({ id, onBack }: { id: string; onBack?: () => 
               />
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                  >
                     <UserRound /> {c.assigned_to || 'Sin asignar'}
                   </Button>
                 </PopoverTrigger>
@@ -102,7 +111,9 @@ export function ConversationThread({ id, onBack }: { id: string; onBack?: () => 
                     className="grid gap-3"
                     onSubmit={(event) => {
                       event.preventDefault()
-                      update.mutate({ assigned_to: assignedTo ?? c.assigned_to })
+                      update.mutate({
+                        assigned_to: assignedTo ?? c.assigned_to,
+                      })
                     }}
                   >
                     <label
@@ -119,7 +130,10 @@ export function ConversationThread({ id, onBack }: { id: string; onBack?: () => 
                       onChange={(event) => setAssignedTo(event.target.value)}
                       maxLength={120}
                     />
-                    <Button size="sm" disabled={readOnly || update.isPending}>
+                    <Button
+                      size="sm"
+                      disabled={readOnly || update.isPending}
+                    >
                       {update.isPending ? 'Guardando…' : 'Guardar responsable'}
                     </Button>
                   </form>
@@ -130,7 +144,9 @@ export function ConversationThread({ id, onBack }: { id: string; onBack?: () => 
                 size="sm"
                 disabled={readOnly || update.isPending}
                 onClick={() =>
-                  update.mutate({ status: c.status === 'open' ? 'closed' : 'open' })
+                  update.mutate({
+                    status: c.status === 'open' ? 'closed' : 'open',
+                  })
                 }
               >
                 {c.status === 'open' ? <CircleCheck /> : <RotateCcw />}
@@ -153,7 +169,9 @@ export function ConversationThread({ id, onBack }: { id: string; onBack?: () => 
                   disabled={messages.isFetchingNextPage}
                   onClick={() => void messages.fetchNextPage()}
                 >
-                  {messages.isFetchingNextPage ? 'Cargando…' : 'Cargar anteriores'}
+                  {messages.isFetchingNextPage
+                    ? 'Cargando…'
+                    : 'Cargar anteriores'}
                 </Button>
               )}
               {messages.isLoading && <Loading />}

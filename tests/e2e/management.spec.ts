@@ -11,7 +11,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await expect(
     page.getByRole('heading', { name: 'Vista general', exact: true }),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Colapsar navegación', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Colapsar navegación', exact: true })
+    .click()
   await expect(
     page.getByRole('button', { name: 'Expandir navegación', exact: true }),
   ).toBeVisible()
@@ -20,7 +22,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     .getByRole('link', { name: 'Chats', exact: true })
     .hover()
   await expect(page.getByRole('tooltip')).toHaveText('Chats')
-  await page.getByRole('button', { name: 'Expandir navegación', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Expandir navegación', exact: true })
+    .click()
   await page.getByRole('button', { name: 'Integraciones', exact: true }).click()
   await expect(
     page.getByRole('link', { name: 'API keys', exact: true }),
@@ -34,27 +38,37 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     page.getByRole('heading', { name: 'Customers', exact: true, level: 1 }),
   ).toBeVisible()
   await page.getByRole('link', { name: 'Proyectos', exact: true }).click()
-  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Nuevo proyecto', exact: true })
+    .click()
   await page.getByLabel('Nombre del proyecto').fill(`Demo ${suffix}`)
-  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Crear proyecto', exact: true })
+    .click()
   const tenant = page
     .getByRole('row')
-    .filter({ has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }) })
+    .filter({
+      has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }),
+    })
   await expect(tenant).toBeVisible()
-  await page.getByLabel('Buscar proyectos', { exact: true }).fill(`Demo ${suffix}`)
+  await page
+    .getByLabel('Buscar proyectos', { exact: true })
+    .fill(`Demo ${suffix}`)
   await page.screenshot({
     animations: 'disabled',
     path: 'artifacts/tenants-desktop.png',
     fullPage: true,
   })
-  await tenant.getByRole('button', { name: `Demo ${suffix}`, exact: true }).click()
-  await expect(page.getByRole('combobox', { name: 'Proyecto activo' })).toContainText(
-    `Demo ${suffix}`,
-  )
+  await tenant
+    .getByRole('button', { name: `Demo ${suffix}`, exact: true })
+    .click()
+  await expect(
+    page.getByRole('combobox', { name: 'Proyecto activo' }),
+  ).toContainText(`Demo ${suffix}`)
   await page.reload()
-  await expect(page.getByRole('combobox', { name: 'Proyecto activo' })).toContainText(
-    `Demo ${suffix}`,
-  )
+  await expect(
+    page.getByRole('combobox', { name: 'Proyecto activo' }),
+  ).toContainText(`Demo ${suffix}`)
   await page.getByRole('combobox', { name: 'Proyecto activo' }).click()
   await page
     .getByRole('combobox', { name: 'Buscar proyecto', exact: true })
@@ -72,9 +86,14 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     page.getByText('Guardá esta clave. Solo se muestra una vez.'),
   ).not.toBeVisible()
   await page
-    .getByRole('button', { name: 'Acciones de Contract integration', exact: true })
+    .getByRole('button', {
+      name: 'Acciones de Contract integration',
+      exact: true,
+    })
     .click()
-  await page.getByRole('menuitem', { name: 'Revocar clave', exact: true }).click()
+  await page
+    .getByRole('menuitem', { name: 'Revocar clave', exact: true })
+    .click()
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Confirmar', exact: true })
@@ -90,7 +109,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await page.getByRole('menuitem', { name: 'Editar customer' }).click()
   await page.getByLabel('Email', { exact: true }).fill('merchant@example.com')
   await page.getByRole('button', { name: 'Guardar customer' }).click()
-  await expect(page.getByText('merchant@example.com', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('merchant@example.com', { exact: true }),
+  ).toBeVisible()
   await page.screenshot({
     path: 'artifacts/customers-desktop.png',
     animations: 'disabled',
@@ -103,12 +124,19 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     await route.fulfill({ json: data })
   })
   await page.reload()
-  await page.getByRole('button', { name: 'Conectar WhatsApp', exact: true }).click()
-  let onboarding = page.getByRole('dialog', { name: 'Conectar WhatsApp', exact: true })
+  await page
+    .getByRole('button', { name: 'Conectar WhatsApp', exact: true })
+    .click()
+  let onboarding = page.getByRole('dialog', {
+    name: 'Conectar WhatsApp',
+    exact: true,
+  })
   await expect(
     onboarding.getByRole('radio', { name: /Que el cliente elija/ }),
   ).toBeChecked()
-  await expect(onboarding.getByText('WhatsApp aún no está habilitado')).toBeVisible()
+  await expect(
+    onboarding.getByText('WhatsApp aún no está habilitado'),
+  ).toBeVisible()
   await expect(
     onboarding.getByRole('button', { name: 'Generar enlace', exact: true }),
   ).toBeDisabled()
@@ -129,13 +157,22 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     })
   })
   await page.reload()
-  await page.getByRole('button', { name: 'Conectar WhatsApp', exact: true }).click()
-  onboarding = page.getByRole('dialog', { name: 'Conectar WhatsApp', exact: true })
-  await onboarding.getByRole('button', { name: 'Generar enlace', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Conectar WhatsApp', exact: true })
+    .click()
+  onboarding = page.getByRole('dialog', {
+    name: 'Conectar WhatsApp',
+    exact: true,
+  })
+  await onboarding
+    .getByRole('button', { name: 'Generar enlace', exact: true })
+    .click()
   await expect(onboarding.getByLabel('Enlace de onboarding')).toBeVisible()
   expect(selections[0]).toEqual(['coexistence', 'dedicated'])
   await onboarding.getByRole('radio', { name: /Solo API/ }).check()
-  await onboarding.getByRole('button', { name: 'Generar enlace', exact: true }).click()
+  await onboarding
+    .getByRole('button', { name: 'Generar enlace', exact: true })
+    .click()
   await expect.poll(() => selections.length).toBe(2)
   expect(selections[1]).toEqual(['dedicated'])
   await page.screenshot({
@@ -148,18 +185,22 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await page.unroute('**/v1/customers/*/setup_links')
 
   await page.getByRole('link', { name: 'Conexiones', exact: true }).click()
-  await page.getByRole('button', { name: 'Conectar WhatsApp', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Conectar WhatsApp', exact: true })
+    .click()
   await expect(
     page.getByRole('dialog').getByLabel('Phone Number ID de Meta'),
   ).toHaveCount(0)
-  await page.getByRole('button', { name: 'Conexión manual', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Conexión manual', exact: true })
+    .click()
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByLabel('Phone Number ID de Meta')).toBeVisible()
   await expect(dialog.getByLabel('WhatsApp Business Account ID')).toBeVisible()
   await expect(dialog.getByLabel('Access token de Meta')).toBeVisible()
-  await expect(dialog.getByRole('option', { name: 'Chat web', exact: true })).toHaveCount(
-    0,
-  )
+  await expect(
+    dialog.getByRole('option', { name: 'Chat web', exact: true }),
+  ).toHaveCount(0)
   await dialog.getByRole('button', { name: 'Cancelar', exact: true }).click()
   await page.getByRole('link', { name: 'Configuración', exact: true }).click()
   await page.getByRole('tab', { name: 'WhatsApp', exact: true }).click()
@@ -172,7 +213,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     page.getByText('META_EMBEDDED_SIGNUP_CONFIG_ID', { exact: true }),
   ).toBeVisible()
   await expect(
-    page.getByText('docker compose up -d --build migrate api worker', { exact: true }),
+    page.getByText('docker compose up -d --build migrate api worker', {
+      exact: true,
+    }),
   ).toBeVisible()
   await page.screenshot({
     animations: 'disabled',
@@ -180,7 +223,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     fullPage: true,
   })
   await page.getByRole('link', { name: 'Vista general', exact: true }).click()
-  await expect(page.getByRole('img', { name: /Mensajes enviados/ })).toBeVisible()
+  await expect(
+    page.getByRole('img', { name: /Mensajes enviados/ }),
+  ).toBeVisible()
   await page.screenshot({
     animations: 'disabled',
     path: 'artifacts/overview-desktop.png',
@@ -193,7 +238,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     fullPage: true,
   })
   expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
   ).toBe(true)
   await page.getByRole('button', { name: 'Abrir navegación' }).click()
   await expect(
@@ -204,8 +251,13 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     path: 'artifacts/sidebar-mobile.png',
     fullPage: true,
   })
-  await page.getByRole('dialog').getByRole('link', { name: 'Chats', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Inbox', exact: true })).toBeVisible()
+  await page
+    .getByRole('dialog')
+    .getByRole('link', { name: 'Chats', exact: true })
+    .click()
+  await expect(
+    page.getByRole('heading', { name: 'Inbox', exact: true }),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Abrir navegación' }).click()
   await page
     .getByRole('dialog')
@@ -213,11 +265,15 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     .click()
   const deleteCard = page
     .getByRole('row')
-    .filter({ has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }) })
+    .filter({
+      has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }),
+    })
   await deleteCard
     .getByRole('button', { name: `Acciones de Demo ${suffix}`, exact: true })
     .click()
-  await page.getByRole('menuitem', { name: 'Eliminar proyecto', exact: true }).click()
+  await page
+    .getByRole('menuitem', { name: 'Eliminar proyecto', exact: true })
+    .click()
   const deletion = page.getByRole('alertdialog')
   await expect(
     deletion.getByRole('button', { name: 'Eliminar proyecto', exact: true }),
@@ -225,7 +281,9 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await deletion
     .getByLabel(`Escribí Demo ${suffix} para confirmar`)
     .fill(`Demo ${suffix}`)
-  await deletion.getByRole('button', { name: 'Eliminar proyecto', exact: true }).click()
+  await deletion
+    .getByRole('button', { name: 'Eliminar proyecto', exact: true })
+    .click()
   await expect(deleteCard).not.toBeVisible()
 })
 
@@ -253,12 +311,16 @@ test('administrator signs in with email and password and manages users inside th
   ).toBeVisible()
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click()
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Usuarios', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Usuarios', exact: true }),
+  ).toBeVisible()
   await expect(page.getByText(env.ADMIN_EMAIL, { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Crear usuario', exact: true }).click()
   const userName = `Test administrator ${Date.now()}`
   await page.getByLabel('Nombre del usuario').fill(userName)
-  await page.getByLabel('Email del usuario').fill(`user-${Date.now()}@example.com`)
+  await page
+    .getByLabel('Email del usuario')
+    .fill(`user-${Date.now()}@example.com`)
   await page.getByLabel('Contraseña nueva').fill('browser-test-password-123')
   await page.getByRole('button', { name: 'Guardar usuario' }).click()
   const row = page.getByRole('row').filter({ hasText: userName })
@@ -276,7 +338,9 @@ test('administrator signs in with email and password and manages users inside th
     fullPage: true,
   })
   await row.getByRole('button', { name: `Acciones de ${userName}` }).click()
-  await page.getByRole('menuitem', { name: 'Eliminar usuario', exact: true }).click()
+  await page
+    .getByRole('menuitem', { name: 'Eliminar usuario', exact: true })
+    .click()
   const deleteButton = page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Eliminar usuario', exact: true })
@@ -313,7 +377,9 @@ test('administrator signs in with email and password and manages users inside th
     path: 'artifacts/delete-user-dark.png',
     animations: 'disabled',
   })
-  await page.locator('html').evaluate((element) => element.classList.remove('dark'))
+  await page
+    .locator('html')
+    .evaluate((element) => element.classList.remove('dark'))
   await deleteButton.click()
   await expect(row).not.toBeVisible()
   const favicon = await page.locator('link[rel="icon"]').getAttribute('href')
@@ -329,13 +395,22 @@ test('administrator signs in with email and password and manages users inside th
   await page.reload()
   await expect(page.locator('html')).toHaveClass(/dark/)
   await page.getByRole('button', { name: 'Menú de usuario' }).click()
-  await page.screenshot({ path: 'artifacts/account-dark.png', animations: 'disabled' })
+  await page.screenshot({
+    path: 'artifacts/account-dark.png',
+    animations: 'disabled',
+  })
   await page.getByRole('switch', { name: 'Tema oscuro' }).click()
   await expect(page.locator('html')).not.toHaveClass(/dark/)
-  await page.getByRole('menuitem', { name: 'Cerrar sesión', exact: true }).click()
+  await page
+    .getByRole('menuitem', { name: 'Cerrar sesión', exact: true })
+    .click()
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Iniciar sesión' })).toBeVisible()
-  await expect(page.locator('input[type=email], input[type=password]')).toHaveCount(2)
+  await expect(
+    page.getByRole('button', { name: 'Iniciar sesión' }),
+  ).toBeVisible()
+  await expect(
+    page.locator('input[type=email], input[type=password]'),
+  ).toHaveCount(2)
   await expect(page.getByText('URL de la instancia')).not.toBeVisible()
   await page.screenshot({
     animations: 'disabled',

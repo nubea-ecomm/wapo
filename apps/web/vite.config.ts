@@ -7,7 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': new URL('./src', import.meta.url).pathname,
-      '@wapo/sdk': new URL('../../packages/sdk/src/index.ts', import.meta.url).pathname,
+      '@wapo/sdk': new URL('../../packages/sdk/src/index.ts', import.meta.url)
+        .pathname,
     },
   },
   build: {

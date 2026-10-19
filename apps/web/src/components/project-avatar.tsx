@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useSession } from '../app/session-context'
 
-export function ProjectAvatar({ name, logoUrl }: { name: string; logoUrl?: string }) {
+export function ProjectAvatar({
+  name,
+  logoUrl,
+}: {
+  name: string
+  logoUrl?: string
+}) {
   const { session } = useSession()
   const [failed, setFailed] = useState('')
   const url = logoUrl ? `${session?.url || ''}${logoUrl}` : ''

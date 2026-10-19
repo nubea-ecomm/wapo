@@ -25,7 +25,9 @@ export function NewChatDialog({
       connection.channel === 'whatsapp' &&
       connection.credential_status !== 'expired',
   )
-  const selected = available.find((connection) => connection.id === connectionId)
+  const selected = available.find(
+    (connection) => connection.id === connectionId,
+  )
   if (composing && selected) {
     return (
       <TemplateSendDialog
@@ -68,11 +70,18 @@ export function NewChatDialog({
             required
           >
             <option value="">
-              {connections.isLoading ? 'Cargando conexiones…' : 'Elegí una conexión'}
+              {connections.isLoading
+                ? 'Cargando conexiones…'
+                : 'Elegí una conexión'}
             </option>
             {available.map((connection) => (
-              <option key={connection.id} value={connection.id}>
-                {connection.name || connection.display_phone_number || connection.id}
+              <option
+                key={connection.id}
+                value={connection.id}
+              >
+                {connection.name ||
+                  connection.display_phone_number ||
+                  connection.id}
               </option>
             ))}
           </NativeSelect>
@@ -84,7 +93,11 @@ export function NewChatDialog({
         )}
         <ErrorNotice error={connections.error} />
         <div className="flex justify-end gap-2 border-t pt-4">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button disabled={!selected}>

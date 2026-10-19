@@ -9,7 +9,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language
   }, [language])
   return (
-    <I18nContext.Provider value={{ language, t: (key) => messages[language][key] }}>
+    <I18nContext.Provider
+      value={{ language, t: (key) => messages[language][key] }}
+    >
       {children}
     </I18nContext.Provider>
   )

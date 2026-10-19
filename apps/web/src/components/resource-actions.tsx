@@ -45,13 +45,20 @@ export function ResourceActions({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Acciones de ${name}`}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Acciones de ${name}`}
+          >
             <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {actions.map((action) => (
-            <DropdownMenuItem key={action.label} onSelect={action.onSelect}>
+            <DropdownMenuItem
+              key={action.label}
+              onSelect={action.onSelect}
+            >
               {action.icon}
               {action.label}
             </DropdownMenuItem>
@@ -79,7 +86,9 @@ export function ResourceActions({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{destructive.label}</AlertDialogTitle>
-            <AlertDialogDescription>{destructive.description}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {destructive.description}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <ErrorNotice error={error} />
           <AlertDialogFooter>

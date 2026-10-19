@@ -11,11 +11,16 @@ export function templateParameterFields(template: MessageTemplate) {
   const fields: TemplateParameterField[] = []
   for (const component of template.components) {
     const type = String(component.type || '').toLowerCase()
-    if ((type !== 'header' && type !== 'body') || typeof component.text !== 'string')
+    if (
+      (type !== 'header' && type !== 'body') ||
+      typeof component.text !== 'string'
+    )
       continue
     const positions = [
       ...new Set(
-        [...component.text.matchAll(/\{\{(\d+)\}\}/g)].map((match) => Number(match[1])),
+        [...component.text.matchAll(/\{\{(\d+)\}\}/g)].map((match) =>
+          Number(match[1]),
+        ),
       ),
     ].sort((a, b) => a - b)
     for (const position of positions) {
@@ -36,11 +41,17 @@ export function templatePayload(
 ) {
   const grouped = new Map<'header' | 'body', TemplateParameterField[]>()
   for (const field of templateParameterFields(template)) {
-    grouped.set(field.component, [...(grouped.get(field.component) || []), field])
+    grouped.set(field.component, [
+      ...(grouped.get(field.component) || []),
+      field,
+    ])
   }
   const components = [...grouped.entries()].map(([type, fields]) => ({
     type,
-    parameters: fields.map((field) => ({ type: 'text', text: values[field.key] || '' })),
+    parameters: fields.map((field) => ({
+      type: 'text',
+      text: values[field.key] || '',
+    })),
   }))
   return {
     name: template.name,
@@ -57,9 +68,12 @@ export function templatePreview(
     .filter((component) => typeof component.text === 'string')
     .map((component) => {
       const type = String(component.type || '').toLowerCase()
-      const text = String(component.text).replace(/\{\{(\d+)\}\}/g, (_, position) => {
-        return values[`${type}:${position}`] || `{{${position}}}`
-      })
+      const text = String(component.text).replace(
+        /\{\{(\d+)\}\}/g,
+        (_, position) => {
+          return values[`${type}:${position}`] || `{{${position}}}`
+        },
+      )
       return { type, text }
     })
 }

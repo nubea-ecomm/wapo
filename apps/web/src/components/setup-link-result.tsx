@@ -6,7 +6,10 @@ export function SetupLinkResult({ url }: { url: string }) {
   const [copied, setCopied] = useState(false)
   const [failed, setFailed] = useState(false)
   return (
-    <div className="grid gap-3 rounded-lg border bg-muted/30 p-4" role="status">
+    <div
+      className="grid gap-3 rounded-lg border bg-muted/30 p-4"
+      role="status"
+    >
       <div className="flex items-center gap-2 text-sm font-medium">
         <Link2 className="size-4" />
         Enlace listo para compartir
@@ -39,8 +42,16 @@ export function SetupLinkResult({ url }: { url: string }) {
           {copied ? <Check /> : <Copy />}
           {copied ? 'Copiado' : 'Copiar enlace'}
         </Button>
-        <Button size="sm" variant="ghost" asChild>
-          <a href={url} target="_blank" rel="noreferrer">
+        <Button
+          size="sm"
+          variant="ghost"
+          asChild
+        >
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+          >
             Abrir enlace
             <ExternalLink />
           </a>

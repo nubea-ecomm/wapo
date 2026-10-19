@@ -11,7 +11,10 @@ export function ThemeToggle() {
   return (
     <div className="flex items-center gap-2 px-2 py-2 text-sm">
       <Moon className="size-4 text-muted-foreground" />
-      <label htmlFor="theme-toggle" className="flex-1 cursor-pointer">
+      <label
+        htmlFor="theme-toggle"
+        className="flex-1 cursor-pointer"
+      >
         {t('darkTheme')}
       </label>
       <Switch.Root

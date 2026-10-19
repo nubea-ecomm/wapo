@@ -4,7 +4,12 @@ import { useSession } from '../app/session-context'
 import { useI18n } from '../app/i18n'
 import { WorkspaceNavigation } from './workspace-navigation'
 import { Button } from './ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip'
 import { WapoLogo } from './wapo-logo'
 export function WorkspaceSidebar({
   onSearch,
@@ -19,13 +24,22 @@ export function WorkspaceSidebar({
 }) {
   const { session } = useSession()
   const { t } = useI18n()
-  const collapseLabel = collapsed ? t('expandNavigation') : t('collapseNavigation')
+  const collapseLabel = collapsed
+    ? t('expandNavigation')
+    : t('collapseNavigation')
   return (
     <TooltipProvider delayDuration={250}>
       <div className="sidebar-brand-row">
-        <a className="brand" href="#/" aria-label="Wapo console">
+        <a
+          className="brand"
+          href="#/"
+          aria-label="Wapo console"
+        >
           <WapoLogo className="brand-full" />
-          <WapoLogo compact className="brand-compact" />
+          <WapoLogo
+            compact
+            className="brand-compact"
+          />
         </a>
         {onCollapsedChange && (
           <Tooltip>
@@ -57,9 +71,14 @@ export function WorkspaceSidebar({
             <kbd>⌘K</kbd>
           </Button>
         </TooltipTrigger>
-        {collapsed && <TooltipContent side="right">{t('search')}</TooltipContent>}
+        {collapsed && (
+          <TooltipContent side="right">{t('search')}</TooltipContent>
+        )}
       </Tooltip>
-      <WorkspaceNavigation onNavigate={onNavigate} collapsed={collapsed} />
+      <WorkspaceNavigation
+        onNavigate={onNavigate}
+        collapsed={collapsed}
+      />
       <div className="sidebar-bottom">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -68,7 +87,11 @@ export function WorkspaceSidebar({
               asChild
               className="sidebar-docs text-muted-foreground"
             >
-              <a href={`${session?.url}/docs`} target="_blank" rel="noreferrer">
+              <a
+                href={`${session?.url}/docs`}
+                target="_blank"
+                rel="noreferrer"
+              >
                 <BookOpen /> <span>{t('documentation')}</span>
               </a>
             </Button>

@@ -45,7 +45,10 @@ export function NavigationSearch({
         if (!value) setQuery('')
       }}
     >
-      <DialogContent aria-describedby={undefined} className="gap-3 sm:max-w-md">
+      <DialogContent
+        aria-describedby={undefined}
+        className="gap-3 sm:max-w-md"
+      >
         <DialogHeader>
           <DialogTitle>{t('searchWapo')}</DialogTitle>
         </DialogHeader>

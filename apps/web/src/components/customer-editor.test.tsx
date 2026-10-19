@@ -25,7 +25,10 @@ it('rejects invalid customer metadata before making an API request', async () =>
           role: 'project',
         },
         client,
-        admin: new WapoAdminClient({ baseUrl: 'https://api.example', apiKey: 'key' }),
+        admin: new WapoAdminClient({
+          baseUrl: 'https://api.example',
+          apiKey: 'key',
+        }),
         connect: vi.fn(),
         connectUser: vi.fn(),
         disconnect: vi.fn(),

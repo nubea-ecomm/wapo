@@ -95,12 +95,17 @@ export function UserAccessFields({
                     })
                   }
                 />
-                <ProjectAvatar name={project.name} logoUrl={project.logo_url} />
+                <ProjectAvatar
+                  name={project.name}
+                  logoUrl={project.logo_url}
+                />
                 <span className="truncate text-sm">{project.name}</span>
               </label>
             ))}
             {!projects.isLoading && !filtered.length && (
-              <p className="p-3 text-xs text-muted-foreground">Sin proyectos.</p>
+              <p className="p-3 text-xs text-muted-foreground">
+                Sin proyectos.
+              </p>
             )}
           </div>
           <p className="border-t px-3 py-2 text-xs text-muted-foreground">

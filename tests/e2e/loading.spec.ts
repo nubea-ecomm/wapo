@@ -38,19 +38,29 @@ test('customers distinguish initial loading, pending deletion and an empty list'
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
   await page.getByRole('button', { name: 'Iniciar sesión' }).click()
   await page.getByRole('link', { name: 'Customers', exact: true }).click()
-  await expect(page.getByRole('status', { name: 'Cargando contenido' })).toBeVisible()
-  await expect(page.getByText('Sin customers', { exact: true })).not.toBeVisible()
+  await expect(
+    page.getByRole('status', { name: 'Cargando contenido' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Sin customers', { exact: true }),
+  ).not.toBeVisible()
   await page.screenshot({
     path: 'artifacts/customers-loading.png',
     animations: 'disabled',
   })
   releaseList()
-  await expect(page.getByRole('status', { name: 'Cargando contenido' })).not.toBeVisible()
-  await page.getByRole('button', { name: 'Acciones de Loading example' }).click()
+  await expect(
+    page.getByRole('status', { name: 'Cargando contenido' }),
+  ).not.toBeVisible()
+  await page
+    .getByRole('button', { name: 'Acciones de Loading example' })
+    .click()
   await page.getByRole('menuitem', { name: 'Eliminar customer' }).click()
   const dialog = page.getByRole('alertdialog')
   await dialog.getByRole('button', { name: 'Confirmar', exact: true }).click()
-  await expect(dialog.getByRole('button', { name: 'Procesando…' })).toBeDisabled()
+  await expect(
+    dialog.getByRole('button', { name: 'Procesando…' }),
+  ).toBeDisabled()
   await expect(dialog.getByRole('button', { name: 'Cancelar' })).toBeDisabled()
   releaseDelete()
   await expect(dialog).not.toBeVisible()

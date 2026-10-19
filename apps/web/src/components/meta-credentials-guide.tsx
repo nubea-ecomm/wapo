@@ -58,8 +58,14 @@ export function MetaCredentialsGuide() {
   return (
     <div className="divide-y rounded-lg border">
       {steps.map((step, index) => (
-        <details key={step.title} className="group px-4 py-3" open={index === 0}>
-          <summary className="cursor-pointer text-xs font-medium">{step.title}</summary>
+        <details
+          key={step.title}
+          className="group px-4 py-3"
+          open={index === 0}
+        >
+          <summary className="cursor-pointer text-xs font-medium">
+            {step.title}
+          </summary>
           <ol className="mt-3 list-decimal space-y-2 pl-4 text-xs leading-relaxed text-muted-foreground">
             {step.items.map((item) => (
               <li key={item}>{item}</li>

@@ -12,6 +12,8 @@ describe('API error classification', () => {
   })
 
   it('does not classify unrelated failures as credential expiration', () => {
-    expect(isCredentialExpired(new Error('Error validating access token'))).toBe(false)
+    expect(
+      isCredentialExpired(new Error('Error validating access token')),
+    ).toBe(false)
   })
 })

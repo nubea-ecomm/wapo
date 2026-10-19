@@ -3,7 +3,10 @@ import type { ReactNode } from 'react'
 
 export function MotionProvider({ children }: { children: ReactNode }) {
   return (
-    <LazyMotion features={domMax} strict>
+    <LazyMotion
+      features={domMax}
+      strict
+    >
       <MotionConfig
         reducedMotion="user"
         transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}

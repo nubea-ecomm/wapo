@@ -31,7 +31,10 @@ export function ActivityChart({
       aria-label={`Mensajes ${outboundLabel.toLowerCase()} y recibidos por día en el período seleccionado`}
     >
       <ChartContainer
-        config={{ ...config, outbound: { ...config.outbound, label: outboundLabel } }}
+        config={{
+          ...config,
+          outbound: { ...config.outbound, label: outboundLabel },
+        }}
         className="h-[260px] w-full aspect-auto"
       >
         <LineChart
@@ -39,7 +42,10 @@ export function ActivityChart({
           data={series}
           margin={{ top: 12, right: 12, left: -20, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} strokeDasharray="3 3" />
+          <CartesianGrid
+            vertical={false}
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="day"
             tickLine={false}
@@ -48,9 +54,18 @@ export function ActivityChart({
             tickMargin={12}
             tickFormatter={(value: string) => value.slice(5).replace('-', '/')}
           />
-          <YAxis allowDecimals={false} tickLine={false} axisLine={false} tickMargin={8} />
+          <YAxis
+            allowDecimals={false}
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+          />
           <ChartTooltip
-            content={<ChartTooltipContent labelFormatter={(label) => `${label} / UTC`} />}
+            content={
+              <ChartTooltipContent
+                labelFormatter={(label) => `${label} / UTC`}
+              />
+            }
           />
           <Line
             dataKey="outbound"

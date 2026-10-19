@@ -11,7 +11,9 @@ export default defineConfig({
     launchOptions: {
       executablePath:
         process.env.CHROME_PATH ||
-        (existsSync('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+        (existsSync(
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        )
           ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
           : undefined),
     },

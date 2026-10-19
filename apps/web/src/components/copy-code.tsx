@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { Button } from './ui/button'
-export function CopyCode({ value, label = 'Copiar' }: { value: string; label?: string }) {
+export function CopyCode({
+  value,
+  label = 'Copiar',
+}: {
+  value: string
+  label?: string
+}) {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState(false)
   return (

@@ -25,7 +25,11 @@ export function UserAccessEditor({
     onClose()
   })
   return (
-    <FormDialog title="Editar acceso" description={user.email} onClose={onClose}>
+    <FormDialog
+      title="Editar acceso"
+      description={user.email}
+      onClose={onClose}
+    >
       <form
         className="grid gap-5"
         onSubmit={(event) => {
@@ -33,15 +37,23 @@ export function UserAccessEditor({
           save.mutate()
         }}
       >
-        <UserAccessFields value={access} onChange={setAccess} />
+        <UserAccessFields
+          value={access}
+          onChange={setAccess}
+        />
         <ErrorNotice error={save.error} />
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button
             disabled={
-              save.isPending || (!access.all_projects && !access.project_ids.length)
+              save.isPending ||
+              (!access.all_projects && !access.project_ids.length)
             }
           >
             {save.isPending ? 'Guardando…' : 'Guardar acceso'}

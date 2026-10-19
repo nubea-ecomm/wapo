@@ -7,7 +7,10 @@ describe('status badges', () => {
     render(
       <>
         <Status value="APPROVED" />
-        <Status value="PENDING" label="En revisión" />
+        <Status
+          value="PENDING"
+          label="En revisión"
+        />
         <Status value="REJECTED" />
       </>,
     )

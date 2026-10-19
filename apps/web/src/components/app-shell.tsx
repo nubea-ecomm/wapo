@@ -38,7 +38,9 @@ export function AppShell() {
         onOpenChange={setSearchOpen}
         onNavigate={() => setMobileOpen(false)}
       />
-      <aside className={`sidebar hidden md:flex ${sidebarCollapsed ? 'collapsed' : ''}`}>
+      <aside
+        className={`sidebar hidden md:flex ${sidebarCollapsed ? 'collapsed' : ''}`}
+      >
         <WorkspaceSidebar
           collapsed={sidebarCollapsed}
           onCollapsedChange={(collapsed) => {
@@ -55,7 +57,10 @@ export function AppShell() {
       </aside>
       <main className={`main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <header className="workspace-header">
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <Sheet
+            open={mobileOpen}
+            onOpenChange={setMobileOpen}
+          >
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
@@ -66,7 +71,10 @@ export function AppShell() {
                 <Menu />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 gap-0 bg-background p-3">
+            <SheetContent
+              side="left"
+              className="w-64 gap-0 bg-background p-3"
+            >
               <SheetTitle className="sr-only">{t('navigation')}</SheetTitle>
               <WorkspaceSidebar
                 onSearch={() => setSearchOpen(true)}
@@ -74,7 +82,9 @@ export function AppShell() {
               />
             </SheetContent>
           </Sheet>
-          <span className="text-muted-foreground">{session?.tenantName || 'Wapo'}</span>
+          <span className="text-muted-foreground">
+            {session?.tenantName || 'Wapo'}
+          </span>
           <span className="text-border">/</span>
           <span>{current ? navigationLabel(current, t) : t('workspace')}</span>
           <AccountMenu />

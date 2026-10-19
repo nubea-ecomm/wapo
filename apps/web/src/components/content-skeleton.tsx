@@ -1,7 +1,14 @@
 import { Skeleton } from './ui/skeleton'
 
 export type SkeletonVariant =
-  'list' | 'table' | 'cards' | 'chart' | 'thread' | 'settings' | 'inbox' | 'overview'
+  | 'list'
+  | 'table'
+  | 'cards'
+  | 'chart'
+  | 'thread'
+  | 'settings'
+  | 'inbox'
+  | 'overview'
 
 export function ContentSkeleton({
   variant = 'list',
@@ -58,7 +65,12 @@ export function RouteSkeleton({ path }: { path: string }) {
             : 'table'
   if (variant === 'inbox') return <ContentSkeleton variant="inbox" />
   return (
-    <div role="status" aria-label="Cargando pantalla" aria-busy="true" className="w-full">
+    <div
+      role="status"
+      aria-label="Cargando pantalla"
+      aria-busy="true"
+      className="w-full"
+    >
       <span className="sr-only">Cargando pantalla…</span>
       <div className="mb-7 flex items-start justify-between gap-6">
         <div className="space-y-2">
@@ -67,7 +79,10 @@ export function RouteSkeleton({ path }: { path: string }) {
         </div>
         <Skeleton className="h-9 w-36 rounded-md" />
       </div>
-      <ContentSkeleton variant={variant} decorative />
+      <ContentSkeleton
+        variant={variant}
+        decorative
+      />
     </div>
   )
 }
@@ -77,7 +92,11 @@ function TableSkeleton({ rows }: { rows: number }) {
     <div className="overflow-hidden rounded-lg border">
       <div className="grid grid-cols-[minmax(170px,2fr)_minmax(110px,1fr)_minmax(90px,1fr)_40px] gap-4 border-b bg-muted/30 px-4 py-3">
         {[42, 28, 36, 8].map((width, index) => (
-          <Skeleton key={index} className="h-2.5" style={{ width }} />
+          <Skeleton
+            key={index}
+            className="h-2.5"
+            style={{ width }}
+          />
         ))}
       </div>
       {Array.from({ length: rows }, (_, index) => (
@@ -125,7 +144,10 @@ function CardsSkeleton() {
   return (
     <div className="connection-grid">
       {Array.from({ length: 3 }, (_, index) => (
-        <div key={index} className="rounded-lg border p-5">
+        <div
+          key={index}
+          className="rounded-lg border p-5"
+        >
           <div className="mb-6 flex items-center justify-between">
             <Skeleton className="size-9 rounded-md" />
             <Skeleton className="h-5 w-20 rounded-full" />
@@ -134,7 +156,10 @@ function CardsSkeleton() {
           <Skeleton className="mb-6 h-3 w-28" />
           <div className="grid grid-cols-[80px_1fr] gap-x-4 gap-y-3 border-t pt-4">
             {[0, 1, 2].map((row) => (
-              <div className="contents" key={row}>
+              <div
+                className="contents"
+                key={row}
+              >
                 <Skeleton className="h-2.5 w-14" />
                 <Skeleton className="h-2.5 w-24" />
               </div>
@@ -183,7 +208,9 @@ function ThreadSkeleton() {
             style={{ width: `${width}%` }}
           >
             <Skeleton className="h-14 w-full rounded-xl" />
-            <Skeleton className={`mt-2 h-2 w-12 ${index % 2 ? 'ml-auto' : ''}`} />
+            <Skeleton
+              className={`mt-2 h-2 w-12 ${index % 2 ? 'ml-auto' : ''}`}
+            />
           </div>
         ))}
       </div>
@@ -201,7 +228,10 @@ function SettingsSkeleton() {
           <Skeleton className="h-3 w-64 max-w-full" />
         </div>
         {[0, 1, 2].map((index) => (
-          <div className="space-y-2" key={index}>
+          <div
+            className="space-y-2"
+            key={index}
+          >
             <Skeleton className="h-2.5 w-24" />
             <Skeleton className="h-9 w-full rounded-md" />
           </div>
@@ -236,7 +266,10 @@ function InboxSkeleton() {
         </div>
         <div className="conversation-results">
           {Array.from({ length: 7 }, (_, index) => (
-            <div className="conversation-preview" key={index}>
+            <div
+              className="conversation-preview"
+              key={index}
+            >
               <Skeleton className="size-9 shrink-0 rounded-full" />
               <div className="space-y-2">
                 <div>
@@ -291,7 +324,10 @@ function OverviewSkeleton() {
     <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
-          <div className="space-y-3 rounded-lg border p-4" key={index}>
+          <div
+            className="space-y-3 rounded-lg border p-4"
+            key={index}
+          >
             <Skeleton className="h-2.5 w-20" />
             <Skeleton className="h-8 w-16" />
             <Skeleton className="h-2.5 w-24" />
@@ -305,7 +341,10 @@ function OverviewSkeleton() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         {[0, 1].map((column) => (
-          <div className="rounded-lg border p-5" key={column}>
+          <div
+            className="rounded-lg border p-5"
+            key={column}
+          >
             <Skeleton className="mb-4 h-4 w-32" />
             <ListSkeleton rows={3} />
           </div>

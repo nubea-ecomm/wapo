@@ -44,18 +44,26 @@ const upstream = createServer(async (req, res) => {
               ],
             }
           : req.method === 'POST'
-            ? { id: `template-${++templateId}`, status: 'PENDING', category: 'UTILITY' }
+            ? {
+                id: `template-${++templateId}`,
+                status: 'PENDING',
+                category: 'UTILITY',
+              }
             : { success: true },
       ),
     )
   if (req.url.includes('/setup_links'))
     return res.end(
-      JSON.stringify({ data: { id: 'setup-1', url: 'https://fake.example/setup' } }),
+      JSON.stringify({
+        data: { id: 'setup-1', url: 'https://fake.example/setup' },
+      }),
     )
   if (req.url.includes('/whatsapp/media'))
     return res.end(
       JSON.stringify({
-        data: { target: { kind: 'meta_resumable_asset', handle: 'sample-handle' } },
+        data: {
+          target: { kind: 'meta_resumable_asset', handle: 'sample-handle' },
+        },
       }),
     )
   if (req.url.includes('/webhooks'))
@@ -63,7 +71,12 @@ const upstream = createServer(async (req, res) => {
       JSON.stringify({
         data:
           req.method === 'GET'
-            ? [{ id: 'wh-1', url: 'https://client.example/upstream/webhook/messages' }]
+            ? [
+                {
+                  id: 'wh-1',
+                  url: 'https://client.example/upstream/webhook/messages',
+                },
+              ]
             : { id: 'wh-1' },
       }),
     )
@@ -79,7 +92,11 @@ const upstream = createServer(async (req, res) => {
         },
       }),
     )
-  res.end(JSON.stringify({ data: { id: 'customer-1', external_customer_id: 'shop-1' } }))
+  res.end(
+    JSON.stringify({
+      data: { id: 'customer-1', external_customer_id: 'shop-1' },
+    }),
+  )
 })
 
 test(
@@ -132,12 +149,15 @@ test(
     })
     t.after(() => {
       try {
-        execFileSync('docker', ['stop', '-t', '2', container], { stdio: 'ignore' })
+        execFileSync('docker', ['stop', '-t', '2', container], {
+          stdio: 'ignore',
+        })
       } catch {}
     })
     let base
     for (let i = 0; i < 100; i++) {
-      if (docker.exitCode !== null) throw new Error(`Contract API exited: ${logs}`)
+      if (docker.exitCode !== null)
+        throw new Error(`Contract API exited: ${logs}`)
       try {
         const port = execFileSync('docker', ['port', container, '8080/tcp'], {
           encoding: 'utf8',
@@ -174,7 +194,11 @@ test(
       messaging_product: 'whatsapp',
       to: '549111',
       type: 'template',
-      template: { name: 'welcome', language: { code: 'es_AR' }, components: [] },
+      template: {
+        name: 'welcome',
+        language: { code: 'es_AR' },
+        components: [],
+      },
     })
     await messaging('123456/messages', 'POST', {
       messaging_product: 'whatsapp',
@@ -183,7 +207,9 @@ test(
       interactive: {
         type: 'button',
         body: { text: 'Elegí' },
-        action: { buttons: [{ type: 'reply', reply: { id: 'yes', title: 'Sí' } }] },
+        action: {
+          buttons: [{ type: 'reply', reply: { id: 'yes', title: 'Sí' } }],
+        },
       },
     })
     await messaging('123456/messages', 'POST', {
@@ -263,7 +289,9 @@ test(
     )
     await platform('/whatsapp/phone_numbers/123456', 'DELETE')
     await platform('/customers/customer-1', 'DELETE')
-    const sends = requests.filter((r) => r.url === '/meta/whatsapp/v24.0/123456/messages')
+    const sends = requests.filter(
+      (r) => r.url === '/meta/whatsapp/v24.0/123456/messages',
+    )
     assert.equal(sends.length, 5)
     assert.equal(sends[0].body.text.body, 'Hola')
     assert.equal(sends[1].body.type, 'template')

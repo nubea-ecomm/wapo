@@ -9,9 +9,13 @@ test('observability filters real API logs, opens details and pauses updates', as
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
   await page.getByRole('button', { name: 'Iniciar sesión' }).click()
   await page.getByRole('link', { name: 'Proyectos', exact: true }).click()
-  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Nuevo proyecto', exact: true })
+    .click()
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill(name)
-  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Crear proyecto', exact: true })
+    .click()
   await page.getByRole('button', { name, exact: true }).click()
   await page.getByRole('link', { name: 'Observabilidad', exact: true }).click()
   await expect(
@@ -40,8 +44,13 @@ test('observability filters real API logs, opens details and pauses updates', as
   await expect(entry).toBeVisible()
   await page.getByRole('button', { name: 'Pausar', exact: true }).click()
   await expect(page.getByText('En pausa', { exact: true })).toBeVisible()
-  await page.screenshot({ path: 'artifacts/observability.png', animations: 'disabled' })
-  const avatar = page.getByRole('button', { name: 'Menú de usuario' }).getByRole('img')
+  await page.screenshot({
+    path: 'artifacts/observability.png',
+    animations: 'disabled',
+  })
+  const avatar = page
+    .getByRole('button', { name: 'Menú de usuario' })
+    .getByRole('img')
   const before = await avatar.innerHTML()
   await page.getByRole('button', { name: 'Menú de usuario' }).click()
   await page.getByRole('menuitem', { name: 'Generar otro avatar' }).click()

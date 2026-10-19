@@ -9,7 +9,9 @@ export function useApi<T>(
     queryKey: [session?.id, path],
     queryFn: () => (options.admin ? admin : client).request<T>('GET', path),
     enabled: Boolean(
-      session && (options.admin || session.tenantId) && options.enabled !== false,
+      session &&
+      (options.admin || session.tenantId) &&
+      options.enabled !== false,
     ),
     refetchInterval: options.poll ? 5000 : false,
   })

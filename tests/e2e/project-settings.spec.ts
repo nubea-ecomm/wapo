@@ -9,12 +9,18 @@ test('project identity saves the name, logo and hosted-link appearance', async (
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
   await page.getByRole('button', { name: 'Iniciar sesión' }).click()
   await page.getByRole('link', { name: 'Proyectos', exact: true }).click()
-  await page.getByRole('button', { name: 'Nuevo proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Nuevo proyecto', exact: true })
+    .click()
   await page.getByLabel('Nombre del proyecto', { exact: true }).fill(name)
-  await page.getByRole('button', { name: 'Crear proyecto', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Crear proyecto', exact: true })
+    .click()
   await page.getByRole('button', { name, exact: true }).click()
   await page.getByRole('link', { name: 'Configuración', exact: true }).click()
-  await page.getByLabel('Nombre del proyecto', { exact: true }).fill(`${name} renamed`)
+  await page
+    .getByLabel('Nombre del proyecto', { exact: true })
+    .fill(`${name} renamed`)
   await page.getByLabel('Subir logo', { exact: true }).setInputFiles({
     name: 'logo.png',
     mimeType: 'image/png',
@@ -28,19 +34,28 @@ test('project identity saves the name, logo and hosted-link appearance', async (
   await expect(page.getByAltText('Logo del proyecto')).toBeVisible()
   const updated = page.waitForResponse(
     (response) =>
-      response.url().endsWith('/v1/project') && response.request().method() === 'PATCH',
+      response.url().endsWith('/v1/project') &&
+      response.request().method() === 'PATCH',
   )
-  await page.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Guardar cambios', exact: true })
+    .click()
   expect((await updated).status()).toBe(200)
   await page.reload()
-  await expect(page.getByLabel('Nombre del proyecto', { exact: true })).toHaveValue(
-    `${name} renamed`,
+  await expect(
+    page.getByLabel('Nombre del proyecto', { exact: true }),
+  ).toHaveValue(`${name} renamed`)
+  await expect(page.getByLabel('Tema del enlace', { exact: true })).toHaveValue(
+    'dark',
   )
-  await expect(page.getByLabel('Tema del enlace', { exact: true })).toHaveValue('dark')
-  await expect(page.getByLabel('Color de acento', { exact: true })).toHaveValue('#2563eb')
+  await expect(page.getByLabel('Color de acento', { exact: true })).toHaveValue(
+    '#2563eb',
+  )
   await expect(page.getByAltText('Logo del proyecto')).toBeVisible()
   const active = page.getByRole('combobox', { name: 'Proyecto activo' })
-  await expect(active.getByRole('img', { name: `Logo de ${name} renamed` })).toBeVisible()
+  await expect(
+    active.getByRole('img', { name: `Logo de ${name} renamed` }),
+  ).toBeVisible()
   await expect
     .poll(() =>
       active
@@ -60,9 +75,12 @@ test('project identity saves the name, logo and hosted-link appearance', async (
   await page.getByRole('button', { name: 'Quitar logo' }).click()
   const removed = page.waitForResponse(
     (response) =>
-      response.url().endsWith('/v1/project') && response.request().method() === 'PATCH',
+      response.url().endsWith('/v1/project') &&
+      response.request().method() === 'PATCH',
   )
-  await page.getByRole('button', { name: 'Guardar cambios', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Guardar cambios', exact: true })
+    .click()
   expect((await removed).status()).toBe(200)
   await page.reload()
   await expect(page.getByAltText('Logo del proyecto')).toHaveCount(0)

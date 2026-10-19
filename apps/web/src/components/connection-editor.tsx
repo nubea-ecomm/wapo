@@ -15,10 +15,17 @@ export function ConnectionEditor({ onClose }: { onClose: () => void }) {
   const [customerId, setCustomerId] = useState('')
   const [connecting, setConnecting] = useState(false)
   const customers = useApi<Page<Customer>>('/v1/customers')
-  const selected = customers.data?.data.find((customer) => customer.id === customerId)
+  const selected = customers.data?.data.find(
+    (customer) => customer.id === customerId,
+  )
   if (manual) return <ManualConnectionEditor onClose={onClose} />
   if (connecting && selected)
-    return <CustomerOnboarding customer={selected} onClose={onClose} />
+    return (
+      <CustomerOnboarding
+        customer={selected}
+        onClose={onClose}
+      />
+    )
   return (
     <FormDialog
       title={
@@ -45,33 +52,45 @@ export function ConnectionEditor({ onClose }: { onClose: () => void }) {
             required
           >
             <option value="">
-              {customers.isLoading ? 'Cargando customers…' : 'Seleccioná un customer'}
+              {customers.isLoading
+                ? 'Cargando customers…'
+                : 'Seleccioná un customer'}
             </option>
             {customers.data?.data.map((customer) => (
-              <option key={customer.id} value={customer.id}>
+              <option
+                key={customer.id}
+                value={customer.id}
+              >
                 {customer.name}
               </option>
             ))}
           </NativeSelect>
         </Field>
-        {!customers.isLoading && !customers.error && !customers.data?.data.length && (
-          <p className="text-sm text-muted-foreground">
-            Creá un customer para identificar al negocio que va a conectar su número.{' '}
-            <Link
-              className="font-medium text-foreground underline underline-offset-4"
-              to="/customers"
-              onClick={onClose}
-            >
-              Ir a Customers
-            </Link>
-          </p>
-        )}
+        {!customers.isLoading &&
+          !customers.error &&
+          !customers.data?.data.length && (
+            <p className="text-sm text-muted-foreground">
+              Creá un customer para identificar al negocio que va a conectar su
+              número.{' '}
+              <Link
+                className="font-medium text-foreground underline underline-offset-4"
+                to="/customers"
+                onClick={onClose}
+              >
+                Ir a Customers
+              </Link>
+            </p>
+          )}
         <ErrorNotice error={customers.error} />
         <p className="text-xs leading-relaxed text-muted-foreground">
           El cliente elige el tipo de conexión y autoriza su cuenta en Meta.
         </p>
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
             Cancelar
           </Button>
           <Button disabled={!selected}>
@@ -92,7 +111,9 @@ export function ConnectionEditor({ onClose }: { onClose: () => void }) {
             <KeyRound />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-medium">Usar credenciales de Meta</span>
+            <span className="block text-sm font-medium">
+              Usar credenciales de Meta
+            </span>
             <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
               Para un número ya configurado en Cloud API.
             </span>

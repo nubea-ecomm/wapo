@@ -28,7 +28,10 @@ export function FormDialog({
       }}
     >
       <DialogContent
-        className={cn('max-h-[90dvh] overflow-y-auto sm:max-w-xl', contentClassName)}
+        className={cn(
+          'max-h-[90dvh] overflow-y-auto sm:max-w-xl',
+          contentClassName,
+        )}
         aria-describedby={undefined}
       >
         <DialogHeader>

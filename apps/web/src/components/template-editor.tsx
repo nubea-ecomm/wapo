@@ -40,7 +40,11 @@ export function TemplateEditor({
       type: 'BODY',
       text: body,
       ...(variables.length
-        ? { example: { body_text: [variables.map((key) => examples[key] || '')] } }
+        ? {
+            example: {
+              body_text: [variables.map((key) => examples[key] || '')],
+            },
+          }
         : {}),
     })
     if (footer.trim()) components.push({ type: 'FOOTER', text: footer.trim() })
@@ -63,7 +67,11 @@ export function TemplateEditor({
           create.mutate()
         }}
       >
-        <div className="flex gap-2" role="group" aria-label="Editor de template">
+        <div
+          className="flex gap-2"
+          role="group"
+          aria-label="Editor de template"
+        >
           <Button
             type="button"
             variant={!advanced ? 'secondary' : 'ghost'}
@@ -105,7 +113,10 @@ export function TemplateEditor({
           </Field>
         ) : (
           <>
-            <Field label="Nombre" hint="Minúsculas, números y guiones bajos.">
+            <Field
+              label="Nombre"
+              hint="Minúsculas, números y guiones bajos."
+            >
               <Input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
@@ -127,14 +138,19 @@ export function TemplateEditor({
               <Field label="Categoría">
                 <NativeSelect
                   value={category}
-                  onChange={(event) => setCategory(event.target.value as typeof category)}
+                  onChange={(event) =>
+                    setCategory(event.target.value as typeof category)
+                  }
                 >
                   <option value="UTILITY">Utilidad</option>
                   <option value="MARKETING">Marketing</option>
                 </NativeSelect>
               </Field>
             </div>
-            <Field label="Mensaje" hint="Usá {{1}}, {{2}} para variables.">
+            <Field
+              label="Mensaje"
+              hint="Usá {{1}}, {{2}} para variables."
+            >
               <Textarea
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
@@ -148,7 +164,10 @@ export function TemplateEditor({
               <div className="grid gap-3 rounded-md border p-3">
                 <h3 className="m-0 text-xs">Ejemplos para revisión</h3>
                 {variables.map((key) => (
-                  <Field key={key} label={`Ejemplo {{${key}}}`}>
+                  <Field
+                    key={key}
+                    label={`Ejemplo {{${key}}}`}
+                  >
                     <Input
                       value={examples[key] || ''}
                       onChange={(event) =>
@@ -188,7 +207,9 @@ export function TemplateEditor({
               <div className="rounded-lg border bg-muted/40 p-4 text-sm whitespace-pre-wrap">
                 {header && <strong className="mb-2 block">{header}</strong>}
                 {body}
-                {footer && <small className="mt-2 text-muted-foreground">{footer}</small>}
+                {footer && (
+                  <small className="mt-2 text-muted-foreground">{footer}</small>
+                )}
               </div>
             )}
           </>

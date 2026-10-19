@@ -16,13 +16,16 @@ import {
 import type { ComponentType } from 'react'
 import type { MessageKey } from './i18n'
 
-export type NavigationGroup = 'main' | 'integrations' | 'multitenant' | 'project'
+export type NavigationGroup =
+  'main' | 'integrations' | 'multitenant' | 'project'
 export type NavigationItem = {
   to: string
   icon: ComponentType<{ size?: number; strokeWidth?: number }>
   group: NavigationGroup
   operator: boolean
-} & ({ labelKey: MessageKey; label?: never } | { label: string; labelKey?: never })
+} & (
+  { labelKey: MessageKey; label?: never } | { label: string; labelKey?: never }
+)
 
 export const navigation = [
   {

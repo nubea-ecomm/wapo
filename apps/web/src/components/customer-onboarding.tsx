@@ -16,12 +16,14 @@ const choices = [
   {
     id: 'both',
     title: 'Que el cliente elija',
-    description: 'El cliente decide cómo conectar su número al abrir el enlace.',
+    description:
+      'El cliente decide cómo conectar su número al abrir el enlace.',
   },
   {
     id: 'coexistence',
     title: 'WhatsApp Business + API',
-    description: 'Coexistence: sigue usando la app de WhatsApp Business junto con Wapo.',
+    description:
+      'Coexistence: sigue usando la app de WhatsApp Business junto con Wapo.',
   },
   {
     id: 'dedicated',
@@ -47,7 +49,8 @@ export function CustomerOnboarding({
   const ready = instance.data?.data.onboarding_ready === true
   const create = useAction(async () => {
     const result = await client.createSetupLink(customer.id, {
-      allowed_connection_types: mode === 'both' ? ['coexistence', 'dedicated'] : [mode],
+      allowed_connection_types:
+        mode === 'both' ? ['coexistence', 'dedicated'] : [mode],
       ...(redirect ? { success_redirect_url: redirect } : {}),
       language: 'es',
     })
@@ -75,10 +78,12 @@ export function CustomerOnboarding({
         <div className="flex gap-3 rounded-lg border bg-muted/40 p-4">
           <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <div className="grid gap-2">
-            <p className="text-sm font-medium">WhatsApp aún no está habilitado</p>
+            <p className="text-sm font-medium">
+              WhatsApp aún no está habilitado
+            </p>
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Un administrador debe completar la configuración de Meta para generar
-              enlaces de conexión.
+              Un administrador debe completar la configuración de Meta para
+              generar enlaces de conexión.
             </p>
             <Link
               to="/settings"
@@ -128,7 +133,10 @@ export function CustomerOnboarding({
                 <span className="flex items-center gap-2 text-sm font-medium">
                   {choice.title}
                   {choice.id === 'both' && (
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px]"
+                    >
                       Predeterminado
                     </Badge>
                   )}
@@ -169,7 +177,11 @@ export function CustomerOnboarding({
           }
         />
         <div className="flex justify-end gap-2 border-t pt-4">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+          >
             Cerrar
           </Button>
           <Button disabled={!ready || create.isPending}>
@@ -178,7 +190,12 @@ export function CustomerOnboarding({
           </Button>
         </div>
       </form>
-      {link && <SetupLinkResult key={link} url={link} />}
+      {link && (
+        <SetupLinkResult
+          key={link}
+          url={link}
+        />
+      )}
       <ErrorNotice
         error={
           revoke.error
@@ -193,7 +210,9 @@ export function CustomerOnboarding({
       />
       <ErrorNotice
         error={
-          links.error ? new Error('No pudimos cargar los enlaces anteriores.') : null
+          links.error
+            ? new Error('No pudimos cargar los enlaces anteriores.')
+            : null
         }
       />
     </FormDialog>

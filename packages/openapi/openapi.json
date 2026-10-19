@@ -456,7 +456,9 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": { "data": { "$ref": "#/components/schemas/Connection" } },
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Connection" }
+                  },
                   "required": ["data"]
                 }
               }
@@ -465,7 +467,9 @@
           "default": {
             "description": "Error",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
             }
           }
         }
@@ -4032,7 +4036,11 @@
                 "additionalProperties": false,
                 "minProperties": 1,
                 "properties": {
-                  "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
                   "email": { "type": "string", "format": "email" },
                   "language": { "type": "string", "enum": ["es", "pt", "en"] },
                   "avatar_variant": {
@@ -4067,7 +4075,9 @@
           "default": {
             "description": "Error",
             "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
             }
           }
         }
@@ -6696,7 +6706,14 @@
             "type": "string"
           }
         },
-        "required": ["id", "connection_id", "channel", "direction", "status", "payload"]
+        "required": [
+          "id",
+          "connection_id",
+          "channel",
+          "direction",
+          "status",
+          "payload"
+        ]
       },
       "MessageInput": {
         "type": "object",
@@ -7126,7 +7143,14 @@
             "description": "Explicit project access when all_projects is false."
           }
         },
-        "required": ["id", "email", "name", "language", "avatar_variant", "active"]
+        "required": [
+          "id",
+          "email",
+          "name",
+          "language",
+          "avatar_variant",
+          "active"
+        ]
       },
       "ProjectBranding": {
         "type": "object",

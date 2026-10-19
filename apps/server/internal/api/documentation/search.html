@@ -1,18 +1,38 @@
 {{define "search"}}
-<dialog id="docs-search" aria-labelledby="docs-search-title">
+<dialog
+  id="docs-search"
+  aria-labelledby="docs-search-title"
+>
   <div class="search-dialog-header">
     <h2 id="docs-search-title">Search documentation</h2>
-    <button type="button" data-close-search aria-label="Close search">×</button>
+    <button
+      type="button"
+      data-close-search
+      aria-label="Close search"
+    >
+      ×
+    </button>
   </div>
-  <label class="visually-hidden" for="docs-search-query">Search guides</label
+  <label
+    class="visually-hidden"
+    for="docs-search-query"
+    >Search guides</label
   ><input
     type="search"
     id="docs-search-query"
     placeholder="Authentication, messages, webhooks…"
     autocomplete="off"
   />
-  <ul id="docs-search-results" aria-label="Search results"></ul>
-  <p id="docs-search-empty" hidden>No matching guides. Try a resource or API concept.</p>
+  <ul
+    id="docs-search-results"
+    aria-label="Search results"
+  ></ul>
+  <p
+    id="docs-search-empty"
+    hidden
+  >
+    No matching guides. Try a resource or API concept.
+  </p>
   <div class="search-dialog-footer">↵ Open guide <span>esc to close</span></div>
 </dialog>
 {{end}}

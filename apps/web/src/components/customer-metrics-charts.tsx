@@ -3,7 +3,11 @@ import type { CustomerMetricsData } from './customer-metrics'
 import { ActivityChart } from './activity-chart'
 import { Panel, Empty } from './ui'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart'
-export default function CustomerMetricsCharts({ data }: { data: CustomerMetricsData }) {
+export default function CustomerMetricsCharts({
+  data,
+}: {
+  data: CustomerMetricsData
+}) {
   const types = [
     { name: 'Dedicada', count: data.connection_types.dedicated },
     { name: 'Coexistence', count: data.connection_types.coexistence },
@@ -12,13 +16,21 @@ export default function CustomerMetricsCharts({ data }: { data: CustomerMetricsD
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <Panel title="Mensajes por día">
-        <ActivityChart series={data.series} outboundLabel="Salientes" />
+        <ActivityChart
+          series={data.series}
+          outboundLabel="Salientes"
+        />
       </Panel>
       <Panel title="Tipos de conexión">
         {data.connections ? (
-          <div role="img" aria-label="Conexiones dedicadas y Coexistence">
+          <div
+            role="img"
+            aria-label="Conexiones dedicadas y Coexistence"
+          >
             <ChartContainer
-              config={{ count: { label: 'Conexiones', color: 'var(--chart-1)' } }}
+              config={{
+                count: { label: 'Conexiones', color: 'var(--chart-1)' },
+              }}
               className="h-[260px] w-full aspect-auto"
             >
               <BarChart

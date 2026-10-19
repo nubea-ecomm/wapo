@@ -38,7 +38,10 @@ export function TenantPicker() {
       </div>
     )
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -48,20 +51,29 @@ export function TenantPicker() {
           aria-label="Proyecto activo"
           className="tenant-picker-trigger"
         >
-          <ProjectAvatar name={session.tenantName} logoUrl={activeProject?.logo_url} />
+          <ProjectAvatar
+            name={session.tenantName}
+            logoUrl={activeProject?.logo_url}
+          />
           <span className="min-w-0 flex-1 truncate text-left">
             {session.tenantName || 'Elegí un proyecto'}
           </span>
           <ChevronsUpDown className="size-3.5 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] p-0">
+      <PopoverContent
+        align="start"
+        className="w-80 max-w-[calc(100vw-2rem)] p-0"
+      >
         <Command
           filter={(value, search) =>
             value.toLowerCase().includes(search.trim().toLowerCase()) ? 1 : 0
           }
         >
-          <CommandInput placeholder="Buscar proyecto…" aria-label="Buscar proyecto" />
+          <CommandInput
+            placeholder="Buscar proyecto…"
+            aria-label="Buscar proyecto"
+          />
           <CommandList id="tenant-options">
             <CommandEmpty>
               {tenants.isLoading
@@ -82,7 +94,10 @@ export function TenantPicker() {
                       setOpen(false)
                     }}
                   >
-                    <ProjectAvatar name={tenant.name} logoUrl={tenant.logo_url} />
+                    <ProjectAvatar
+                      name={tenant.name}
+                      logoUrl={tenant.logo_url}
+                    />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate">{tenant.name}</span>
                     </span>

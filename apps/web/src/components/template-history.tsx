@@ -60,7 +60,10 @@ export function TemplateHistory({
     meaningful.push({ ...change, type, before, after })
   }
   return (
-    <details className="rounded-lg border" aria-label="Historial del template">
+    <details
+      className="rounded-lg border"
+      aria-label="Historial del template"
+    >
       <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium">
         <span>Historial</span>
         <span className="text-xs font-normal text-muted-foreground">
@@ -86,13 +89,22 @@ export function TemplateHistory({
               </strong>
               {change.type === 'status_changed' ? (
                 <div className="flex items-center gap-2">
-                  {change.before ? <Status value={change.before} /> : <span>—</span>}
+                  {change.before ? (
+                    <Status value={change.before} />
+                  ) : (
+                    <span>—</span>
+                  )}
                   <span className="text-muted-foreground">→</span>
-                  {change.after ? <Status value={change.after} /> : <span>—</span>}
+                  {change.after ? (
+                    <Status value={change.after} />
+                  ) : (
+                    <span>—</span>
+                  )}
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  {change.before || 'Sin registro'} → {change.after || 'Sin dato'}
+                  {change.before || 'Sin registro'} →{' '}
+                  {change.after || 'Sin dato'}
                 </p>
               )}
               <time className="text-[11px] whitespace-nowrap text-muted-foreground">

@@ -33,9 +33,13 @@ test('documentation theme persists across guides and the interactive reference',
   })
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('http://localhost:8080/docs')
-  await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Switch to light mode' }),
+  ).toBeVisible()
   expect(
-    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
   ).toBe(true)
   await page.screenshot({
     path: 'artifacts/docs-guides-dark-mobile.png',

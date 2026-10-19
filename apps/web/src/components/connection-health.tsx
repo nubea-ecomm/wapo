@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import { SetupLinkResult } from './setup-link-result'
-import { CheckCircle2, AlertCircle, XCircle, RefreshCw, ExternalLink } from 'lucide-react'
+import {
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  RefreshCw,
+  ExternalLink,
+} from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { permissions } from '../app/permissions'
 import { useApi, useAction } from '../hooks/use-api'
@@ -58,7 +64,9 @@ export function ConnectionHealth({
         <Button
           size="sm"
           variant="outline"
-          disabled={run.isPending || health.isFetching || !permissions(session).canWrite}
+          disabled={
+            run.isPending || health.isFetching || !permissions(session).canWrite
+          }
           onClick={() => run.mutate()}
         >
           <RefreshCw className={run.isPending ? 'animate-spin' : ''} />
@@ -91,7 +99,10 @@ export function ConnectionHealth({
                     ? XCircle
                     : AlertCircle
               return (
-                <div key={check.id} className="flex gap-3 py-4">
+                <div
+                  key={check.id}
+                  className="flex gap-3 py-4"
+                >
                   <Icon
                     className={`mt-0.5 size-4 shrink-0 ${check.status === 'pass' ? 'text-emerald-600 dark:text-emerald-400' : check.status === 'fail' ? 'text-red-600 dark:text-red-400' : check.status === 'warning' ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`}
                   />
@@ -123,7 +134,8 @@ export function ConnectionHealth({
                           Detalle de Meta
                         </summary>
                         <p className="mt-2 break-words text-muted-foreground">
-                          {check.provider_error.code}: {check.provider_error.message}
+                          {check.provider_error.code}:{' '}
+                          {check.provider_error.message}
                         </p>
                       </details>
                     )}
@@ -152,8 +164,16 @@ export function ConnectionHealth({
                   : 'Estado de pagos sin confirmar. Revisá la cuenta en Meta.'}
               </p>
             </div>
-            <Button variant="outline" size="sm" asChild>
-              <a href={d.billing.manage_url} target="_blank" rel="noreferrer">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+            >
+              <a
+                href={d.billing.manage_url}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Administrar en Meta
                 <ExternalLink />
               </a>
@@ -165,9 +185,11 @@ export function ConnectionHealth({
             d.checks.some(
               (check) =>
                 check.status === 'fail' &&
-                ['access_token', 'phone_access', 'webhook_subscription'].includes(
-                  check.id,
-                ),
+                [
+                  'access_token',
+                  'phone_access',
+                  'webhook_subscription',
+                ].includes(check.id),
             ) && (
               <div className="mt-4">
                 <Button
@@ -176,7 +198,9 @@ export function ConnectionHealth({
                   disabled={reconnect.isPending}
                   onClick={() => reconnect.mutate()}
                 >
-                  {reconnect.isPending ? 'Generando…' : 'Generar enlace de reconexión'}
+                  {reconnect.isPending
+                    ? 'Generando…'
+                    : 'Generar enlace de reconexión'}
                 </Button>
               </div>
             )}

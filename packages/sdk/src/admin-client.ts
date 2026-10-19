@@ -10,7 +10,10 @@ import type {
 
 export class WapoAdminClient extends Transport {
   whatsappSettings() {
-    return this.request<{ data: WhatsAppSettings }>('GET', '/admin/v1/settings/whatsapp')
+    return this.request<{ data: WhatsAppSettings }>(
+      'GET',
+      '/admin/v1/settings/whatsapp',
+    )
   }
   listUsers() {
     return this.request<Page<ConsoleUser>>('GET', '/admin/v1/users')
@@ -35,7 +38,11 @@ export class WapoAdminClient extends Transport {
       project_ids?: string[]
     },
   ) {
-    return this.request('PATCH', `/admin/v1/users/${encodeURIComponent(id)}`, input)
+    return this.request(
+      'PATCH',
+      `/admin/v1/users/${encodeURIComponent(id)}`,
+      input,
+    )
   }
   deleteUser(id: string) {
     return this.request('DELETE', `/admin/v1/users/${encodeURIComponent(id)}`)
@@ -47,12 +54,17 @@ export class WapoAdminClient extends Transport {
     return this.request<Page<Project>>('GET', '/admin/v1/tenants')
   }
   createTenant(name: string) {
-    return this.request<{ data: Project }>('POST', '/admin/v1/tenants', { name })
+    return this.request<{ data: Project }>('POST', '/admin/v1/tenants', {
+      name,
+    })
   }
   deleteTenant(id: string) {
     return this.request('DELETE', `/admin/v1/tenants/${encodeURIComponent(id)}`)
   }
-  updateTenant(id: string, input: { name?: string; status?: 'active' | 'suspended' }) {
+  updateTenant(
+    id: string,
+    input: { name?: string; status?: 'active' | 'suspended' },
+  ) {
     return this.request<{ data: Project }>(
       'PATCH',
       `/admin/v1/tenants/${encodeURIComponent(id)}`,

@@ -25,7 +25,8 @@ export function SetupLinkHistory({
             Enlaces anteriores ({links.length})
           </summary>
           {links.map((item) => {
-            const active = item.status === 'active' && Date.parse(item.expires_at) > now
+            const active =
+              item.status === 'active' && Date.parse(item.expires_at) > now
             const visibleStatus =
               item.status === 'completed' || item.status === 'used'
                 ? 'completed'
