@@ -8,6 +8,7 @@ let config,
   submitting = false,
   waiting = false,
   authorizationTimer
+
 function stopWaiting(message) {
   clearTimeout(authorizationTimer)
   waiting = false
@@ -17,8 +18,10 @@ function stopWaiting(message) {
   document.getElementById('back').disabled = false
   status.textContent = message
 }
+
 function describe() {
   const coexistence = mode.value === 'coexistence'
+
   document.getElementById('description').textContent = coexistence
     ? 'Seguí usando la app de WhatsApp Business con tu número.'
     : 'Usá este número desde la API de WhatsApp.'
@@ -36,10 +39,13 @@ function describe() {
         'Seleccioná o registrá el número que querés conectar.',
         'Verificá el número si Meta lo solicita y autorizá el acceso.',
       ]
+
   document.getElementById('instructions').replaceChildren(
     ...steps.map((text) => {
       const li = document.createElement('li')
+
       li.textContent = text
+
       return li
     }),
   )
@@ -47,6 +53,7 @@ function describe() {
     ? 'Tené a mano el teléfono donde usás WhatsApp Business App.'
     : 'Si querés seguir usando la app del teléfono, volvé y elegí WhatsApp Business App.'
 }
+
 function showStep(authorize) {
   document.getElementById('choose').hidden = authorize
   document.getElementById('authorize').hidden = !authorize
@@ -56,7 +63,9 @@ function showStep(authorize) {
   document
     .getElementById('step-two')
     .setAttribute('aria-current', authorize ? 'step' : 'false')
+
   if (authorize) describe()
+
   document
     .querySelector(authorize ? '#authorization-title' : '#choose h1')
     .setAttribute('tabindex', '-1')
@@ -64,6 +73,7 @@ function showStep(authorize) {
     .querySelector(authorize ? '#authorization-title' : '#choose h1')
     .focus()
 }
+
 document.querySelectorAll('[data-select]').forEach((choice) => {
   choice.onclick = () => {
     mode.value = choice.dataset.select
@@ -71,13 +81,16 @@ document.querySelectorAll('[data-select]').forEach((choice) => {
   }
 })
 document.getElementById('back').onclick = () => showStep(false)
+
 async function complete() {
   if (!code || !session || submitting) return
+
   submitting = true
   waiting = false
   clearTimeout(authorizationTimer)
   button.disabled = true
   status.textContent = 'Verificando el número y completando la conexión…'
+
   try {
     const response = await fetch(endpoint + '/complete', {
       method: 'POST',
@@ -89,10 +102,13 @@ async function complete() {
         connection_type: mode.value,
       }),
     })
+
     code = ''
     const body = await response.json()
+
     if (!response.ok)
       throw new Error(body.error?.message || 'No se pudo completar la conexión')
+
     status.textContent = 'WhatsApp conectado.'
     button.hidden = true
     document.getElementById('back').hidden = true
@@ -102,12 +118,14 @@ async function complete() {
       'Tu número está conectado'
     document.getElementById('description').textContent =
       'Ya podés cerrar esta página.'
+
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
   } catch (e) {
     status.textContent =
       e.message + ' Solicitá un nuevo enlace si necesitás volver a iniciar.'
   }
 }
+
 window.addEventListener('message', (event) => {
   if (
     ![
@@ -117,13 +135,17 @@ window.addEventListener('message', (event) => {
     ].includes(event.origin)
   )
     return
+
   let value
+
   try {
     value = typeof event.data === 'string' ? JSON.parse(event.data) : event.data
   } catch {
     return
   }
+
   if (value?.type !== 'WA_EMBEDDED_SIGNUP' || !waiting) return
+
   if (
     ['FINISH', 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'].includes(value.event)
   ) {
@@ -131,8 +153,10 @@ window.addEventListener('message', (event) => {
       stopWaiting(
         'Meta no devolvió la cuenta de WhatsApp. Revisá la configuración de registro integrado y volvé a intentar.',
       )
+
       return
     }
+
     session = value.data
     void complete()
   } else if (value.event === 'ERROR' || value.event === 'CANCEL') {
@@ -146,6 +170,7 @@ window.addEventListener('message', (event) => {
 fetch(endpoint, { cache: 'no-store' })
   .then((r) => {
     if (!r.ok) throw new Error('El enlace ya no está disponible')
+
     return r.json()
   })
   .then((body) => {
@@ -153,8 +178,10 @@ fetch(endpoint, { cache: 'no-store' })
     mode.replaceChildren()
     document.getElementById('choices').setAttribute('aria-busy', 'false')
     status.textContent = ''
+
     for (const value of config.allowed_connection_types) {
       const option = document.createElement('option')
+
       option.value = value
       option.textContent =
         value === 'coexistence'
@@ -162,8 +189,10 @@ fetch(endpoint, { cache: 'no-store' })
           : 'Número dedicado (Cloud API)'
       mode.append(option)
       const choice = document.querySelector(`[data-mode="${value}"]`)
+
       if (choice) choice.hidden = false
     }
+
     describe()
     window.fbAsyncInit = () => {
       window.FB.init({
@@ -176,6 +205,7 @@ fetch(endpoint, { cache: 'no-store' })
       button.textContent = 'Continuar con Meta'
     }
     const script = document.createElement('script')
+
     script.src = 'https://connect.facebook.net/es_LA/sdk.js'
     script.async = true
     script.onerror = () => {
@@ -206,11 +236,14 @@ button.onclick = () => {
   document.getElementById('back').disabled = true
   status.textContent = 'Completá la autorización en la ventana de Meta.'
   const extras = { setup: {} }
+
   if (mode.value === 'coexistence')
     extras.featureType = 'whatsapp_business_app_onboarding'
+
   window.FB.login(
     (response) => {
       if (!waiting || submitting) return
+
       if (response.authResponse?.code) {
         code = response.authResponse.code
         status.textContent =

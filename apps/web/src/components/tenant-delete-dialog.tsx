@@ -15,6 +15,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from './ui/alert-dialog'
+
 export function TenantDeleteDialog({
   tenant,
   open,
@@ -28,9 +29,12 @@ export function TenantDeleteDialog({
   const [confirmation, setConfirmation] = useState('')
   const remove = useAction(async () => {
     await admin.deleteTenant(tenant.id)
+
     if (session?.tenantId === tenant.id) selectTenant('', '')
+
     onOpenChange(false)
   })
+
   return (
     <AlertDialog
       open={open}

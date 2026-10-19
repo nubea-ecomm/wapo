@@ -18,6 +18,7 @@ import type { MessageKey } from './i18n'
 
 export type NavigationGroup =
   'main' | 'integrations' | 'multitenant' | 'project'
+
 export type NavigationItem = {
   to: string
   icon: ComponentType<{ size?: number; strokeWidth?: number }>
@@ -106,6 +107,7 @@ export const navigation = [
     operator: false,
   },
 ] satisfies NavigationItem[]
+
 export const navigationGroups = [
   { key: 'integrations', icon: Plug },
   { key: 'multitenant', icon: Layers },

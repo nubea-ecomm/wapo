@@ -19,10 +19,19 @@ import { Plus, Search, Pencil, Building2 } from 'lucide-react'
 import type { Customer } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
-import { PageHeader, Panel, Empty, ErrorNotice, Loading } from '../components/ui'
+import {
+  PageHeader,
+  Panel,
+  Empty,
+  ErrorNotice,
+  Loading,
+} from '../components/ui'
 import { CustomerEditor } from '../components/customer-editor'
 import { CustomerOnboarding } from '../components/customer-onboarding'
+import { useI18n } from '../app/i18n'
+
 export function CustomersPage() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { client, session } = useSession()
   const [editor, setEditor] = useState<Customer | 'new' | null>(null)
@@ -31,6 +40,7 @@ export function CustomersPage() {
   const customers = usePaged<Customer>('/v1/customers')
   const remove = useAction(async (id: string) => {
     await client.deleteCustomer(id)
+
     if (selected?.id === id) setSelected(null)
   })
   const filtered =
@@ -39,11 +49,12 @@ export function CustomersPage() {
         .toLowerCase()
         .includes(search.toLowerCase()),
     ) || []
+
   return (
     <>
       <PageHeader
-        title="Customers"
-        description="Negocios que conectan sus números de WhatsApp."
+        title={t('customers')}
+        description={t('customers.description')}
         action={
           <Button
             variant="default"
@@ -52,7 +63,7 @@ export function CustomersPage() {
             disabled={!session?.tenantId}
             onClick={() => setEditor('new')}
           >
-            <Plus size={16} /> Nuevo customer
+            <Plus size={16} /> {t('customers.new')}
           </Button>
         }
       />
@@ -63,8 +74,8 @@ export function CustomersPage() {
           <div className="search-input">
             <Search size={15} />
             <Input
-              aria-label="Buscar customers"
-              placeholder="Buscar customer…"
+              aria-label={t('customers.search')}
+              placeholder={t('customers.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -78,9 +89,9 @@ export function CustomersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>ID externo</TableHead>
-                  <TableHead>Identificador</TableHead>
+                  <TableHead>{t('customers')}</TableHead>
+                  <TableHead>{t('customers.externalId')}</TableHead>
+                  <TableHead>{t('customers.identifier')}</TableHead>
                   <TableHead className="text-right">
                     <span className="sr-only">Acciones</span>
                   </TableHead>
@@ -103,7 +114,7 @@ export function CustomersPage() {
                           >
                             {c.name}
                           </button>
-                          <small>{c.email || 'Sin email'}</small>
+                          <small>{c.email || t('customers.noEmail')}</small>
                         </div>
                       </div>
                     </TableCell>
@@ -159,8 +170,8 @@ export function CustomersPage() {
         ) : (
           !customers.isLoading &&
           !customers.error && (
-            <Empty title={search ? 'Sin resultados' : 'Sin customers'}>
-              Usá un ID externo para relacionarlo con tu sistema.
+            <Empty title={search ? t('noResults') : t('customers.none')}>
+              {t('customers.noneDescription')}
             </Empty>
           )
         )}

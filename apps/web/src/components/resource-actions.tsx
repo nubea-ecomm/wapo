@@ -40,7 +40,9 @@ export function ResourceActions({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const { session } = useSession()
+
   if (!permissions(session).canWrite) return null
+
   return (
     <>
       <DropdownMenu>
@@ -99,6 +101,7 @@ export function ResourceActions({
                 event.preventDefault()
                 setPending(true)
                 setError(null)
+
                 try {
                   await destructive.onConfirm()
                   setConfirming(false)

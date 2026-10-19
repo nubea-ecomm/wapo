@@ -11,11 +11,19 @@ import { Loading, ErrorNotice } from './ui'
 import { CopyCode } from './copy-code'
 import { LogSource } from './log-presentation'
 import { logStatus } from '../lib/logs'
+import { currentLocale } from '../lib/locale'
 
-export function LogDetail({ entry, onClose }: { entry: LogEntry; onClose: () => void }) {
+export function LogDetail({
+  entry,
+  onClose,
+}: {
+  entry: LogEntry
+  onClose: () => void
+}) {
   const detail = useApi<{ data: Record<string, unknown> }>(
     `/v1/logs/${encodeURIComponent(entry.id)}`,
   )
+
   return (
     <Sheet
       open
@@ -32,14 +40,18 @@ export function LogDetail({ entry, onClose }: { entry: LogEntry; onClose: () => 
           <div className="flex items-center justify-between">
             <LogSource source={entry.source} />
             <span
-              className={entry.is_error ? 'text-destructive' : 'text-muted-foreground'}
+              className={
+                entry.is_error ? 'text-destructive' : 'text-muted-foreground'
+              }
             >
               {logStatus(entry)}
             </span>
           </div>
           <dl className="grid grid-cols-[90px_1fr] gap-3 text-xs">
             <dt className="text-muted-foreground">Fecha</dt>
-            <dd>{new Date(entry.created_at).toLocaleString('es-AR')}</dd>
+            <dd>
+              {new Date(entry.created_at).toLocaleString(currentLocale())}
+            </dd>
             {entry.duration_ms !== null && (
               <>
                 <dt className="text-muted-foreground">Duración</dt>
@@ -60,7 +72,9 @@ export function LogDetail({ entry, onClose }: { entry: LogEntry; onClose: () => 
           )}
           {detail.isLoading && <Loading />}
           <ErrorNotice error={detail.error} />
-          {detail.data && <CopyCode value={JSON.stringify(detail.data.data, null, 2)} />}
+          {detail.data && (
+            <CopyCode value={JSON.stringify(detail.data.data, null, 2)} />
+          )}
         </div>
       </SheetContent>
     </Sheet>

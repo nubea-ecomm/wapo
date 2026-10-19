@@ -4,6 +4,7 @@ test('observability filters real API logs, opens details and pauses updates', as
   page,
 }) => {
   const name = `Logs ${Date.now()}`
+
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(env.ADMIN_EMAIL)
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
@@ -28,9 +29,11 @@ test('observability filters real API logs, opens details and pauses updates', as
   const entry = page
     .getByRole('button', { name: 'GET /v1/overview', exact: true })
     .first()
+
   await expect(entry).toBeVisible()
   await entry.click()
   const detail = page.getByRole('dialog')
+
   await expect(
     detail.getByRole('heading', { name: 'Detalle del registro' }),
   ).toBeVisible()
@@ -52,6 +55,7 @@ test('observability filters real API logs, opens details and pauses updates', as
     .getByRole('button', { name: 'Menú de usuario' })
     .getByRole('img')
   const before = await avatar.innerHTML()
+
   await page.getByRole('button', { name: 'Menú de usuario' }).click()
   await page.getByRole('menuitem', { name: 'Generar otro avatar' }).click()
   await page.keyboard.press('Escape')

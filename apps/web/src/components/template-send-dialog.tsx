@@ -53,6 +53,7 @@ export function TemplateSendDialog({
     fixedTemplate || approved.find((template) => template.id === templateId)
   const fields = selected ? templateParameterFields(selected) : []
   const preview = selected ? templatePreview(selected, values) : []
+
   useEffect(() => {
     if (!fixedTemplate && !templateId && approved[0])
       setTemplateId(approved[0].id)
@@ -63,6 +64,7 @@ export function TemplateSendDialog({
   }, [selected?.id])
   const send = useAction(async () => {
     if (!selected) throw new Error('Elegí un template aprobado.')
+
     try {
       const result = await client.sendTemplate(
         connection.id,
@@ -70,6 +72,7 @@ export function TemplateSendDialog({
         templatePayload(selected, values),
         key,
       )
+
       onSent?.(result.data)
       onClose()
     } catch (error) {
@@ -80,6 +83,7 @@ export function TemplateSendDialog({
   const valid =
     Boolean(selected && normalizeWhatsAppRecipient(to)) &&
     fields.every((field) => values[field.key]?.trim())
+
   return (
     <FormDialog
       title={
@@ -100,6 +104,7 @@ export function TemplateSendDialog({
         className="grid gap-5"
         onSubmit={(event) => {
           event.preventDefault()
+
           if (valid) send.mutate()
         }}
       >
@@ -264,6 +269,7 @@ export function TemplateSendDialog({
 
 function templateSendError(error: unknown) {
   if (!(error instanceof WapoError)) return 'No pudimos enviar el template.'
+
   const body = error.body as {
     error?: {
       code?: number | string
@@ -272,18 +278,23 @@ function templateSendError(error: unknown) {
     }
   }
   const code = Number(body?.error?.code)
+
   if (code === 131030) {
     return 'Meta está en modo de prueba y este destinatario no está autorizado. Agregá el número en Meta for Developers → WhatsApp → API Setup → números de destinatario y volvé a intentar.'
   }
+
   if (code === 132001) {
     return 'Meta no encuentra este template para el idioma seleccionado. Verificá que siga aprobado y sincronizá la lista.'
   }
+
   if (code === 131026) {
     return 'Meta no pudo entregar el mensaje a este número. Verificá que tenga WhatsApp y el código de país correcto.'
   }
+
   if (code === 190 || body?.error?.code === 'credential_expired') {
     return 'La autorización de Meta venció. Reconectá el número antes de enviar mensajes.'
   }
+
   return (
     body?.error?.error_user_msg ||
     body?.error?.message ||

@@ -11,6 +11,7 @@ import { AccountMenu } from './account-menu'
 import { NavigationSearch } from './navigation-search'
 import { RouteSkeleton } from './content-skeleton'
 import { useI18n } from '../app/i18n'
+
 function savedSidebarState() {
   try {
     return localStorage.getItem('wapo.sidebar-collapsed') === 'true'
@@ -18,6 +19,7 @@ function savedSidebarState() {
     return false
   }
 }
+
 export function AppShell() {
   const { session } = useSession()
   const { t } = useI18n()
@@ -45,6 +47,7 @@ export function AppShell() {
           collapsed={sidebarCollapsed}
           onCollapsedChange={(collapsed) => {
             setSidebarCollapsed(collapsed)
+
             try {
               localStorage.setItem('wapo.sidebar-collapsed', String(collapsed))
             } catch {

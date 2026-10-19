@@ -10,6 +10,7 @@ describe('content skeletons', () => {
         rows={3}
       />,
     )
+
     expect(
       screen.getByRole('status', { name: 'Cargando contenido' }),
     ).toBeInTheDocument()
@@ -23,6 +24,7 @@ describe('content skeletons', () => {
 
   it('keeps the route shell and chooses a layout matching the destination', () => {
     const { container, rerender } = render(<RouteSkeleton path="/inbox" />)
+
     expect(
       screen.getByRole('status', { name: 'Cargando contenido' }),
     ).toBeInTheDocument()

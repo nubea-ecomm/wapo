@@ -1,5 +1,6 @@
 import { defineConfig } from '@playwright/test'
 import { existsSync } from 'node:fs'
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,

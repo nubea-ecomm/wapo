@@ -11,6 +11,7 @@ export function ProjectAvatar({
   const { session } = useSession()
   const [failed, setFailed] = useState('')
   const url = logoUrl ? `${session?.url || ''}${logoUrl}` : ''
+
   return (
     <span className="project-avatar flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted text-xs font-medium text-muted-foreground">
       {url && failed !== url ? (

@@ -23,6 +23,7 @@ const session: Session = {
   },
   expiresAt: new Date(Date.now() + 60_000).toISOString(),
 }
+
 afterEach(() => {
   sessionStorage.clear()
   localStorage.clear()

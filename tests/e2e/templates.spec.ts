@@ -5,6 +5,7 @@ test('customer and connection details list and create templates using a fake pro
 }) => {
   test.setTimeout(60_000)
   const name = `Templates ${Date.now()}`
+
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(env.ADMIN_EMAIL)
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
@@ -26,6 +27,7 @@ test('customer and connection details list and create templates using a fake pro
       response.url().endsWith('/v1/customers') &&
       response.request().method() === 'POST',
   )
+
   await page.getByRole('button', { name: 'Guardar customer' }).click()
   const customerId = (await (await created).json()).data.id
   const connection = {
@@ -48,9 +50,11 @@ test('customer and connection details list and create templates using a fake pro
   let sentMessage: Record<string, unknown> | null = null
   let rejectRecipient = false
   let credentialExpired = false
+
   await page.route('**/v1/connections**', async (route) => {
     const request = route.request(),
       url = new URL(request.url())
+
     if (url.pathname.endsWith('/history')) {
       await route.fulfill({ json: { data: [] } })
     } else if (url.pathname.endsWith('/templates')) {
@@ -80,6 +84,7 @@ test('customer and connection details list and create templates using a fake pro
         connectionUpdate = request.postDataJSON()
         Object.assign(connection, { name: connectionUpdate?.name })
       }
+
       await route.fulfill({ json: { data: connection } })
     } else if (url.pathname === '/v1/connections')
       await route.fulfill({ json: { data: [connection] } })
@@ -90,6 +95,7 @@ test('customer and connection details list and create templates using a fake pro
   )
   await page.route('**/v1/messages', async (route) => {
     sentMessage = route.request().postDataJSON()
+
     if (rejectRecipient) {
       await route.fulfill({
         status: 400,
@@ -100,8 +106,10 @@ test('customer and connection details list and create templates using a fake pro
           },
         },
       })
+
       return
     }
+
     await route.fulfill({
       status: 201,
       json: {
@@ -121,6 +129,7 @@ test('customer and connection details list and create templates using a fake pro
   })
   await page.getByRole('button', { name, exact: true }).click()
   const metrics = page.getByRole('region', { name: 'Métricas del customer' })
+
   await expect(
     metrics.getByText('Sin fallas de entrega', { exact: true }),
   ).toBeVisible()
@@ -130,6 +139,7 @@ test('customer and connection details list and create templates using a fake pro
   const metricResponse = page.waitForResponse((response) =>
     response.url().includes(`/customers/${customerId}/metrics?days=7`),
   )
+
   await page.getByLabel('Período de métricas').selectOption('7')
   expect((await (await metricResponse).json()).data.series).toHaveLength(7)
   await page.screenshot({
@@ -143,6 +153,7 @@ test('customer and connection details list and create templates using a fake pro
     .getByRole('button', { name: 'Crear template', exact: true })
     .click()
   const dialog = page.getByRole('dialog')
+
   await dialog.getByLabel('Nombre', { exact: true }).fill('order_update')
   await dialog
     .getByLabel('Mensaje', { exact: true })
@@ -203,6 +214,7 @@ test('customer and connection details list and create templates using a fake pro
     .getByRole('link', { name: 'Conexiones', exact: true })
     .click()
   const connected = page.getByText('Conectada', { exact: true })
+
   await expect(connected).toBeVisible()
   await expect(connected).toHaveClass(/emerald/)
   await expect(
@@ -226,6 +238,7 @@ test('customer and connection details list and create templates using a fake pro
     name: 'Editar conexión',
     exact: true,
   })
+
   await edit.getByLabel('Nombre', { exact: true }).fill('WhatsApp renovado')
   await edit
     .getByLabel('Nuevo access token', { exact: true })
@@ -266,6 +279,7 @@ test('customer and connection details list and create templates using a fake pro
     name: 'Probar template',
     exact: true,
   })
+
   await testTemplate
     .getByLabel('Destinatario', { exact: true })
     .fill('+54 9 11 5555-0000')

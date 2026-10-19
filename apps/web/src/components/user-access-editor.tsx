@@ -6,6 +6,7 @@ import { FormDialog } from './form-dialog'
 import { UserAccessFields, type UserAccessValue } from './user-access-fields'
 import { ErrorNotice } from './ui'
 import { Button } from './ui/button'
+
 export function UserAccessEditor({
   user,
   onClose,
@@ -21,9 +22,12 @@ export function UserAccessEditor({
   })
   const save = useAction(async () => {
     await admin.updateUser(user.id, access)
+
     if (user.id === session?.user?.id) disconnect()
+
     onClose()
   })
+
   return (
     <FormDialog
       title="Editar acceso"

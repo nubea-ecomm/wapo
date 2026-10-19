@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { useI18n } from '../app/i18n'
+
 export function NavigationSearch({
   open,
   onOpenChange,
@@ -20,6 +21,7 @@ export function NavigationSearch({
   const { t } = useI18n()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
+
   useEffect(() => {
     function shortcut(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -27,7 +29,9 @@ export function NavigationSearch({
         onOpenChange(!open)
       }
     }
+
     window.addEventListener('keydown', shortcut)
+
     return () => window.removeEventListener('keydown', shortcut)
   }, [open, onOpenChange])
   const results = navigation.filter(
@@ -37,11 +41,13 @@ export function NavigationSearch({
         .toLowerCase()
         .includes(query.toLowerCase()),
   )
+
   return (
     <Dialog
       open={open}
       onOpenChange={(value) => {
         onOpenChange(value)
+
         if (!value) setQuery('')
       }}
     >

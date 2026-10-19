@@ -4,6 +4,7 @@ test('project identity saves the name, logo and hosted-link appearance', async (
   page,
 }) => {
   const name = `Brand ${Date.now()}`
+
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(env.ADMIN_EMAIL)
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
@@ -37,6 +38,7 @@ test('project identity saves the name, logo and hosted-link appearance', async (
       response.url().endsWith('/v1/project') &&
       response.request().method() === 'PATCH',
   )
+
   await page
     .getByRole('button', { name: 'Guardar cambios', exact: true })
     .click()
@@ -53,6 +55,7 @@ test('project identity saves the name, logo and hosted-link appearance', async (
   )
   await expect(page.getByAltText('Logo del proyecto')).toBeVisible()
   const active = page.getByRole('combobox', { name: 'Proyecto activo' })
+
   await expect(
     active.getByRole('img', { name: `Logo de ${name} renamed` }),
   ).toBeVisible()
@@ -65,6 +68,7 @@ test('project identity saves the name, logo and hosted-link appearance', async (
     .toBeGreaterThan(0)
   await active.click()
   const option = page.getByRole('option').filter({ hasText: `${name} renamed` })
+
   await expect(option.getByRole('img')).toBeVisible()
   await expect(option).not.toContainText('tenant_')
   await page.keyboard.press('Escape')
@@ -78,6 +82,7 @@ test('project identity saves the name, logo and hosted-link appearance', async (
       response.url().endsWith('/v1/project') &&
       response.request().method() === 'PATCH',
   )
+
   await page
     .getByRole('button', { name: 'Guardar cambios', exact: true })
     .click()

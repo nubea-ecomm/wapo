@@ -7,6 +7,7 @@ import { FormDialog } from './form-dialog'
 import { Field, ErrorNotice } from './ui'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
+
 export function UserEditor({
   user,
   onClose,
@@ -26,10 +27,13 @@ export function UserEditor({
   const save = useAction(async () => {
     if (user) {
       await admin.updateUser(user.id, { password })
+
       if (user.id === session?.user?.id) disconnect()
     } else await admin.createUser({ name, email, password, ...access })
+
     onClose()
   })
+
   return (
     <FormDialog
       title={user ? 'Cambiar contraseña' : 'Crear usuario'}

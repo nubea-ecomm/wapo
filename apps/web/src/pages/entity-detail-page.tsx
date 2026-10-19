@@ -19,6 +19,7 @@ import { Button } from '../components/ui/button'
 import { NativeSelect } from '../components/ui/native-select'
 import { WhatsAppIcon } from '../components/icons/whatsapp-icon'
 import { TemplateList } from '../components/template-list'
+
 export function EntityDetailPage({
   kind,
 }: {
@@ -63,6 +64,7 @@ export function EntityDetailPage({
           ['health', 'Diagnóstico'],
           ['templates', 'Templates'],
         ]
+
   return (
     <>
       <Link

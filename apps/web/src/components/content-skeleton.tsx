@@ -63,7 +63,9 @@ export function RouteSkeleton({ path }: { path: string }) {
               path.startsWith('/connections/')
             ? 'settings'
             : 'table'
+
   if (variant === 'inbox') return <ContentSkeleton variant="inbox" />
+
   return (
     <div
       role="status"

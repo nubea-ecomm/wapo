@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WapoClient, WapoAdminClient } from '@wapo/sdk'
 import { SessionContext } from '../app/session-context'
 import { CustomerEditor } from './customer-editor'
+
 it('rejects invalid customer metadata before making an API request', async () => {
   const fetcher = vi.fn()
   const client = new WapoClient({
@@ -13,6 +14,7 @@ it('rejects invalid customer metadata before making an API request', async () =>
     fetch: fetcher,
   })
   const user = userEvent.setup()
+
   render(
     <SessionContext.Provider
       value={{

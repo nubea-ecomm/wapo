@@ -1,4 +1,5 @@
 import type { ClientOptions } from './types.js'
+
 export class WapoError extends Error {
   constructor(
     public status: number,
@@ -8,10 +9,12 @@ export class WapoError extends Error {
       typeof body === 'object' && body !== null && 'error' in body
         ? (body.error as { message?: string })?.message
         : undefined
+
     super(message || `Wapo API returned HTTP ${status}`)
     this.name = 'WapoError'
   }
 }
+
 export class Transport {
   private baseUrl: string
   constructor(private options: ClientOptions) {
@@ -30,6 +33,7 @@ export class Transport {
       path.includes('\\')
     )
       throw new Error('Expected a relative API path')
+
     const response = await (this.options.fetch ?? globalThis.fetch)(
       `${this.baseUrl}${path}`,
       {
@@ -49,7 +53,9 @@ export class Transport {
     )
     const data: unknown =
       response.status === 204 ? undefined : await response.json()
+
     if (!response.ok) throw new WapoError(response.status, data)
+
     return data as T
   }
 }

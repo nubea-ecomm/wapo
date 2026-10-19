@@ -8,6 +8,7 @@ import type { Connection, Page } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'
 import { Field, ErrorNotice } from './ui'
+
 const availableEvents = [
   'message.sent',
   'whatsapp.template.status_changed',
@@ -25,6 +26,7 @@ const availableEvents = [
   'whatsapp.contacts.received',
   'whatsapp.account.updated',
 ]
+
 export function WebhookEditor({ onClose }: { onClose: () => void }) {
   const { client } = useSession()
   const [url, setUrl] = useState('')
@@ -34,6 +36,7 @@ export function WebhookEditor({ onClose }: { onClose: () => void }) {
   const connections = useApi<Page<Connection>>('/v1/connections')
   const create = useAction(async () => {
     if (!events.length) throw new Error('Elegí al menos un evento.')
+
     await client.createWebhook({
       url,
       secret_key: secret,
@@ -43,6 +46,7 @@ export function WebhookEditor({ onClose }: { onClose: () => void }) {
     setSecret('')
     onClose()
   })
+
   return (
     <FormDialog
       title="Nuevo webhook"

@@ -12,6 +12,7 @@ test('customers distinguish initial loading, pending deletion and an empty list'
     releaseDelete = resolve
   })
   let deleted = false
+
   await page.route('**/v1/customers', async (route) => {
     await listReady
     await route.fulfill({
@@ -57,6 +58,7 @@ test('customers distinguish initial loading, pending deletion and an empty list'
     .click()
   await page.getByRole('menuitem', { name: 'Eliminar customer' }).click()
   const dialog = page.getByRole('alertdialog')
+
   await dialog.getByRole('button', { name: 'Confirmar', exact: true }).click()
   await expect(
     dialog.getByRole('button', { name: 'Procesando…' }),

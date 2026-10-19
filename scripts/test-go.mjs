@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
+
 const local = Object.fromEntries(
   readFileSync('.env', 'utf8')
     .split('\n')
     .filter((line) => line && !line.startsWith('#'))
     .map((line) => {
       const at = line.indexOf('=')
+
       return [line.slice(0, at), line.slice(at + 1)]
     }),
 )
@@ -36,5 +38,7 @@ const result = spawnSync(
   ],
   { stdio: 'inherit' },
 )
+
 if (result.error) throw result.error
+
 process.exitCode = result.status ?? 1

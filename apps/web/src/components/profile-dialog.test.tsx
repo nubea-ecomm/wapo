@@ -44,6 +44,7 @@ it('submits editable profile fields and the selected language', async () => {
     disconnect: vi.fn(),
     updateProfile,
   }
+
   render(
     <SessionContext.Provider value={value}>
       <I18nContext.Provider
@@ -54,6 +55,7 @@ it('submits editable profile fields and the selected language', async () => {
     </SessionContext.Provider>,
   )
   const user = userEvent.setup()
+
   await user.clear(screen.getByLabelText('Nombre'))
   await user.type(screen.getByLabelText('Nombre'), 'Updated')
   await user.selectOptions(screen.getByLabelText('Idioma'), 'pt')

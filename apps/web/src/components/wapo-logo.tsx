@@ -20,6 +20,7 @@ export function WapoLogo({
   const gap = 3
   const glyphWidth = 5 * blockWidth
   const width = letters.length * glyphWidth + (letters.length - 1) * gap
+
   return (
     <svg
       viewBox={`0 0 ${width} ${7 * blockHeight}`}

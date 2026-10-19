@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react'
 import type { LogEntry } from '@wapo/sdk'
 import { Search, RefreshCw, Pause, Play, AlertTriangle } from 'lucide-react'
 import { usePaged } from '../hooks/use-paged'
-import { PageHeader, Empty, ErrorNotice, Loading, LoadMore } from '../components/ui'
+import {
+  PageHeader,
+  Empty,
+  ErrorNotice,
+  Loading,
+  LoadMore,
+} from '../components/ui'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { NativeSelect } from '../components/ui/native-select'
@@ -15,10 +21,13 @@ import {
   TableCell,
 } from '../components/ui/table'
 import { LogDetail } from '../components/log-detail'
+import { useI18n } from '../app/i18n'
+import { currentLocale } from '../lib/locale'
 import { LogSource } from '../components/log-presentation'
 import { logSources, logStatus } from '../lib/logs'
 
 export function EventsPage() {
+  const { t } = useI18n()
   const [source, setSource] = useState('')
   const [range, setRange] = useState('24h')
   const [search, setSearch] = useState('')
@@ -26,22 +35,31 @@ export function EventsPage() {
   const [errors, setErrors] = useState(false)
   const [live, setLive] = useState(true)
   const [selected, setSelected] = useState<LogEntry | null>(null)
+
   useEffect(() => {
     const timer = setTimeout(() => setQuery(search), 300)
+
     return () => clearTimeout(timer)
   }, [search])
   const params = new URLSearchParams({ range })
+
   if (source) params.set('source', source)
+
   if (query) params.set('search', query)
+
   if (errors) params.set('errors_only', 'true')
+
   const logs = usePaged<LogEntry>(`/v1/logs?${params}`, live)
-  const entries = [...new Map(logs.items.map((item) => [item.id, item])).values()]
+  const entries = [
+    ...new Map(logs.items.map((item) => [item.id, item])).values(),
+  ]
+
   return (
     <>
       <PageHeader
         readOnlyAction
         title="Observabilidad"
-        description="Solicitudes, mensajes y entregas."
+        description={t('events.description')}
         action={
           <div className="flex gap-2">
             <Button
@@ -78,7 +96,9 @@ export function EventsPage() {
             aria-pressed={source === item.id}
             onClick={() => setSource(item.id)}
           >
-            {item.color && <span className={`size-2 rounded-full ${item.color}`} />}
+            {item.color && (
+              <span className={`size-2 rounded-full ${item.color}`} />
+            )}
             {item.label}
           </Button>
         ))}
@@ -88,8 +108,8 @@ export function EventsPage() {
           <Search className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            aria-label="Buscar registros"
-            placeholder="Buscar por evento, ruta o request ID…"
+            aria-label={t('events.search')}
+            placeholder={t('events.searchPlaceholder')}
             maxLength={200}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -97,7 +117,7 @@ export function EventsPage() {
         </div>
         <div className="w-40">
           <NativeSelect
-            aria-label="Período de registros"
+            aria-label={t('events.period')}
             value={range}
             onChange={(event) => setRange(event.target.value)}
           >
@@ -113,7 +133,7 @@ export function EventsPage() {
           onClick={() => setErrors(!errors)}
         >
           <AlertTriangle />
-          Solo errores
+          {t('events.onlyErrors')}
         </Button>
       </div>
       <ErrorNotice error={logs.error} />
@@ -121,12 +141,14 @@ export function EventsPage() {
         <Table>
           <TableHeader className="bg-muted/40">
             <TableRow>
-              <TableHead className="w-44">Hora</TableHead>
-              <TableHead className="w-28">Origen</TableHead>
-              <TableHead>Resumen</TableHead>
-              <TableHead>Detalle</TableHead>
-              <TableHead className="w-28">Duración</TableHead>
-              <TableHead className="w-28 text-right">Estado</TableHead>
+              <TableHead className="w-44">{t('events.time')}</TableHead>
+              <TableHead className="w-28">{t('events.source')}</TableHead>
+              <TableHead>{t('events.summary')}</TableHead>
+              <TableHead>{t('events.detail')}</TableHead>
+              <TableHead className="w-28">{t('events.duration')}</TableHead>
+              <TableHead className="w-28 text-right">
+                {t('common.status')}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -137,7 +159,7 @@ export function EventsPage() {
                 onClick={() => setSelected(entry)}
               >
                 <TableCell className="whitespace-nowrap font-mono text-xs text-muted-foreground">
-                  {new Date(entry.created_at).toLocaleString('es-AR', {
+                  {new Date(entry.created_at).toLocaleString(currentLocale(), {
                     month: 'short',
                     day: '2-digit',
                     hour: '2-digit',
@@ -183,7 +205,7 @@ export function EventsPage() {
         </Table>
         {logs.isLoading && <Loading variant="table" />}
         {!logs.isLoading && !logs.error && !entries.length && (
-          <Empty title="Sin registros">Probá con otro período o filtro.</Empty>
+          <Empty title={t('events.none')}>{t('noResults')}</Empty>
         )}
       </div>
       <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
@@ -195,7 +217,12 @@ export function EventsPage() {
         busy={logs.isFetchingNextPage}
         load={() => void logs.fetchNextPage()}
       />
-      {selected && <LogDetail entry={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <LogDetail
+          entry={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </>
   )
 }

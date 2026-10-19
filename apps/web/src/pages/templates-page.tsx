@@ -1,10 +1,19 @@
 import { useState } from 'react'
 import type { Connection } from '@wapo/sdk'
 import { usePaged } from '../hooks/use-paged'
-import { PageHeader, Loading, ErrorNotice, Empty, LoadMore } from '../components/ui'
+import {
+  PageHeader,
+  Loading,
+  ErrorNotice,
+  Empty,
+  LoadMore,
+} from '../components/ui'
 import { NativeSelect } from '../components/ui/native-select'
 import { TemplateList } from '../components/template-list'
+import { useI18n } from '../app/i18n'
+
 export function TemplatesPage() {
+  const { t } = useI18n()
   const connections = usePaged<Connection>('/v1/connections?channel=whatsapp')
   const [chosen, setChosen] = useState('')
   const accounts = [
@@ -14,10 +23,15 @@ export function TemplatesPage() {
         .map((connection) => [connection.business_account_id, connection]),
     ).values(),
   ]
-  const selected = accounts.find((connection) => connection.id === chosen) || accounts[0]
+  const selected =
+    accounts.find((connection) => connection.id === chosen) || accounts[0]
+
   return (
     <>
-      <PageHeader title="Templates" description="Plantillas de WhatsApp por cuenta." />
+      <PageHeader
+        title={t('templates')}
+        description={t('templates.description')}
+      />
       <ErrorNotice error={connections.error} />
       {connections.isLoading && <Loading variant="table" />}
       {selected && (
@@ -29,8 +43,13 @@ export function TemplatesPage() {
               onChange={(event) => setChosen(event.target.value)}
             >
               {accounts.map((connection) => (
-                <option value={connection.id} key={connection.id}>
-                  {connection.name || connection.display_phone_number || 'WhatsApp'}
+                <option
+                  value={connection.id}
+                  key={connection.id}
+                >
+                  {connection.name ||
+                    connection.display_phone_number ||
+                    'WhatsApp'}
                 </option>
               ))}
             </NativeSelect>
@@ -43,8 +62,8 @@ export function TemplatesPage() {
         </>
       )}
       {!connections.isLoading && !connections.error && !accounts.length && (
-        <Empty title="Sin cuentas de WhatsApp">
-          Conectá un número para administrar sus templates.
+        <Empty title={t('templates.noAccounts')}>
+          {t('templates.noAccountsDescription')}
         </Empty>
       )}
       <LoadMore

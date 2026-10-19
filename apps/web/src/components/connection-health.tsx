@@ -13,6 +13,7 @@ import { useApi, useAction } from '../hooks/use-api'
 import { Panel, Loading, ErrorNotice } from './ui'
 import { Button } from './ui/button'
 import { dateLabel } from '../lib/message-format'
+
 interface Check {
   id: string
   label: string
@@ -30,6 +31,7 @@ interface Health {
   quality_rating?: string
   billing: { status: string; manage_url: string }
 }
+
 export function ConnectionHealth({
   id,
   customerId,
@@ -50,13 +52,16 @@ export function ConnectionHealth({
   const reconnect = useAction(async () => {
     if (!customerId || !phoneNumberId)
       throw new Error('Esta conexión no tiene un customer asociado.')
+
     const result = await client.createSetupLink(customerId, {
       reconnect_phone_number: phoneNumberId,
       language: 'es',
     })
+
     setReconnectUrl(result.data.url || '')
   })
   const d = health.data?.data
+
   return (
     <Panel
       title="Diagnóstico"
@@ -98,6 +103,7 @@ export function ConnectionHealth({
                   : check.status === 'fail'
                     ? XCircle
                     : AlertCircle
+
               return (
                 <div
                   key={check.id}

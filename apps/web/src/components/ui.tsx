@@ -17,8 +17,16 @@ import { Card } from './ui/card'
 import { Badge } from './ui/badge'
 import { Label } from './ui/label'
 import { Button } from './ui/button'
-import { cloneElement, isValidElement, useId, useState, type ReactNode } from 'react'
+import {
+  cloneElement,
+  isValidElement,
+  useId,
+  useState,
+  type ReactNode,
+} from 'react'
 import { Inbox, AlertCircle } from 'lucide-react'
+import { useI18n, type MessageKey } from '../app/i18n'
+
 export function PageHeader({
   title,
   description,
@@ -32,6 +40,7 @@ export function PageHeader({
 }) {
   const { session } = useSession()
   const { canWrite } = permissions(session)
+
   return (
     <div className="page-heading">
       <div>
@@ -42,6 +51,7 @@ export function PageHeader({
     </div>
   )
 }
+
 export function Panel({
   title,
   children,
@@ -65,6 +75,7 @@ export function Panel({
     </Card>
   )
 }
+
 export function Empty({
   title,
   children,
@@ -84,18 +95,38 @@ export function Empty({
     </div>
   )
 }
+
 export function ErrorNotice({ error }: { error: unknown }) {
   return error ? (
-    <div role="alert" className="notice error">
+    <div
+      role="alert"
+      className="notice error"
+    >
       <AlertCircle size={16} />
       {error instanceof Error ? error.message : String(error)}
     </div>
   ) : null
 }
+
 export function Loading({ variant = 'list' }: { variant?: SkeletonVariant }) {
   return <ContentSkeleton variant={variant} />
 }
+
 export function Status({ value, label }: { value: string; label?: string }) {
+  const { t } = useI18n()
+  const statusKeys: Record<string, MessageKey> = {
+    active: 'status.active',
+    connected: 'status.connected',
+    healthy: 'status.healthy',
+    approved: 'status.approved',
+    pending: 'status.pending',
+    failed: 'status.failed',
+    expired: 'status.expired',
+    warning: 'status.warning',
+    revoked: 'status.revoked',
+    inactive: 'status.inactive',
+    closed: 'status.closed',
+  }
   const presentation = (
     {
       active: [
@@ -214,22 +245,39 @@ export function Status({ value, label }: { value: string; label?: string }) {
         'Inactivo',
         'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300',
       ],
-      disconnected: ['Desconectada', 'border-border bg-muted/40 text-muted-foreground'],
+      disconnected: [
+        'Desconectada',
+        'border-border bg-muted/40 text-muted-foreground',
+      ],
       closed: ['Cerrado', 'border-border bg-muted/40 text-muted-foreground'],
-      cancelled: ['Cancelado', 'border-border bg-muted/40 text-muted-foreground'],
-      unknown: ['Sin comprobar', 'border-border bg-muted/40 text-muted-foreground'],
+      cancelled: [
+        'Cancelado',
+        'border-border bg-muted/40 text-muted-foreground',
+      ],
+      unknown: [
+        'Sin comprobar',
+        'border-border bg-muted/40 text-muted-foreground',
+      ],
     } as Record<string, [string, string]>
   )[value.toLowerCase()] || [
     value.replaceAll('_', ' '),
     'border-border bg-muted/40 text-muted-foreground',
   ]
+
   return (
-    <Badge variant="outline" className={presentation[1]}>
+    <Badge
+      variant="outline"
+      className={presentation[1]}
+    >
       <span className="size-1.5 rounded-full bg-current" />
-      {label || presentation[0]}
+      {label ||
+        (statusKeys[value.toLowerCase()]
+          ? t(statusKeys[value.toLowerCase()])
+          : presentation[0])}
     </Badge>
   )
 }
+
 export function Field({
   label,
   children,
@@ -240,6 +288,7 @@ export function Field({
   hint?: string
 }) {
   const id = useId()
+
   return (
     <div className="field">
       <Label htmlFor={id}>{label}</Label>
@@ -250,6 +299,7 @@ export function Field({
     </div>
   )
 }
+
 export function ConfirmButton({
   children,
   onConfirm,
@@ -265,7 +315,9 @@ export function ConfirmButton({
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const { session } = useSession()
+
   if (!permissions(session).canWrite) return null
+
   return (
     <AlertDialog
       open={open}
@@ -302,6 +354,7 @@ export function ConfirmButton({
               event.preventDefault()
               setPending(true)
               setError(null)
+
               try {
                 await onConfirm()
                 setOpen(false)
@@ -331,7 +384,12 @@ export function LoadMore({
 }) {
   return available ? (
     <div className="load-more">
-      <Button variant="outline" size="sm" disabled={busy} onClick={load}>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={busy}
+        onClick={load}
+      >
         {busy ? 'Cargando…' : 'Cargar más'}
       </Button>
     </div>

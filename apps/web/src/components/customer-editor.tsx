@@ -7,6 +7,7 @@ import type { Customer } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { ErrorNotice, Field } from './ui'
+
 export function CustomerEditor({
   customer,
   onClose,
@@ -23,18 +24,23 @@ export function CustomerEditor({
   )
   const save = useAction(async () => {
     const parsed: unknown = JSON.parse(metadata)
+
     if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
       throw new Error('Metadata debe ser un objeto JSON.')
+
     const input = {
       name,
       external_customer_id: external,
       email,
       metadata: parsed as Record<string, unknown>,
     }
+
     if (customer) await client.updateCustomer(customer.id, input)
     else await client.createCustomer(input)
+
     onClose()
   })
+
   return (
     <FormDialog
       title={customer ? 'Editar customer' : 'Nuevo customer'}

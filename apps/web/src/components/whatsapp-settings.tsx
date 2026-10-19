@@ -9,6 +9,7 @@ import { useApi } from '../hooks/use-api'
 import { Panel, ErrorNotice, Loading, Status } from './ui'
 import { Button } from './ui/button'
 import { CopyCode } from './copy-code'
+
 const credentials = [
   {
     name: 'META_APP_ID',
@@ -28,6 +29,7 @@ const credentials = [
       'Un token aleatorio que elegís vos. Debe coincidir con el que pongas en los webhooks de Meta.',
   },
 ] as const
+
 export function WhatsAppSettings() {
   const { session } = useSession()
   const settings = useApi<{ data: Settings }>('/admin/v1/settings/whatsapp', {
@@ -51,12 +53,14 @@ META_VERIFY_TOKEN=<token-aleatorio-que-elegis>
 META_GRAPH_VERSION=${config?.graph_version || 'v24.0'}
 PUBLIC_URL=https://api.tu-dominio.com
 WEB_ORIGIN=${window.location.origin}`
+
   if (settings.isLoading || me.isLoading)
     return (
       <Panel title="Configurar WhatsApp">
         <Loading variant="settings" />
       </Panel>
     )
+
   return (
     <Panel
       title={

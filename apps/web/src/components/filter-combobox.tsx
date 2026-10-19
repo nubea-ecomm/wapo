@@ -33,6 +33,7 @@ export function FilterCombobox({
   const [open, setOpen] = useState(false)
   const listID = useId()
   const selected = options.find((option) => option.value === value)
+
   return (
     <Popover
       open={open}

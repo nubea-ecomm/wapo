@@ -7,7 +7,9 @@ export function apiErrorCode(error: unknown) {
     !error.body
   )
     return ''
+
   const body = error.body as { error?: { code?: unknown } }
+
   return typeof body.error?.code === 'string' ? body.error.code : ''
 }
 

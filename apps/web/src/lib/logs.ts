@@ -1,4 +1,5 @@
 import type { LogEntry } from '@wapo/sdk'
+
 export const logSources = [
   { id: '', label: 'Todos', color: '' },
   { id: 'api', label: 'API', color: 'bg-blue-500' },
@@ -7,8 +8,10 @@ export const logSources = [
   { id: 'webhooks', label: 'Webhooks', color: 'bg-violet-500' },
   { id: 'events', label: 'Eventos', color: 'bg-neutral-500' },
 ]
+
 export function logStatus(entry: LogEntry) {
   if (entry.http_status) return `HTTP ${entry.http_status}`
+
   return (
     (
       {

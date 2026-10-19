@@ -42,9 +42,11 @@ test('inbox uses the 24-hour state machine and responsive conversation layout', 
     updated_at: new Date().toISOString(),
     service_window_open: windowOpen,
   }
+
   await page.route('**/v1/conversations**', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
+
     if (url.pathname === '/v1/conversations') {
       await route.fulfill({
         json: { data: [{ ...conversation, service_window_open: windowOpen }] },
@@ -121,6 +123,7 @@ test('inbox uses the 24-hour state machine and responsive conversation layout', 
   const templateDialog = page.getByRole('dialog', {
     name: 'Retomar conversación',
   })
+
   await expect(templateDialog.getByLabel('Destinatario')).toHaveValue(
     '5491155550000',
   )

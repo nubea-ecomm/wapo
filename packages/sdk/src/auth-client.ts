@@ -1,5 +1,6 @@
 import { Transport } from './transport.js'
 import type { ConsoleUser } from './types.js'
+
 export class WapoAuthClient extends Transport {
   me() {
     return this.request<{ data: { user: ConsoleUser } }>('GET', '/auth/v1/me')

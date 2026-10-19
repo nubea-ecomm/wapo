@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { SetupLink } from '@wapo/sdk'
 import { ConfirmButton, Status } from './ui'
 import { dateLabel } from '../lib/message-format'
+
 export function SetupLinkHistory({
   links,
   busy,
@@ -12,10 +13,13 @@ export function SetupLinkHistory({
   onRevoke: (id: string) => Promise<unknown>
 }) {
   const [now, setNow] = useState(Date.now)
+
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000)
+
     return () => window.clearInterval(timer)
   }, [])
+
   return (
     <>
       {' '}
@@ -35,6 +39,7 @@ export function SetupLinkHistory({
                   : active
                     ? 'active'
                     : 'expired'
+
             return (
               <div
                 className="flex items-center gap-3 border-b py-3 last:border-0"

@@ -21,6 +21,7 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
   const [avatar, setAvatar] = useState(user?.avatar_variant || 0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
+
   if (!user) return null
 
   function submit(event: FormEvent) {
@@ -99,15 +100,21 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
 
 function profileUpdateError(error: unknown, fallback: string) {
   if (!(error instanceof WapoError)) return fallback
+
   if (error.status === 405)
     return 'El servidor todavía no admite perfiles. Reiniciá el API.'
+
   if (error.status === 401) return 'La sesión venció. Volvé a iniciar sesión.'
+
   const body = error.body as { error?: { code?: string; message?: string } }
+
   if (body?.error?.code === 'already_exists') {
     return 'Ese correo electrónico ya pertenece a otro usuario.'
   }
+
   if (body?.error?.code === 'validation_error') {
     return body.error.message || fallback
   }
+
   return fallback
 }

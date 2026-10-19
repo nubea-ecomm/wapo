@@ -8,6 +8,7 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(() =>
     document.documentElement.classList.contains('dark'),
   )
+
   return (
     <div className="flex items-center gap-2 px-2 py-2 text-sm">
       <Moon className="size-4 text-muted-foreground" />
@@ -23,6 +24,7 @@ export function ThemeToggle() {
         onCheckedChange={(checked) => {
           setDark(checked)
           document.documentElement.classList.toggle('dark', checked)
+
           try {
             localStorage.setItem('wapo-theme', checked ? 'dark' : 'light')
           } catch {

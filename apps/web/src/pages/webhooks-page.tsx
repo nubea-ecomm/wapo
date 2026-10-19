@@ -25,6 +25,8 @@ import {
   ConfirmButton,
 } from '../components/ui'
 import { WebhookEditor } from '../components/webhook-editor'
+import { useI18n } from '../app/i18n'
+
 interface Delivery {
   id: string
   event: string
@@ -33,8 +35,10 @@ interface Delivery {
   last_status?: number
   subscription_id: string
 }
+
 export function WebhooksPage() {
   const { client, session } = useSession()
+  const { t } = useI18n()
   const [creating, setCreating] = useState(false)
   const hooks = usePaged<Webhook>('/v1/webhooks')
   const deliveries = useApi<Page<Delivery>>('/v1/deliveries', { poll: true })
@@ -42,6 +46,7 @@ export function WebhooksPage() {
   const retry = useAction((id: string) =>
     client.request('POST', `/v1/deliveries/${encodeURIComponent(id)}/retry`),
   )
+
   return (
     <>
       <PageHeader
@@ -55,7 +60,7 @@ export function WebhooksPage() {
             disabled={!session?.tenantId}
             onClick={() => setCreating(true)}
           >
-            <Plus size={15} /> Nuevo webhook
+            <Plus size={15} /> {t('webhooks.new')}
           </Button>
         }
       />
@@ -68,7 +73,10 @@ export function WebhooksPage() {
           onDelete={(id) => remove.mutateAsync(id)}
         />
       )}
-      <Panel className="resource-table" title="Entregas recientes">
+      <Panel
+        className="resource-table"
+        title={t('webhooks.deliveries')}
+      >
         <ErrorNotice error={deliveries.error || retry.error} />
         {deliveries.isLoading ? (
           <Loading variant="table" />
@@ -113,9 +121,8 @@ export function WebhooksPage() {
             </Table>
           </div>
         ) : (
-          <Empty title="Sin entregas todavía">
-            Las entregas aparecerán cuando haya eventos que coincidan con tus
-            suscripciones.
+          <Empty title={t('webhooks.noneDeliveries')}>
+            {t('webhooks.noneDeliveriesDescription')}
           </Empty>
         )}
       </Panel>

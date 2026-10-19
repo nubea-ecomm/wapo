@@ -26,6 +26,7 @@ export function ConnectionUpdateEditor({
     setToken('')
     onClose()
   })
+
   return (
     <FormDialog
       title="Editar conexión"
@@ -108,25 +109,32 @@ function connectionUpdateError(error: unknown) {
   if (!(error instanceof WapoError)) {
     return 'No pudimos guardar los cambios. Intentá nuevamente.'
   }
+
   if (error.status === 405) {
     return 'El servidor todavía no admite esta edición. Reiniciá el API actualizado y volvé a intentar.'
   }
+
   const body = error.body as {
     error?: { code?: string | number; message?: string }
   }
   const code = body?.error?.code
+
   if (code === 190 || code === 'credential_expired') {
     return 'Meta rechazó el token porque venció o dejó de ser válido. Generá una credencial nueva y volvé a intentar.'
   }
+
   if (code === 200) {
     return 'El token no tiene permisos suficientes sobre esta cuenta de WhatsApp.'
   }
+
   if (code === 'asset_verification_failed') {
     return 'El token es válido, pero no permite administrar este número o su cuenta de WhatsApp.'
   }
+
   if (code === 'provider_unavailable') {
     return 'No pudimos comunicarnos con Meta para verificar el token. Intentá nuevamente en unos minutos.'
   }
+
   return (
     body?.error?.message ||
     'No pudimos guardar los cambios. Intentá nuevamente.'

@@ -6,6 +6,7 @@ const themePreference = (() => {
   }
 })()
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+
 document.documentElement.dataset.theme =
   themePreference === 'light' || themePreference === 'dark'
     ? themePreference
@@ -15,6 +16,7 @@ document.documentElement.dataset.theme =
 
 function setDocsTheme(theme, persist = true) {
   document.documentElement.dataset.theme = theme
+
   if (persist) {
     try {
       localStorage.setItem('wapo-docs-theme', theme)
@@ -22,7 +24,9 @@ function setDocsTheme(theme, persist = true) {
       /* Storage can be disabled. */
     }
   }
+
   const button = document.querySelector('[data-theme-toggle]')
+
   if (button) {
     button.setAttribute('aria-pressed', String(theme === 'dark'))
     button.setAttribute(
@@ -31,8 +35,10 @@ function setDocsTheme(theme, persist = true) {
     )
     button.setAttribute('title', theme === 'dark' ? 'Light mode' : 'Dark mode')
   }
+
   window.dispatchEvent(new CustomEvent('docs-theme-change', { detail: theme }))
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   setDocsTheme(document.documentElement.dataset.theme, false)
   document
@@ -45,11 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 systemTheme.addEventListener('change', () => {
   let saved = null
+
   try {
     saved = localStorage.getItem('wapo-docs-theme')
   } catch {
     /* Use system preference. */
   }
+
   if (!saved) setDocsTheme(systemTheme.matches ? 'dark' : 'light', false)
 })
 window.addEventListener('storage', (event) => {

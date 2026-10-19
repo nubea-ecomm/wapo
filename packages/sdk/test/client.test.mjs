@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { WapoClient, WapoError } from '../dist/index.js'
+
 test('send uses stable idempotency key, bounded request and project authentication', async () => {
   let captured
   const client = new WapoClient({
@@ -8,9 +9,11 @@ test('send uses stable idempotency key, bounded request and project authenticati
     apiKey: 'test-key',
     fetch: async (url, init) => {
       captured = { url, init }
+
       return Response.json({ data: { id: 'msg-1' } }, { status: 201 })
     },
   })
+
   assert.equal(
     (await client.sendText('con-1', 'visitor', 'Hello', 'logical-send-1')).data
       .id,
@@ -30,12 +33,14 @@ test('typed errors preserve status without automatic retries', async () => {
     apiKey: 'key',
     fetch: async () => {
       calls++
+
       return Response.json(
         { error: { code: 'send_unresolved' } },
         { status: 409 },
       )
     },
   })
+
   await assert.rejects(
     client.sendText('c', 'v', 'Hello', 'id'),
     (e) =>

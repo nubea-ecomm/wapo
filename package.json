@@ -10,7 +10,7 @@
     "test:sdk": "node --test packages/sdk/test/*.test.mjs",
     "test:contract": "node --test scripts/upstream-contract.test.mjs",
     "test:openapi": "node scripts/check-openapi.mjs",
-    "format": "prettier --write .",
+    "format": "prettier --write . && eslint . --fix",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
     "test:web": "pnpm --filter @wapo/web test",

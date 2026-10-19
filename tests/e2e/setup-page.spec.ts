@@ -13,9 +13,11 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       .replaceAll('{{.Accent}}', '#171717')
       .replaceAll('{{.Foreground}}', '#ffffff')
       .replaceAll('{{.Overrides}}', '')
+
     await page.route('http://localhost:8080/setup/test/preview', (route) =>
       route.fulfill({ contentType: 'text/html', body: html }),
     )
+
     for (const asset of ['setup.js', 'setup.css']) {
       await page.route(`**/setup/assets/${asset}`, async (route) =>
         route.fulfill({
@@ -24,6 +26,7 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
         }),
       )
     }
+
     await page.route('**/public/setup/test/preview', (route) =>
       route.fulfill({
         json: {
@@ -43,6 +46,7 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       }),
     )
     let submitted: Record<string, string> = {}
+
     await page.route('**/public/setup/test/preview/complete', async (route) => {
       submitted = route.request().postDataJSON()
       await route.fulfill({ json: { data: {} } })
@@ -51,6 +55,7 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
     await expect(
       page.getByRole('button', { name: 'Usar mi app' }),
     ).toBeVisible()
+
     if (allowed.length === 1)
       await expect(
         page.getByRole('button', { name: 'Usar un número' }),
@@ -62,6 +67,7 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       ).toBeVisible()
       await page.getByRole('button', { name: 'Cambiar tipo' }).click()
     }
+
     await page.screenshot({
       path: 'artifacts/setup-choice-desktop.png',
       fullPage: true,

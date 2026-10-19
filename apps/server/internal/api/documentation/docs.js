@@ -1,14 +1,18 @@
 let scalarReference
+
 window.addEventListener('docs-theme-change', (event) => {
   if (!scalarReference) return
+
   const current = scalarReference.getConfiguration()
   const update = (config) => ({ ...config, forceDarkModeState: event.detail })
+
   scalarReference.updateConfiguration(
     Array.isArray(current) ? current.map(update) : update(current),
   )
 })
 const referenceView =
   new URLSearchParams(location.search).get('view') === 'reference'
+
 document.querySelectorAll('[data-tab]').forEach((link) => {
   if (link.dataset.tab === (referenceView ? 'reference' : 'guides'))
     link.setAttribute('aria-current', 'page')
@@ -19,6 +23,7 @@ document.querySelectorAll('[data-api-origin]').forEach((element) => {
 document.querySelectorAll('[data-copy]').forEach((button) => {
   button.addEventListener('click', async () => {
     const text = button.closest('.code-block').querySelector('pre').textContent
+
     try {
       await navigator.clipboard.writeText(text)
       button.textContent = 'Copied'
@@ -32,8 +37,10 @@ document.querySelectorAll('[data-copy]').forEach((button) => {
 })
 const sectionButton = document.querySelector('.mobile-sections')
 const guideNavigation = document.querySelector('#guide-navigation')
+
 sectionButton.addEventListener('click', () => {
   const open = sectionButton.getAttribute('aria-expanded') !== 'true'
+
   sectionButton.setAttribute('aria-expanded', String(open))
   guideNavigation.classList.toggle('open', open)
 })
@@ -43,11 +50,13 @@ guideNavigation.addEventListener('click', (event) => {
     sectionButton.setAttribute('aria-expanded', 'false')
   }
 })
+
 if (!referenceView) {
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue
+
         guideNavigation.querySelectorAll('a').forEach((link) => {
           if (link.hash === `#${entry.target.id}`)
             link.setAttribute('aria-current', 'location')
@@ -57,6 +66,7 @@ if (!referenceView) {
     },
     { rootMargin: '-10% 0px -65% 0px' },
   )
+
   document
     .querySelectorAll('.guide-content section')
     .forEach((section) => observer.observe(section))
@@ -66,14 +76,20 @@ if (!referenceView) {
   document.querySelector('.skip-link').href = '#reference'
   void loadReference()
 }
+
 async function loadReference() {
   const target = document.querySelector('#reference')
+
   try {
     const response = await fetch('/openapi.json')
+
     if (!response.ok) throw new Error('API document unavailable')
+
     const document = await response.json()
+
     await new Promise((resolve, reject) => {
       const script = window.document.createElement('script')
+
       script.src = '/docs/assets/scalar.js?v=1.75.0'
       script.onload = resolve
       script.onerror = reject
@@ -126,6 +142,7 @@ async function loadReference() {
       defaultHttpClient: { targetKey: 'shell', clientKey: 'curl' },
       customCss: `:root,.light-mode{--scalar-font:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--scalar-font-code:'SFMono-Regular',Consolas,monospace;--scalar-color-1:#171717;--scalar-color-2:#525252;--scalar-color-3:#737373;--scalar-color-accent:#171717;--scalar-background-1:#fff;--scalar-background-2:#fafafa;--scalar-background-3:#f5f5f5;--scalar-background-accent:#f0f0f0;--scalar-border-color:#e5e5e5;--scalar-sidebar-background:#fafafa;--scalar-sidebar-color-1:#525252;--scalar-sidebar-color-2:#737373;--scalar-sidebar-item-hover-background:#f0f0f0;--scalar-sidebar-item-active-background:#ebebeb;--scalar-sidebar-color-active:#171717;--scalar-radius:6px;--scalar-radius-lg:8px}.dark-mode{--scalar-color-1:#fafafa;--scalar-color-2:#c2c2c2;--scalar-color-3:#a3a3a3;--scalar-color-accent:#fafafa;--scalar-background-1:#101010;--scalar-background-2:#191919;--scalar-background-3:#262626;--scalar-background-accent:#333;--scalar-border-color:#292929;--scalar-sidebar-background:#141414;--scalar-sidebar-color-1:#d4d4d4;--scalar-sidebar-color-2:#a3a3a3;--scalar-sidebar-item-hover-background:#262626;--scalar-sidebar-item-active-background:#333;--scalar-sidebar-color-active:#fff}.scalar-api-reference{--scalar-custom-header-height:60px}`,
     }
+
     target.replaceChildren()
     scalarReference = window.Scalar.createApiReference(
       '#reference',

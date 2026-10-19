@@ -7,17 +7,20 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from './ui/chart'
+
 export interface ActivityPoint {
   day: string
   outbound: number
   inbound: number
   failed?: number
 }
+
 const config = {
   outbound: { label: 'Enviados', color: 'var(--chart-1)' },
   inbound: { label: 'Recibidos', color: 'var(--chart-2)' },
   failed: { label: 'Fallidos', color: 'var(--destructive)' },
 } satisfies ChartConfig
+
 export function ActivityChart({
   series,
   outboundLabel = 'Enviados',

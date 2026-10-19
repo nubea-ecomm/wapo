@@ -31,11 +31,15 @@ export function TemplateEditor({
   const variables = [
     ...new Set([...body.matchAll(/\{\{(\d+)\}\}/g)].map((match) => match[1])),
   ].sort((a, b) => Number(a) - Number(b))
+
   function input(): TemplateInput {
     if (advanced) return JSON.parse(json) as TemplateInput
+
     const components: Record<string, unknown>[] = []
+
     if (header.trim())
       components.push({ type: 'HEADER', format: 'TEXT', text: header.trim() })
+
     components.push({
       type: 'BODY',
       text: body,
@@ -47,13 +51,17 @@ export function TemplateEditor({
           }
         : {}),
     })
+
     if (footer.trim()) components.push({ type: 'FOOTER', text: footer.trim() })
+
     return { name, language, category, components }
   }
+
   const create = useAction(async () => {
     await client.createTemplate(connectionId, input())
     onClose()
   })
+
   return (
     <FormDialog
       title="Crear template"
@@ -92,6 +100,7 @@ export function TemplateEditor({
                   /* Keep the current JSON when incomplete. */
                 }
               }
+
               setAdvanced(true)
             }}
           >

@@ -62,7 +62,9 @@ export function ConversationThread({
   const timeline = [
     ...new Map(messages.items.map((message) => [message.id, message])).values(),
   ].reverse()
+
   if (conversation.isLoading) return <Loading variant="thread" />
+
   return (
     <div className="conversation-thread">
       <ErrorNotice error={conversation.error} />
@@ -199,6 +201,7 @@ export function ConversationThread({
               className="reply-form"
               onSubmit={(event) => {
                 event.preventDefault()
+
                 if (text.trim()) reply.mutate()
               }}
             >

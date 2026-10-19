@@ -28,6 +28,7 @@ export function NewChatDialog({
   const selected = available.find(
     (connection) => connection.id === connectionId,
   )
+
   if (composing && selected) {
     return (
       <TemplateSendDialog
@@ -41,6 +42,7 @@ export function NewChatDialog({
       />
     )
   }
+
   return (
     <FormDialog
       title={
@@ -56,6 +58,7 @@ export function NewChatDialog({
         className="grid gap-5"
         onSubmit={(event) => {
           event.preventDefault()
+
           if (selected) setComposing(true)
         }}
       >

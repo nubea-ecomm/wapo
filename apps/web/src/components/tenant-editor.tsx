@@ -6,6 +6,7 @@ import { FormDialog } from './form-dialog'
 import { Field, ErrorNotice } from './ui'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
+
 export function TenantEditor({
   tenant,
   onClose,
@@ -18,10 +19,13 @@ export function TenantEditor({
   const save = useAction(async () => {
     if (tenant) {
       await admin.updateTenant(tenant.id, { name })
+
       if (session?.tenantId === tenant.id) selectTenant(tenant.id, name)
     } else await admin.createTenant(name)
+
     onClose()
   })
+
   return (
     <FormDialog
       title={tenant ? 'Renombrar proyecto' : 'Crear proyecto'}

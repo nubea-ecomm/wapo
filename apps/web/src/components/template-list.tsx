@@ -24,6 +24,7 @@ import { CredentialRecovery } from './credential-recovery'
 import { isCredentialExpired } from '../lib/api-error'
 import { TemplateSendDialog } from './template-send-dialog'
 import { templatePreview } from '../lib/template-message'
+
 export function TemplateList({
   connection,
   connectionId,
@@ -40,8 +41,11 @@ export function TemplateList({
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const params = new URLSearchParams()
+
   if (customerId) params.set('connection_id', connectionId)
+
   if (status) params.set('status', status)
+
   const templates = usePaged<MessageTemplate>(
     `/v1/${customerId ? 'customers' : 'connections'}/${encodeURIComponent(customerId || connectionId)}/templates${params.size ? `?${params}` : ''}`,
   )
@@ -51,6 +55,7 @@ export function TemplateList({
       .includes(search.toLowerCase()),
   )
   const credentialExpired = isCredentialExpired(templates.error)
+
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

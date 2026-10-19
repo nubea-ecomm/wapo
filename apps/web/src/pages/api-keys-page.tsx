@@ -24,7 +24,10 @@ import {
   Loading,
 } from '../components/ui'
 import { dateLabel } from '../lib/message-format'
+import { useI18n } from '../app/i18n'
+
 export function ApiKeysPage() {
+  const { t } = useI18n()
   const { client, session } = useSession()
   const [name, setName] = useState('')
   const [revealed, setRevealed] = useState('')
@@ -32,15 +35,20 @@ export function ApiKeysPage() {
   const keys = useApi<Page<ApiKey>>('/v1/api_keys')
   const create = useAction(async () => {
     const result = await client.createApiKey(name)
+
     setRevealed(result.data.key || '')
     setName('')
     setCopied(false)
   })
   const revoke = useAction((id: string) => client.revokeApiKey(id))
+
   return (
     <>
-      <PageHeader title="API keys" description="Claves de acceso a la API." />
-      <Panel title="Nueva clave de API">
+      <PageHeader
+        title="API keys"
+        description={t('apiKeys.description')}
+      />
+      <Panel title={t('apiKeys.new')}>
         <form
           className="form-row"
           onSubmit={(e) => {
@@ -48,7 +56,7 @@ export function ApiKeysPage() {
             create.mutate()
           }}
         >
-          <Field label="Nombre de la integración">
+          <Field label={t('apiKeys.integrationName')}>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -63,13 +71,14 @@ export function ApiKeysPage() {
 
             disabled={!session?.tenantId || create.isPending}
           >
-            <KeyRound size={15} /> {create.isPending ? 'Creando…' : 'Crear clave'}
+            <KeyRound size={15} />{' '}
+            {create.isPending ? t('apiKeys.creating') : t('apiKeys.create')}
           </Button>
         </form>
         <ErrorNotice error={create.error} />
         {revealed && (
           <div className="secret-result">
-            <b>Guardá esta clave. Solo se muestra una vez.</b>
+            <b>{t('apiKeys.oneTime')}</b>
             <div>
               <code>{revealed}</code>
               <Button
@@ -87,13 +96,20 @@ export function ApiKeysPage() {
                 {copied ? <Check size={17} /> : <Copy size={17} />}
               </Button>
             </div>
-            <Button variant="link" size="default" onClick={() => setRevealed('')}>
-              Ocultar clave
+            <Button
+              variant="link"
+              size="default"
+              onClick={() => setRevealed('')}
+            >
+              {t('apiKeys.hide')}
             </Button>
           </div>
         )}
       </Panel>
-      <Panel className="resource-table" title="Claves del proyecto">
+      <Panel
+        className="resource-table"
+        title={t('apiKeys.projectKeys')}
+      >
         <ErrorNotice error={keys.error || revoke.error} />
         {keys.isLoading && <Loading variant="table" />}
         {keys.data?.data.length ? (
@@ -101,10 +117,10 @@ export function ApiKeysPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Prefijo</TableHead>
-                  <TableHead>Creación</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead>{t('name')}</TableHead>
+                  <TableHead>{t('apiKeys.prefix')}</TableHead>
+                  <TableHead>{t('common.created')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
@@ -129,7 +145,7 @@ export function ApiKeysPage() {
                         <ResourceActions
                           name={k.name}
                           destructive={{
-                            label: 'Revocar clave',
+                            label: t('apiKeys.revoke'),
                             description:
                               'Las integraciones que usen esta clave perderán acceso inmediatamente.',
                             disabled: revoke.isPending,
@@ -149,15 +165,15 @@ export function ApiKeysPage() {
         ) : (
           !keys.isLoading &&
           !keys.error && (
-            <Empty title="Sin claves para mostrar">
+            <Empty title={t('apiKeys.none')}>
               Seleccioná un proyecto y creá una credencial para su API.
             </Empty>
           )
         )}
       </Panel>
       <p className="hint">
-        Cada clave tiene acceso completo a un proyecto. Las claves de proyecto no pueden
-        administrar otros proyectos.
+        Cada clave tiene acceso completo a un proyecto. Las claves de proyecto
+        no pueden administrar otros proyectos.
       </p>
     </>
   )

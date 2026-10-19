@@ -9,13 +9,16 @@ export interface TemplateParameterField {
 
 export function templateParameterFields(template: MessageTemplate) {
   const fields: TemplateParameterField[] = []
+
   for (const component of template.components) {
     const type = String(component.type || '').toLowerCase()
+
     if (
       (type !== 'header' && type !== 'body') ||
       typeof component.text !== 'string'
     )
       continue
+
     const positions = [
       ...new Set(
         [...component.text.matchAll(/\{\{(\d+)\}\}/g)].map((match) =>
@@ -23,6 +26,7 @@ export function templateParameterFields(template: MessageTemplate) {
         ),
       ),
     ].sort((a, b) => a - b)
+
     for (const position of positions) {
       fields.push({
         key: `${type}:${position}`,
@@ -32,6 +36,7 @@ export function templateParameterFields(template: MessageTemplate) {
       })
     }
   }
+
   return fields
 }
 
@@ -40,12 +45,14 @@ export function templatePayload(
   values: Record<string, string>,
 ) {
   const grouped = new Map<'header' | 'body', TemplateParameterField[]>()
+
   for (const field of templateParameterFields(template)) {
     grouped.set(field.component, [
       ...(grouped.get(field.component) || []),
       field,
     ])
   }
+
   const components = [...grouped.entries()].map(([type, fields]) => ({
     type,
     parameters: fields.map((field) => ({
@@ -53,6 +60,7 @@ export function templatePayload(
       text: values[field.key] || '',
     })),
   }))
+
   return {
     name: template.name,
     language: { code: template.language },
@@ -74,6 +82,7 @@ export function templatePreview(
           return values[`${type}:${position}`] || `{{${position}}}`
         },
       )
+
       return { type, text }
     })
 }

@@ -8,6 +8,7 @@ import '@fontsource/geist/latin-400.css'
 import '@fontsource/geist/latin-500.css'
 import '@fontsource/geist/latin-600.css'
 import './styles/index.css'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MotionProvider>

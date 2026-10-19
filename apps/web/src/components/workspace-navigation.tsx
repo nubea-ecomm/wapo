@@ -18,6 +18,7 @@ import { Button } from './ui/button'
 import { useI18n } from '../app/i18n'
 import { Separator } from './ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+
 export function WorkspaceNavigation({
   onNavigate,
   collapsed = false,
@@ -31,6 +32,7 @@ export function WorkspaceNavigation({
   const visible = navigation.filter((item) =>
     permissions(session).canVisit(item.to),
   )
+
   function links(group: string) {
     return visible
       .filter((item) => item.group === group)
@@ -61,6 +63,7 @@ export function WorkspaceNavigation({
         </NavLink>
       ))
   }
+
   if (collapsed)
     return (
       <nav
@@ -103,6 +106,7 @@ export function WorkspaceNavigation({
         </div>
       </nav>
     )
+
   return (
     <nav
       className="workspace-nav"

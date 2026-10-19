@@ -1,4 +1,5 @@
 import { ExternalLink } from 'lucide-react'
+
 const steps = [
   {
     title: 'Crear la app',
@@ -54,6 +55,7 @@ const steps = [
     ],
   },
 ] as const
+
 export function MetaCredentialsGuide() {
   return (
     <div className="divide-y rounded-lg border">

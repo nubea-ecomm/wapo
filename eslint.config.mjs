@@ -4,6 +4,7 @@ import hooks from 'eslint-plugin-react-hooks'
 import refresh from 'eslint-plugin-react-refresh'
 import prettier from 'eslint-config-prettier'
 import globals from 'globals'
+
 export default [
   {
     ignores: [
@@ -78,6 +79,8 @@ export default [
           prev: ['function', 'class'],
           next: '*',
         },
+        { blankLine: 'always', prev: '*', next: 'export' },
+        { blankLine: 'always', prev: 'export', next: '*' },
       ],
     },
   },

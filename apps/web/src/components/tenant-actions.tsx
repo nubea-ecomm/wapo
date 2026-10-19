@@ -31,6 +31,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from './ui/alert-dialog'
+
 export function TenantActions({
   tenant,
   onOpen,
@@ -50,9 +51,12 @@ export function TenantActions({
     await admin.updateTenant(tenant.id, {
       status: active ? 'suspended' : 'active',
     })
+
     if (active && session?.tenantId === tenant.id) selectTenant('', '')
+
     setToggling(false)
   })
+
   return (
     <>
       <DropdownMenu>

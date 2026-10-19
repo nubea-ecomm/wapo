@@ -5,6 +5,7 @@ test('documentation guides are readable and the reference loads entirely from th
 }) => {
   const errors: string[] = []
   const external: string[] = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('request', (request) => {
     if (
@@ -25,6 +26,7 @@ test('documentation guides are readable and the reference loads entirely from th
   ).toBeVisible()
   await page.keyboard.press('ControlOrMeta+k')
   const search = page.getByRole('dialog', { name: 'Search documentation' })
+
   await search.getByLabel('Search guides', { exact: true }).fill('idempotency')
   await search
     .getByRole('link', { name: 'Idempotency and retries', exact: true })

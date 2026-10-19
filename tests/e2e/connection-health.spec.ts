@@ -1,4 +1,5 @@
 import { test, expect, env } from './fixtures'
+
 test('connection diagnostics show billing errors and allow a fresh check', async ({
   page,
 }) => {
@@ -13,6 +14,7 @@ test('connection diagnostics show billing errors and allow a fresh check', async
     connection_type: 'coexistence',
   }
   let refreshed = false
+
   await page.route('**/v1/customers/customer-ui/setup_links', async (route) => {
     expect(route.request().postDataJSON()).toMatchObject({
       reconnect_phone_number: '123456',
@@ -24,8 +26,10 @@ test('connection diagnostics show billing errors and allow a fresh check', async
   })
   await page.route('**/v1/connections**', (route) => {
     const url = new URL(route.request().url())
+
     if (url.pathname.endsWith('/health')) {
       if (route.request().method() === 'POST') refreshed = true
+
       return route.fulfill({
         json: {
           data: {
@@ -59,8 +63,10 @@ test('connection diagnostics show billing errors and allow a fresh check', async
         },
       })
     }
+
     if (url.pathname.endsWith('/health-ui'))
       return route.fulfill({ json: { data: connection } })
+
     return route.fulfill({ json: { data: [connection] } })
   })
   await page.goto('/')

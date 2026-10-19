@@ -8,6 +8,7 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
   const name = `Scoped ${suffix}`
   const email = `viewer-${suffix}@example.com`
   const password = `Viewer-password-${suffix}`
+
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(env.ADMIN_EMAIL)
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
@@ -40,9 +41,11 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
     .getByRole('button', { name: 'Guardar usuario', exact: true })
     .click()
   const row = page.getByRole('row').filter({ hasText: email })
+
   await expect(row.getByText('viewer', { exact: true })).toBeVisible()
   const context = await browser.newContext()
   const viewer = await context.newPage()
+
   try {
     await viewer.goto('http://127.0.0.1:5173')
     await viewer.getByLabel('Email', { exact: true }).fill(email)
@@ -71,6 +74,7 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
   } finally {
     await context.close()
   }
+
   await row.getByRole('button', { name: `Acciones de ${name}` }).click()
   await page.getByRole('menuitem', { name: 'Editar acceso' }).click()
   await page.getByLabel('Rol', { exact: true }).selectOption('member')

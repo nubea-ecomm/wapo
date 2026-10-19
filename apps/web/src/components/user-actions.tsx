@@ -29,6 +29,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from './ui/alert-dialog'
+
 export function UserActions({
   user,
   lastActive,
@@ -45,10 +46,13 @@ export function UserActions({
   const change = useAction(async () => {
     if (action === 'delete') await admin.deleteUser(user.id)
     else await admin.updateUser(user.id, { active: !user.active })
+
     setAction(null)
+
     if (user.id === session?.user?.id && (action === 'delete' || user.active))
       disconnect()
   })
+
   return (
     <>
       <DropdownMenu>

@@ -12,6 +12,7 @@ import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { SetupLinkResult } from './setup-link-result'
 import { SetupLinkHistory } from './setup-link-history'
+
 const choices = [
   {
     id: 'both',
@@ -31,6 +32,7 @@ const choices = [
     description: 'Conexión dedicada: gestiona los mensajes a través de la API.',
   },
 ] as const
+
 export function CustomerOnboarding({
   customer,
   onClose,
@@ -54,9 +56,11 @@ export function CustomerOnboarding({
       ...(redirect ? { success_redirect_url: redirect } : {}),
       language: 'es',
     })
+
     setLink(result.data.url || '')
   })
   const revoke = useAction((id: string) => client.revokeSetupLink(id))
+
   return (
     <FormDialog
       title={

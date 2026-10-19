@@ -1,9 +1,11 @@
 import { test, expect, env } from './fixtures'
+
 test('operator manages tenants, keys, customers and WhatsApp setup against the real API', async ({
   page,
 }) => {
   test.setTimeout(60_000)
   const suffix = Date.now().toString()
+
   await page.goto('/')
   await page.getByLabel('Email', { exact: true }).fill(env.ADMIN_EMAIL)
   await page.getByLabel('Contraseña', { exact: true }).fill(env.ADMIN_PASSWORD)
@@ -32,6 +34,7 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await page.getByRole('button', { name: 'Integraciones', exact: true }).click()
   await page.keyboard.press('ControlOrMeta+k')
   const navigationSearch = page.getByRole('dialog', { name: 'Buscar en Wapo' })
+
   await navigationSearch.getByLabel('Buscar pantalla').fill('Customers')
   await navigationSearch.getByRole('button', { name: /Customers/ }).click()
   await expect(
@@ -45,11 +48,10 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await page
     .getByRole('button', { name: 'Crear proyecto', exact: true })
     .click()
-  const tenant = page
-    .getByRole('row')
-    .filter({
-      has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }),
-    })
+  const tenant = page.getByRole('row').filter({
+    has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }),
+  })
+
   await expect(tenant).toBeVisible()
   await page
     .getByLabel('Buscar proyectos', { exact: true })
@@ -117,9 +119,11 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     animations: 'disabled',
   })
   let onboardingReady = false
+
   await page.route('**/v1/me', async (route) => {
     const response = await route.fetch()
     const data = await response.json()
+
     data.data.onboarding_ready = onboardingReady
     await route.fulfill({ json: data })
   })
@@ -131,6 +135,7 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     name: 'Conectar WhatsApp',
     exact: true,
   })
+
   await expect(
     onboarding.getByRole('radio', { name: /Que el cliente elija/ }),
   ).toBeChecked()
@@ -148,8 +153,10 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
   await onboarding.getByRole('button', { name: 'Cerrar', exact: true }).click()
   onboardingReady = true
   const selections: string[][] = []
+
   await page.route('**/v1/customers/*/setup_links', async (route) => {
     if (route.request().method() !== 'POST') return route.continue()
+
     selections.push(route.request().postDataJSON().allowed_connection_types)
     await route.fulfill({
       status: 201,
@@ -195,6 +202,7 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     .getByRole('button', { name: 'Conexión manual', exact: true })
     .click()
   const dialog = page.getByRole('dialog')
+
   await expect(dialog.getByLabel('Phone Number ID de Meta')).toBeVisible()
   await expect(dialog.getByLabel('WhatsApp Business Account ID')).toBeVisible()
   await expect(dialog.getByLabel('Access token de Meta')).toBeVisible()
@@ -263,11 +271,10 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     .getByRole('dialog')
     .getByRole('link', { name: 'Proyectos', exact: true })
     .click()
-  const deleteCard = page
-    .getByRole('row')
-    .filter({
-      has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }),
-    })
+  const deleteCard = page.getByRole('row').filter({
+    has: page.getByRole('button', { name: `Demo ${suffix}`, exact: true }),
+  })
+
   await deleteCard
     .getByRole('button', { name: `Acciones de Demo ${suffix}`, exact: true })
     .click()
@@ -275,6 +282,7 @@ test('operator manages tenants, keys, customers and WhatsApp setup against the r
     .getByRole('menuitem', { name: 'Eliminar proyecto', exact: true })
     .click()
   const deletion = page.getByRole('alertdialog')
+
   await expect(
     deletion.getByRole('button', { name: 'Eliminar proyecto', exact: true }),
   ).toBeDisabled()
@@ -317,6 +325,7 @@ test('administrator signs in with email and password and manages users inside th
   await expect(page.getByText(env.ADMIN_EMAIL, { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Crear usuario', exact: true }).click()
   const userName = `Test administrator ${Date.now()}`
+
   await page.getByLabel('Nombre del usuario').fill(userName)
   await page
     .getByLabel('Email del usuario')
@@ -324,6 +333,7 @@ test('administrator signs in with email and password and manages users inside th
   await page.getByLabel('Contraseña nueva').fill('browser-test-password-123')
   await page.getByRole('button', { name: 'Guardar usuario' }).click()
   const row = page.getByRole('row').filter({ hasText: userName })
+
   await expect(row).toBeVisible()
   await row.getByRole('button', { name: `Acciones de ${userName}` }).click()
   await page.getByRole('menuitem', { name: 'Desactivar', exact: true }).click()
@@ -344,7 +354,9 @@ test('administrator signs in with email and password and manages users inside th
   const deleteButton = page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Eliminar usuario', exact: true })
+
   await expect(deleteButton).toHaveAttribute('data-variant', 'destructive')
+
   for (const dark of [false, true]) {
     await page
       .locator('html')
@@ -352,6 +364,7 @@ test('administrator signs in with email and password and manages users inside th
     const contrast = await deleteButton.evaluate((element) => {
       const style = getComputedStyle(element)
       const canvas = document.createElement('canvas')
+
       canvas.width = canvas.height = 1
       const context = canvas.getContext('2d')!
       const luminance = (color: string) => {
@@ -361,18 +374,23 @@ test('administrator signs in with email and password and manages users inside th
           .slice(0, 3)
           .map((value) => {
             const channel = value / 255
+
             return channel <= 0.04045
               ? channel / 12.92
               : ((channel + 0.055) / 1.055) ** 2.4
           })
+
         return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722
       }
       const a = luminance(style.color),
         b = luminance(style.backgroundColor)
+
       return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
     })
+
     expect(contrast).toBeGreaterThanOrEqual(4.5)
   }
+
   await page.screenshot({
     path: 'artifacts/delete-user-dark.png',
     animations: 'disabled',
@@ -383,12 +401,15 @@ test('administrator signs in with email and password and manages users inside th
   await deleteButton.click()
   await expect(row).not.toBeVisible()
   const favicon = await page.locator('link[rel="icon"]').getAttribute('href')
+
   expect(favicon).toBe('/favicon.svg')
   const icon = await page.request.get(favicon!)
+
   expect(icon.ok()).toBe(true)
   expect(await icon.text()).toContain('<svg')
   await page.getByRole('button', { name: 'Menú de usuario' }).click()
   const theme = page.getByRole('switch', { name: 'Tema oscuro' })
+
   await theme.click()
   await expect(page.locator('html')).toHaveClass(/dark/)
   await page.keyboard.press('Escape')

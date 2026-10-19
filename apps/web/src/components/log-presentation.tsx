@@ -1,7 +1,9 @@
 import { logSources } from '../lib/logs'
 import { Badge } from './ui/badge'
+
 export function LogSource({ source }: { source: string }) {
   const item = logSources.find((item) => item.id === source)
+
   return (
     <Badge
       variant="outline"

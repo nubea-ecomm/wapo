@@ -4,6 +4,7 @@ test('documentation theme persists across guides and the interactive reference',
   page,
 }) => {
   const errors: string[] = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.emulateMedia({ colorScheme: 'light' })
   await page.goto('http://localhost:8080/docs')

@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Check, Copy, ExternalLink, Link2 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
+
 export function SetupLinkResult({ url }: { url: string }) {
   const [copied, setCopied] = useState(false)
   const [failed, setFailed] = useState(false)
+
   return (
     <div
       className="grid gap-3 rounded-lg border bg-muted/30 p-4"

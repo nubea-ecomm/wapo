@@ -1,4 +1,7 @@
 import { createContext, useContext } from 'react'
+import { productEs } from './locales/es'
+import { productEn } from './locales/en'
+import { productPt } from './locales/pt'
 
 export type Language = 'es' | 'pt' | 'en'
 
@@ -10,7 +13,8 @@ export const messages = {
     remember: 'Mantener la sesión iniciada',
     signingIn: 'Ingresando…',
     signInAction: 'Iniciar sesión',
-    signInError: 'No pudimos iniciar sesión. Revisá tus credenciales e intentá de nuevo.',
+    signInError:
+      'No pudimos iniciar sesión. Revisá tus credenciales e intentá de nuevo.',
     search: 'Buscar…',
     documentation: 'Documentación',
     searchWapo: 'Buscar en Wapo',
@@ -55,6 +59,7 @@ export const messages = {
     templates: 'Templates',
     workspace: 'Espacio de trabajo',
     searchPlaceholder: 'Chats, clientes, API keys…',
+    ...productEs,
   },
   pt: {
     signIn: 'Entrar',
@@ -63,7 +68,8 @@ export const messages = {
     remember: 'Manter a sessão iniciada',
     signingIn: 'Entrando…',
     signInAction: 'Entrar',
-    signInError: 'Não foi possível entrar. Verifique suas credenciais e tente novamente.',
+    signInError:
+      'Não foi possível entrar. Verifique suas credenciais e tente novamente.',
     search: 'Buscar…',
     documentation: 'Documentação',
     searchWapo: 'Buscar no Wapo',
@@ -108,6 +114,7 @@ export const messages = {
     templates: 'Modelos',
     workspace: 'Espaço de trabalho',
     searchPlaceholder: 'Conversas, clientes, chaves de API…',
+    ...productPt,
   },
   en: {
     signIn: 'Sign in',
@@ -116,7 +123,8 @@ export const messages = {
     remember: 'Keep me signed in',
     signingIn: 'Signing in…',
     signInAction: 'Sign in',
-    signInError: 'We could not sign you in. Check your credentials and try again.',
+    signInError:
+      'We could not sign you in. Check your credentials and try again.',
     search: 'Search…',
     documentation: 'Documentation',
     searchWapo: 'Search Wapo',
@@ -161,14 +169,17 @@ export const messages = {
     templates: 'Templates',
     workspace: 'Workspace',
     searchPlaceholder: 'Chats, customers, API keys…',
+    ...productEn,
   },
 } as const
 
 export type MessageKey = keyof typeof messages.es
+
 export const I18nContext = createContext<{
   language: Language
   t: (key: MessageKey) => string
 }>({ language: 'es', t: (key) => messages.es[key] })
+
 export function useI18n() {
   return useContext(I18nContext)
 }

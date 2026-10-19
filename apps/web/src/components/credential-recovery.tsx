@@ -15,12 +15,15 @@ export function CredentialRecovery({ connection }: { connection: Connection }) {
     if (!connection.customer_id || !connection.external_id) {
       throw new Error('La conexión no tiene un customer y número asociados.')
     }
+
     const result = await client.createSetupLink(connection.customer_id, {
       reconnect_phone_number: connection.external_id,
       language: 'es',
     })
+
     setURL(result.data.url || '')
   })
+
   return (
     <div className="rounded-lg border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-900 dark:bg-amber-950/25 dark:text-amber-100">
       <div className="flex items-start gap-3">

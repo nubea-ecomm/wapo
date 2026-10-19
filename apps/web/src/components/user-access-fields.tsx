@@ -5,11 +5,13 @@ import { Field, ErrorNotice, Loading } from './ui'
 import { NativeSelect } from './ui/native-select'
 import { Input } from './ui/input'
 import { ProjectAvatar } from './project-avatar'
+
 export interface UserAccessValue {
   role: UserRole
   all_projects: boolean
   project_ids: string[]
 }
+
 export function UserAccessFields({
   value,
   onChange,
@@ -22,6 +24,7 @@ export function UserAccessFields({
   const filtered = (projects.data?.data || []).filter((project) =>
     project.name.toLowerCase().includes(search.toLowerCase()),
   )
+
   return (
     <div className="grid gap-4">
       <Field label="Rol">

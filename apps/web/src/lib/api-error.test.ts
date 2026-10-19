@@ -7,6 +7,7 @@ describe('API error classification', () => {
     const error = new WapoError(409, {
       error: { code: 'credential_expired', message: 'Credential unavailable' },
     })
+
     expect(apiErrorCode(error)).toBe('credential_expired')
     expect(isCredentialExpired(error)).toBe(true)
   })

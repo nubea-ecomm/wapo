@@ -3,6 +3,7 @@ import type { CustomerMetricsData } from './customer-metrics'
 import { ActivityChart } from './activity-chart'
 import { Panel, Empty } from './ui'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart'
+
 export default function CustomerMetricsCharts({
   data,
 }: {
@@ -13,6 +14,7 @@ export default function CustomerMetricsCharts({
     { name: 'Coexistence', count: data.connection_types.coexistence },
     { name: 'Sin clasificar', count: data.connection_types.unknown },
   ]
+
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <Panel title="Mensajes por día">

@@ -8,6 +8,7 @@ const palettes = [
   ['#d8c0dc', '#674269', '#f5e8f5'],
   ['#b8d7e4', '#305363', '#e6f3fa'],
 ]
+
 export function UserAvatar({
   id,
   name,
@@ -22,6 +23,7 @@ export function UserAvatar({
   const hash = avatarHash(id + String(variant))
   const [face, ink, bg] = palettes[hash % palettes.length]
   const tilt = ((hash % 3) - 1) * 8
+
   return (
     <svg
       role="img"

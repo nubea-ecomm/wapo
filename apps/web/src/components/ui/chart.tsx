@@ -5,8 +5,8 @@ import type { TooltipValueType } from 'recharts'
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const
-
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const
+
 type TooltipNameType = number | string
 
 export type ChartConfig = Record<
@@ -102,6 +102,7 @@ ${colorConfig
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
       itemConfig.color
+
     return color ? `  --color-${key}: ${color};` : null
   })
   .join('\n')}
@@ -113,7 +114,6 @@ ${colorConfig
     />
   )
 }
-
 const ChartTooltip = RechartsPrimitive.Tooltip
 
 function ChartTooltipContent({
@@ -145,7 +145,6 @@ function ChartTooltipContent({
     'accessibilityLayer'
   >) {
   const { config } = useChart()
-
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || !payload?.length) {
       return null
@@ -343,7 +342,6 @@ function getPayloadConfigFromPayload(
     payload.payload !== null
       ? payload.payload
       : undefined
-
   let configLabelKey: string = key
 
   if (

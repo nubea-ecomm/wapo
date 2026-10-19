@@ -35,6 +35,7 @@ export function TemplateHistory({
   )
   const meaningful: VisibleChange[] = []
   const seen = new Set<string>()
+
   for (const change of history.data?.data || []) {
     const type = change.event.split('.').at(-1) || ''
     const key =
@@ -53,12 +54,17 @@ export function TemplateHistory({
         ? change.data.template.quality_score?.score || ''
         : change.data.template[key] || '',
     )
+
     if (before === after || (!before && !after)) continue
+
     const signature = `${type}:${before}:${after}`
+
     if (seen.has(signature)) continue
+
     seen.add(signature)
     meaningful.push({ ...change, type, before, after })
   }
+
   return (
     <details
       className="rounded-lg border"

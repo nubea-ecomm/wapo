@@ -1,4 +1,5 @@
 import type { SVGProps } from 'react'
+
 // WhatsApp brand glyph from Simple Icons (CC0): https://simpleicons.org/
 export function WhatsAppIcon({
   size = 16,

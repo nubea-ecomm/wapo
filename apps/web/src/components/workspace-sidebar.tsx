@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from './ui/tooltip'
 import { WapoLogo } from './wapo-logo'
+
 export function WorkspaceSidebar({
   onSearch,
   onNavigate,
@@ -27,6 +28,7 @@ export function WorkspaceSidebar({
   const collapseLabel = collapsed
     ? t('expandNavigation')
     : t('collapseNavigation')
+
   return (
     <TooltipProvider delayDuration={250}>
       <div className="sidebar-brand-row">

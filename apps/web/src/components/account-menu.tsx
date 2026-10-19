@@ -25,9 +25,12 @@ export function AccountMenu() {
 
   async function regenerateAvatar() {
     const user = session?.user
+
     if (!user || avatarBusy) return
+
     setAvatarBusy(true)
     setAvatarError(false)
+
     try {
       await updateProfile({
         avatar_variant: nextAvatarVariant(user.id, user.avatar_variant),
@@ -38,6 +41,7 @@ export function AccountMenu() {
       setAvatarBusy(false)
     }
   }
+
   return (
     <>
       <DropdownMenu>

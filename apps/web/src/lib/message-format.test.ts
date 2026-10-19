@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { Message } from '@wapo/sdk'
 import { messageText, dateLabel } from './message-format'
+
 const base: Message = {
   id: 'msg',
   connection_id: 'con',
@@ -10,6 +11,7 @@ const base: Message = {
   timestamp: '1700000000',
   payload: {},
 }
+
 describe('provider message presentation', () => {
   it('prefers the rendered template text persisted by the server', () => {
     expect(

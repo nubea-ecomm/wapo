@@ -5,7 +5,10 @@ import { Loading, ErrorNotice } from './ui'
 import { Button } from './ui/button'
 import { NativeSelect } from './ui/native-select'
 import type { ActivityPoint } from './activity-chart'
+import { currentLocale } from '../lib/locale'
+
 const CustomerCharts = lazy(() => import('./customer-metrics-charts'))
+
 export interface CustomerMetricsData {
   days: number
   outbound: number
@@ -22,15 +25,19 @@ export interface CustomerMetricsData {
   connection_types: Record<'dedicated' | 'coexistence' | 'unknown', number>
   series: (ActivityPoint & { failed: number })[]
 }
-const number = (value: number) => new Intl.NumberFormat('es-AR').format(value)
+
+const number = (value: number) =>
+  new Intl.NumberFormat(currentLocale()).format(value)
 const rate = (value: number, total: number) =>
   total ? `${((value / total) * 100).toFixed(1)}%` : '-'
+
 export function CustomerMetrics({ customerId }: { customerId: string }) {
   const [days, setDays] = useState('30')
   const metrics = useApi<{ data: CustomerMetricsData }>(
     `/v1/customers/${encodeURIComponent(customerId)}/metrics?days=${days}`,
   )
   const d = metrics.data?.data
+
   return (
     <section
       className="mb-6 space-y-5"
@@ -89,20 +96,28 @@ export function CustomerMetrics({ customerId }: { customerId: string }) {
                   : 'Sin salientes',
               ],
             ].map(([label, value, detail]) => (
-              <div key={label} className="rounded-lg border bg-card p-4">
+              <div
+                key={label}
+                className="rounded-lg border bg-card p-4"
+              >
                 <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="my-2 text-2xl font-semibold tracking-tight">{value}</p>
+                <p className="my-2 text-2xl font-semibold tracking-tight">
+                  {value}
+                </p>
                 <p className="text-xs text-muted-foreground">{detail}</p>
               </div>
             ))}
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
             <span>
-              Leídos <strong className="ml-1 text-foreground">{number(d.read)}</strong>
+              Leídos{' '}
+              <strong className="ml-1 text-foreground">{number(d.read)}</strong>
             </span>
             <span>
               Pendientes{' '}
-              <strong className="ml-1 text-foreground">{number(d.pending)}</strong>
+              <strong className="ml-1 text-foreground">
+                {number(d.pending)}
+              </strong>
             </span>
             <span>
               Conexiones activas{' '}
@@ -112,7 +127,9 @@ export function CustomerMetrics({ customerId }: { customerId: string }) {
             </span>
             <span>
               Chats totales{' '}
-              <strong className="ml-1 text-foreground">{number(d.conversations)}</strong>
+              <strong className="ml-1 text-foreground">
+                {number(d.conversations)}
+              </strong>
             </span>
             <span>
               Chats abiertos{' '}
@@ -125,8 +142,8 @@ export function CustomerMetrics({ customerId }: { customerId: string }) {
             <CustomerCharts data={d} />
           </Suspense>
           <p className="text-xs text-muted-foreground">
-            Mensajes registrados en este proyecto. Los estados se actualizan con los
-            webhooks de Meta.
+            Mensajes registrados en este proyecto. Los estados se actualizan con
+            los webhooks de Meta.
           </p>
         </>
       )}

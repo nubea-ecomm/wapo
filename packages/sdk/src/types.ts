@@ -3,6 +3,7 @@ export interface Page<T> {
   meta?: { has_more: boolean; after: string }
   paging?: { cursors: { after: string } }
 }
+
 export interface Customer {
   id: string
   name: string
@@ -10,6 +11,7 @@ export interface Customer {
   email?: string
   metadata?: Record<string, unknown>
 }
+
 export interface Connection {
   id: string
   channel: 'webchat' | 'whatsapp'
@@ -26,6 +28,7 @@ export interface Connection {
   credential_status?: 'valid' | 'expired'
   access_token_expires_at?: string
 }
+
 export interface Message {
   id: string
   connection_id: string
@@ -39,6 +42,7 @@ export interface Message {
   payload: Record<string, unknown>
   display_text?: string
 }
+
 export interface Conversation {
   id: string
   connection_id: string
@@ -53,6 +57,7 @@ export interface Conversation {
   service_window_open?: boolean
   service_window_expires_at?: string
 }
+
 export interface Webhook {
   id: string
   url: string
@@ -60,6 +65,7 @@ export interface Webhook {
   active: boolean
   connection_id?: string
 }
+
 export interface Project {
   logo_url?: string
   id: string
@@ -68,6 +74,7 @@ export interface Project {
   created_at?: string
   active_keys?: number
 }
+
 export interface ApiKey {
   id: string
   name: string
@@ -76,12 +83,14 @@ export interface ApiKey {
   created_at?: string
   revoked_at?: string | null
 }
+
 export interface ProjectEvent {
   id: string
   event: string
   payload: Record<string, unknown>
   created_at: string
 }
+
 export interface SetupLink {
   id: string
   customer_id: string
@@ -92,6 +101,7 @@ export interface SetupLink {
   token?: string
   whatsapp_setup_status: string
 }
+
 export interface SetupLinkInput {
   allowed_connection_types?: ('coexistence' | 'dedicated')[]
   success_redirect_url?: string
@@ -104,6 +114,7 @@ export interface SetupLinkInput {
   meta_billing_mode?: 'customer_managed'
   provision_phone_number?: false
 }
+
 export interface ClientOptions {
   baseUrl: string
   apiKey: string
@@ -179,6 +190,7 @@ export interface MessageTemplate {
   components: Record<string, unknown>[]
   rejected_reason?: string
 }
+
 export interface TemplateInput {
   name: string
   language: string

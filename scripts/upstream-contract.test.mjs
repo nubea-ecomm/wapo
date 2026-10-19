@@ -13,12 +13,16 @@ const requests = []
 let templateId = 0
 const upstream = createServer(async (req, res) => {
   let raw = ''
+
   for await (const chunk of req) raw += chunk
+
   assert.equal(req.headers['x-api-key'], 'fake-upstream-secret')
   assert.equal(req.headers.authorization, undefined)
   const body = raw ? JSON.parse(raw) : undefined
+
   requests.push({ method: req.method, url: req.url, body })
   res.setHeader('Content-Type', 'application/json')
+
   if (req.url.includes('/messages') && req.method === 'POST')
     return res.end(
       JSON.stringify({
@@ -27,6 +31,7 @@ const upstream = createServer(async (req, res) => {
         messages: [{ id: 'wamid.contract' }],
       }),
     )
+
   if (req.url.includes('/message_templates'))
     return res.end(
       JSON.stringify(
@@ -52,12 +57,14 @@ const upstream = createServer(async (req, res) => {
             : { success: true },
       ),
     )
+
   if (req.url.includes('/setup_links'))
     return res.end(
       JSON.stringify({
         data: { id: 'setup-1', url: 'https://fake.example/setup' },
       }),
     )
+
   if (req.url.includes('/whatsapp/media'))
     return res.end(
       JSON.stringify({
@@ -66,6 +73,7 @@ const upstream = createServer(async (req, res) => {
         },
       }),
     )
+
   if (req.url.includes('/webhooks'))
     return res.end(
       JSON.stringify({
@@ -80,6 +88,7 @@ const upstream = createServer(async (req, res) => {
             : { id: 'wh-1' },
       }),
     )
+
   if (req.url.includes('/phone_numbers'))
     return res.end(
       JSON.stringify({
@@ -92,6 +101,7 @@ const upstream = createServer(async (req, res) => {
         },
       }),
     )
+
   res.end(
     JSON.stringify({
       data: { id: 'customer-1', external_customer_id: 'shop-1' },
@@ -141,6 +151,7 @@ test(
       { stdio: ['ignore', 'pipe', 'pipe'] },
     )
     let logs = ''
+
     docker.stdout.on('data', (b) => {
       logs += b
     })
@@ -155,9 +166,11 @@ test(
       } catch {}
     })
     let base
+
     for (let i = 0; i < 100; i++) {
       if (docker.exitCode !== null)
         throw new Error(`Contract API exited: ${logs}`)
+
       try {
         const port = execFileSync('docker', ['port', container, '8080/tcp'], {
           encoding: 'utf8',
@@ -166,14 +179,18 @@ test(
           .trim()
           .split(':')
           .at(-1)
+
         if (port && (await fetch(`http://127.0.0.1:${port}/readyz`)).ok) {
           base = `http://127.0.0.1:${port}`
           break
         }
       } catch {}
+
       await new Promise((resolve) => setTimeout(resolve, 200))
     }
+
     assert.ok(base, `API failed to become ready: ${logs}`)
+
     async function messaging(path, method = 'GET', body) {
       const res = await fetch(`${base}/meta/whatsapp/v24.0/${path}`, {
         method,
@@ -181,9 +198,12 @@ test(
         ...(body ? { body: JSON.stringify(body) } : {}),
         signal: AbortSignal.timeout(5000),
       })
+
       assert.ok(res.ok, `${method} ${path}: ${res.status}`)
+
       return res.json()
     }
+
     await messaging('123456/messages', 'POST', {
       messaging_product: 'whatsapp',
       to: '549111',
@@ -232,18 +252,23 @@ test(
       components: [{ type: 'BODY', text: 'Hello' }],
     })
     await messaging('654321/message_templates?name=welcome', 'DELETE')
+
     async function platform(path, method = 'GET', body) {
       const res = await fetch(`${base}/platform/v1${path}`, {
         method,
         headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
         ...(body ? { body: JSON.stringify(body) } : {}),
       })
+
       assert.ok(res.ok, `${method} ${path}: ${res.status}`)
+
       return res.json()
     }
+
     const customer = await platform('/customers', 'POST', {
       customer: { name: 'Store', external_customer_id: 'shop-1' },
     })
+
     assert.equal(customer.data.id, 'customer-1')
     await platform('/customers?external_customer_id=shop-1')
     await platform('/customers/customer-1')
@@ -292,6 +317,7 @@ test(
     const sends = requests.filter(
       (r) => r.url === '/meta/whatsapp/v24.0/123456/messages',
     )
+
     assert.equal(sends.length, 5)
     assert.equal(sends[0].body.text.body, 'Hola')
     assert.equal(sends[1].body.type, 'template')

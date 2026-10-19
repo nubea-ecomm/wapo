@@ -5,7 +5,13 @@ import { Plus, Search } from 'lucide-react'
 import type { Page, Project } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
-import { PageHeader, ErrorNotice, Empty, Loading, Status } from '../components/ui'
+import {
+  PageHeader,
+  ErrorNotice,
+  Empty,
+  Loading,
+  Status,
+} from '../components/ui'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
@@ -21,7 +27,10 @@ import {
 import { TenantEditor } from '../components/tenant-editor'
 import { TenantActions } from '../components/tenant-actions'
 import { dateLabel } from '../lib/message-format'
+import { useI18n } from '../app/i18n'
+
 export function TenantsPage() {
+  const { t } = useI18n()
   const { session, selectTenant } = useSession()
   const navigate = useNavigate()
   const [editor, setEditor] = useState<Project | 'new' | null>(null)
@@ -34,24 +43,29 @@ export function TenantsPage() {
   const all = tenants.data?.data || []
   const filtered = all.filter(
     (tenant) =>
-      `${tenant.name} ${tenant.id}`.toLowerCase().includes(search.toLowerCase()) &&
+      `${tenant.name} ${tenant.id}`
+        .toLowerCase()
+        .includes(search.toLowerCase()) &&
       (status === 'all' || status === tenant.status),
   )
+
   function openTenant(tenant: Project) {
     selectTenant(tenant.id, tenant.name)
     navigate('/')
   }
+
   if (session?.role !== 'operator')
     return <Empty title="Acceso de administrador requerido" />
+
   return (
     <>
       <PageHeader
-        title="Proyectos"
-        description="Administrá tus proyectos."
+        title={t('projects')}
+        description={t('projects.description')}
         action={
           <Button onClick={() => setEditor('new')}>
             <Plus />
-            Nuevo proyecto
+            {t('projects.new')}
           </Button>
         }
       />
@@ -60,8 +74,8 @@ export function TenantsPage() {
         <div className="relative w-full sm:max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
           <Input
-            aria-label="Buscar proyectos"
-            placeholder="Buscar por nombre o ID…"
+            aria-label={t('projects.search')}
+            placeholder={t('projects.searchPlaceholder')}
             className="pl-9"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -69,28 +83,29 @@ export function TenantsPage() {
         </div>
         <div className="w-40">
           <NativeSelect
-            aria-label="Filtrar proyectos por estado"
+            aria-label={t('projects.filterStatus')}
             value={status}
             onChange={(event) => setStatus(event.target.value)}
           >
-            <option value="all">Todos</option>
-            <option value="active">Activos</option>
-            <option value="suspended">Suspendidos</option>
+            <option value="all">{t('common.all')}</option>
+            <option value="active">{t('projects.active')}</option>
+            <option value="suspended">{t('projects.suspended')}</option>
           </NativeSelect>
         </div>
         <span className="ml-auto text-xs text-muted-foreground">
-          {all.length} proyectos /{' '}
-          {all.filter((tenant) => tenant.status === 'active').length} activos
+          {all.length} {t('projects').toLowerCase()} /{' '}
+          {all.filter((tenant) => tenant.status === 'active').length}{' '}
+          {t('projects.active').toLowerCase()}
         </span>
       </div>
       <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader className="bg-muted/40">
             <TableRow>
-              <TableHead className="pl-4">Proyecto</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Claves activas</TableHead>
-              <TableHead>Creado</TableHead>
+              <TableHead className="pl-4">{t('project')}</TableHead>
+              <TableHead>{t('common.status')}</TableHead>
+              <TableHead>{t('projects.activeKeys')}</TableHead>
+              <TableHead>{t('common.created')}</TableHead>
               <TableHead className="w-12">
                 <span className="sr-only">Acciones</span>
               </TableHead>
@@ -101,7 +116,10 @@ export function TenantsPage() {
               <TableRow key={tenant.id}>
                 <TableCell className="py-3 pl-4">
                   <div className="flex items-center gap-3">
-                    <ProjectAvatar name={tenant.name} logoUrl={tenant.logo_url} />
+                    <ProjectAvatar
+                      name={tenant.name}
+                      logoUrl={tenant.logo_url}
+                    />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <button
@@ -112,8 +130,11 @@ export function TenantsPage() {
                           {tenant.name}
                         </button>
                         {session?.tenantId === tenant.id && (
-                          <Badge variant="secondary" className="text-[10px]">
-                            Actual
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px]"
+                          >
+                            {t('common.current')}
                           </Badge>
                         )}
                       </div>
@@ -151,10 +172,8 @@ export function TenantsPage() {
           <Loading variant="table" />
         ) : (
           !filtered.length && (
-            <Empty title={all.length ? 'Sin resultados' : 'Creá tu primer proyecto'}>
-              {all.length
-                ? 'Probá con otro nombre o filtro.'
-                : 'Cada proyecto tiene sus propias conexiones y claves de API.'}
+            <Empty title={all.length ? t('noResults') : t('projects.first')}>
+              {all.length ? t('noResults') : t('projects.firstDescription')}
             </Empty>
           )
         )}

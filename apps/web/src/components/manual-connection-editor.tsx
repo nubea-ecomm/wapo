@@ -8,6 +8,7 @@ import type { Customer, Page } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'
 import { Field, ErrorNotice } from './ui'
+
 export function ManualConnectionEditor({ onClose }: { onClose: () => void }) {
   const { client } = useSession()
   const [name, setName] = useState('')
@@ -28,6 +29,7 @@ export function ManualConnectionEditor({ onClose }: { onClose: () => void }) {
     setToken('')
     onClose()
   })
+
   return (
     <FormDialog
       title={

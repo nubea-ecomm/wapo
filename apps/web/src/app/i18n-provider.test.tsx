@@ -6,6 +6,7 @@ import { SessionContext, type SessionContextValue } from './session-context'
 
 function Probe() {
   const { language, t } = useI18n()
+
   return (
     <span>
       {language}:{t('password')}
@@ -22,6 +23,7 @@ it('keeps Spanish as the stable language before authentication', () => {
     disconnect: vi.fn(),
     updateProfile: vi.fn(),
   } as unknown as SessionContextValue
+
   render(
     <SessionContext.Provider value={value}>
       <I18nProvider>

@@ -14,6 +14,7 @@ import {
   CommandGroup,
   CommandItem,
 } from './ui/command'
+
 export function TenantPicker() {
   const { session, selectTenant } = useSession()
   const [open, setOpen] = useState(false)
@@ -27,6 +28,7 @@ export function TenantPicker() {
   const activeProject = tenants.data?.data.find(
     (project) => project.id === session?.tenantId,
   )
+
   if (session?.role !== 'operator')
     return (
       <div className="workspace-picker">
@@ -37,6 +39,7 @@ export function TenantPicker() {
         <span className="truncate text-sm">{session?.tenantName}</span>
       </div>
     )
+
   return (
     <Popover
       open={open}

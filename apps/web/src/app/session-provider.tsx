@@ -8,6 +8,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { persistSession, restoreSession } from './session-storage'
 import { SessionContext, type Session } from './session-context'
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(restoreSession)
   const [queryClient] = useState(
@@ -19,9 +20,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         },
       }),
   )
+
   useEffect(() => {
     persistSession(session)
+
     if (!session?.expiresAt) return
+
     const timer = window.setTimeout(
       () => {
         persistSession(null)
@@ -30,23 +34,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       Math.max(0, Date.parse(session.expiresAt) - Date.now()),
     )
+
     return () => window.clearTimeout(timer)
   }, [session, queryClient])
   const sessionUserID = session?.user?.id
+
   useEffect(() => {
     if (!sessionUserID) return
+
     let cancelled = false
     const key = session?.key || '',
       url = session?.url || ''
+
     async function refreshAccess() {
       try {
         const [profile, projects] = await Promise.all([
           new WapoAuthClient({ baseUrl: url, apiKey: key }).me(),
           new WapoAdminClient({ baseUrl: url, apiKey: key }).listTenants(),
         ])
+
         if (cancelled) return
+
         setSession((current) => {
           if (!current || current.key !== key) return current
+
           const active =
             projects.data.find(
               (project) =>
@@ -57,7 +68,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
               JSON.stringify(current.user) ||
             current.tenantId !== (active?.id || '') ||
             current.tenantName !== (active?.name || '')
+
           if (!updated) return current
+
           return {
             ...current,
             id: crypto.randomUUID(),
@@ -73,10 +86,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }
       }
     }
+
     void refreshAccess()
     const refresh = () => void refreshAccess()
+
     window.addEventListener('focus', refresh)
     const timer = window.setInterval(refresh, 60_000)
+
     return () => {
       cancelled = true
       clearInterval(timer)
@@ -93,20 +109,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   )
   const client = useMemo(() => new WapoClient(options), [options])
   const admin = useMemo(() => new WapoAdminClient(options), [options])
+
   async function connect(url: string, key: string, role: Session['role']) {
     const options = { baseUrl: url.replace(/\/$/, ''), apiKey: key }
     let tenantId: string, tenantName: string
+
     if (role === 'operator') {
       await new WapoAdminClient(options).me()
       const tenants = await new WapoAdminClient(options).listTenants()
       const tenant = tenants.data.find((t) => t.status === 'active')
+
       tenantId = tenant?.id || ''
       tenantName = tenant?.name || ''
     } else {
       const me = await new WapoClient(options).me()
+
       tenantId = me.data.project_id
       tenantName = tenantId
     }
+
     queryClient.clear()
     setSession({
       id: crypto.randomUUID(),
@@ -117,6 +138,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       tenantName,
     })
   }
+
   async function connectUser(
     url: string,
     email: string,
@@ -135,6 +157,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const tenant =
       tenants.data.find((t) => t.id === 'default' && t.status === 'active') ||
       tenants.data.find((t) => t.status === 'active')
+
     queryClient.clear()
     setSession({
       id: crypto.randomUUID(),
@@ -148,6 +171,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       remember,
     })
   }
+
   function selectTenant(id: string, name: string) {
     queryClient.clear()
     setSession((current) =>
@@ -161,8 +185,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         : null,
     )
   }
+
   function disconnect() {
     persistSession(null)
+
     if (session?.user) {
       void new WapoAuthClient({ baseUrl: session.url, apiKey: session.key })
         .logout()
@@ -172,9 +198,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           ),
         )
     }
+
     queryClient.clear()
     setSession(null)
   }
+
   async function updateProfile(input: {
     name?: string
     email?: string
@@ -182,16 +210,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     avatar_variant?: number
   }) {
     if (!session?.user) throw new Error('A console session is required')
+
     const result = await new WapoAuthClient({
       baseUrl: session.url,
       apiKey: session.key,
     }).updateProfile(input)
+
     setSession((current) =>
       current
         ? { ...current, id: crypto.randomUUID(), user: result.data.user }
         : null,
     )
   }
+
   return (
     <SessionContext.Provider
       value={{

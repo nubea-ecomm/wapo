@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { WapoAdminClient, WapoClient, ConsoleUser } from '@wapo/sdk'
+
 export interface Session {
   id: string
   url: string
@@ -11,6 +12,7 @@ export interface Session {
   expiresAt?: string
   tenantName: string
 }
+
 export interface SessionContextValue {
   session: Session | null
   client: WapoClient
@@ -31,9 +33,13 @@ export interface SessionContextValue {
     avatar_variant?: number
   }) => Promise<void>
 }
+
 export const SessionContext = createContext<SessionContextValue | null>(null)
+
 export function useSession() {
   const value = useContext(SessionContext)
+
   if (!value) throw new Error('SessionProvider is missing')
+
   return value
 }

@@ -10,6 +10,7 @@ import { WhatsAppIcon } from './icons/whatsapp-icon'
 import { ErrorNotice, Field } from './ui'
 import { NativeSelect } from './ui/native-select'
 import { Button } from './ui/button'
+
 export function ConnectionEditor({ onClose }: { onClose: () => void }) {
   const [manual, setManual] = useState(false)
   const [customerId, setCustomerId] = useState('')
@@ -18,7 +19,9 @@ export function ConnectionEditor({ onClose }: { onClose: () => void }) {
   const selected = customers.data?.data.find(
     (customer) => customer.id === customerId,
   )
+
   if (manual) return <ManualConnectionEditor onClose={onClose} />
+
   if (connecting && selected)
     return (
       <CustomerOnboarding
@@ -26,6 +29,7 @@ export function ConnectionEditor({ onClose }: { onClose: () => void }) {
         onClose={onClose}
       />
     )
+
   return (
     <FormDialog
       title={

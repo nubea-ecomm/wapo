@@ -14,7 +14,9 @@ import type {
   SetupLinkInput,
   Webhook,
 } from './types.js'
+
 const encode = encodeURIComponent
+
 export class WapoClient extends Transport {
   project() {
     return this.request<{ data: ProjectSettings }>('GET', '/v1/project')

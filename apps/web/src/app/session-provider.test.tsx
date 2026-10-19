@@ -3,8 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SessionProvider } from './session-provider'
 import { useSession } from './session-context'
+
 function Probe() {
   const { session, connect, selectTenant, client, disconnect } = useSession()
+
   return (
     <>
       <span>{session?.tenantId || 'disconnected'}</span>
@@ -27,23 +29,29 @@ function Probe() {
     </>
   )
 }
+
 afterEach(() => vi.unstubAllGlobals())
 it('scopes operator requests explicitly and clears the session without persisting secrets', async () => {
   const calls: { url: string; headers: Record<string, string> }[] = []
+
   vi.stubGlobal(
     'fetch',
     vi.fn(async (url: string, init: RequestInit) => {
       calls.push({ url, headers: init.headers as Record<string, string> })
+
       if (url.endsWith('/admin/v1/me'))
         return Response.json({ data: { role: 'operator' } })
+
       if (url.endsWith('/tenants'))
         return Response.json({
           data: [{ id: 'tenant-a', name: 'A', status: 'active' }],
         })
+
       return Response.json({ data: { project_id: 'tenant-b' } })
     }),
   )
   const user = userEvent.setup()
+
   render(
     <SessionProvider>
       <Probe />

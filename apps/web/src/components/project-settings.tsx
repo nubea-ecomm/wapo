@@ -13,19 +13,23 @@ import { ProjectBrandingPreview } from './project-branding-preview'
 export function ProjectSettings() {
   const { session } = useSession()
   const settings = useApi<{ data: Project }>('/v1/project')
+
   if (!session?.tenantId)
     return (
       <Panel title="Proyecto">
         <p className="muted">Seleccioná un proyecto.</p>
       </Panel>
     )
+
   if (settings.isLoading)
     return (
       <Panel title="Proyecto">
         <Loading variant="settings" />
       </Panel>
     )
+
   if (!settings.data) return <ErrorNotice error={settings.error} />
+
   return (
     <ProjectSettingsForm
       key={`${session.id}:${settings.data.data.name}`}
@@ -50,14 +54,17 @@ function ProjectSettingsForm({ project }: { project: Project }) {
   const changed =
     name.trim() !== project.name ||
     JSON.stringify(branding) !== JSON.stringify(project.branding)
+
   function updateBranding(patch: Partial<Project['branding']>) {
     setBranding((current) => ({ ...current, ...patch }))
     setSaved(false)
   }
+
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault()
+
         if (canManageProject) save.mutate()
       }}
       className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"
@@ -107,18 +114,25 @@ function ProjectSettingsForm({ project }: { project: Project }) {
                   disabled={reading || save.isPending}
                   onChange={(event) => {
                     const file = event.target.files?.[0]
+
                     event.target.value = ''
+
                     if (!file) return
+
                     setFileError(null)
+
                     if (
                       !['image/png', 'image/jpeg'].includes(file.type) ||
                       file.size > 5 * 1024 * 1024
                     ) {
                       setFileError(new Error('Usá PNG o JPG de hasta 5 MB.'))
+
                       return
                     }
+
                     setReading(true)
                     const reader = new FileReader()
+
                     reader.onload = () => {
                       updateBranding({ logo_data_url: String(reader.result) })
                       setReading(false)

@@ -1,5 +1,6 @@
 import type { ProjectSettings } from '@wapo/sdk'
 import { WhatsAppIcon } from './icons/whatsapp-icon'
+
 export function ProjectBrandingPreview({
   name,
   branding,
@@ -11,6 +12,7 @@ export function ProjectBrandingPreview({
   const text = parseInt(branding.accent_color.slice(1), 16)
   const luminance =
     ((text >> 16) * 299 + ((text >> 8) & 255) * 587 + (text & 255) * 114) / 1000
+
   return (
     <aside>
       <h2 className="mb-3 text-sm">Vista previa</h2>

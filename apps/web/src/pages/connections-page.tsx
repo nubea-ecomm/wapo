@@ -38,12 +38,15 @@ import {
   TableHeader,
   TableRow,
 } from '../components/ui/table'
+import { useI18n } from '../app/i18n'
 
 type ViewMode = 'cards' | 'table'
 
 function savedView(): ViewMode {
   try {
-    return localStorage.getItem('wapo.connections-view') === 'table' ? 'table' : 'cards'
+    return localStorage.getItem('wapo.connections-view') === 'table'
+      ? 'table'
+      : 'cards'
   } catch {
     return 'cards'
   }
@@ -51,6 +54,7 @@ function savedView(): ViewMode {
 
 export function ConnectionsPage() {
   const { client, session } = useSession()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [create, setCreate] = useState(false)
   const [editing, setEditing] = useState<Connection | null>(null)
@@ -63,24 +67,34 @@ export function ConnectionsPage() {
     (connection) => connection.channel === 'whatsapp',
   )
   const customerNames = new Map(
-    (customers.data?.data || []).map((customer) => [customer.id, customer.name]),
+    (customers.data?.data || []).map((customer) => [
+      customer.id,
+      customer.name,
+    ]),
   )
   const filtered = whatsapp.filter((connection) => {
-    const customer = customerNames.get(connection.customer_id || '') || 'Proyecto'
+    const customer =
+      customerNames.get(connection.customer_id || '') || 'Proyecto'
+
     return `${connection.name || ''} ${connection.display_phone_number || ''} ${connection.external_id || ''} ${connection.business_account_id || ''} ${customer}`
       .toLowerCase()
       .includes(search.trim().toLowerCase())
   })
+
   function selectView(next: ViewMode) {
     setView(next)
+
     try {
       localStorage.setItem('wapo.connections-view', next)
     } catch {
       // The preference is optional in restricted browser contexts.
     }
   }
+
   function actions(connection: Connection) {
-    const name = connection.name || connection.display_phone_number || 'WhatsApp'
+    const name =
+      connection.name || connection.display_phone_number || 'WhatsApp'
+
     return (
       <ResourceActions
         name={name}
@@ -94,13 +108,17 @@ export function ConnectionsPage() {
             label: 'Ver diagnóstico',
             icon: <Activity />,
             onSelect: () =>
-              navigate(`/connections/${encodeURIComponent(connection.id)}?tab=health`),
+              navigate(
+                `/connections/${encodeURIComponent(connection.id)}?tab=health`,
+              ),
           },
           {
             label: 'Administrar templates',
             icon: <FileText />,
             onSelect: () =>
-              navigate(`/connections/${encodeURIComponent(connection.id)}?tab=templates`),
+              navigate(
+                `/connections/${encodeURIComponent(connection.id)}?tab=templates`,
+              ),
           },
         ]}
         destructive={{
@@ -113,29 +131,36 @@ export function ConnectionsPage() {
       />
     )
   }
+
   return (
     <>
       <PageHeader
-        title="Conexiones"
-        description="Administrá números, credenciales y salud de WhatsApp."
+        title={t('connections')}
+        description={t('connections.description')}
         action={
-          <Button disabled={!session?.tenantId} onClick={() => setCreate(true)}>
+          <Button
+            disabled={!session?.tenantId}
+            onClick={() => setCreate(true)}
+          >
             <Plus />
-            Conectar WhatsApp
+            {t('connections.connect')}
           </Button>
         }
       />
-      <ErrorNotice error={connections.error || customers.error || remove.error} />
+      <ErrorNotice
+        error={connections.error || customers.error || remove.error}
+      />
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-2.5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="hidden px-2 text-xs text-muted-foreground sm:inline">
-            {whatsapp.length} {whatsapp.length === 1 ? 'conexión' : 'conexiones'}
+            {whatsapp.length}{' '}
+            {whatsapp.length === 1 ? 'conexión' : 'conexiones'}
           </span>
           <div className="search-input min-w-48 flex-1 sm:max-w-xs">
             <Search className="size-4" />
             <Input
-              aria-label="Buscar conexiones"
-              placeholder="Buscar por nombre, número o customer…"
+              aria-label={t('connections.search')}
+              placeholder={t('connections.searchPlaceholder')}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -150,7 +175,7 @@ export function ConnectionsPage() {
             type="button"
             size="icon-sm"
             variant={view === 'cards' ? 'secondary' : 'ghost'}
-            aria-label="Ver como cards"
+            aria-label={t('connections.cardView')}
             aria-pressed={view === 'cards'}
             onClick={() => selectView('cards')}
           >
@@ -160,7 +185,7 @@ export function ConnectionsPage() {
             type="button"
             size="icon-sm"
             variant={view === 'table' ? 'secondary' : 'ghost'}
-            aria-label="Ver como tabla"
+            aria-label={t('connections.tableView')}
             aria-pressed={view === 'table'}
             onClick={() => selectView('table')}
           >
@@ -177,7 +202,9 @@ export function ConnectionsPage() {
             <ConnectionCard
               key={connection.id}
               connection={connection}
-              customer={customerNames.get(connection.customer_id || '') || 'Proyecto'}
+              customer={
+                customerNames.get(connection.customer_id || '') || 'Proyecto'
+              }
               canWrite={permissions(session).canWrite}
               onEdit={() => setEditing(connection)}
               actions={actions(connection)}
@@ -186,16 +213,19 @@ export function ConnectionsPage() {
         </div>
       )}
       {!connections.isLoading && filtered.length > 0 && view === 'table' && (
-        <Panel title="Conexiones de WhatsApp" className="resource-table">
+        <Panel
+          title={t('connections.whatsapp')}
+          className="resource-table"
+        >
           <div className="table-scroll">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Conexión</TableHead>
-                  <TableHead>Estado</TableHead>
+                  <TableHead>{t('connections.connection')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
                   <TableHead>Customer</TableHead>
-                  <TableHead>Número</TableHead>
-                  <TableHead>Salud</TableHead>
+                  <TableHead>{t('connections.number')}</TableHead>
+                  <TableHead>{t('connections.health')}</TableHead>
                   <TableHead className="text-right">
                     <span className="sr-only">Acciones</span>
                   </TableHead>
@@ -231,11 +261,14 @@ export function ConnectionsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {customerNames.get(connection.customer_id || '') || 'Proyecto'}
+                      {customerNames.get(connection.customer_id || '') ||
+                        'Proyecto'}
                     </TableCell>
                     <TableCell>
                       <span className="whitespace-nowrap">
-                        {connection.display_phone_number || connection.external_id || '—'}
+                        {connection.display_phone_number ||
+                          connection.external_id ||
+                          '—'}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -243,7 +276,11 @@ export function ConnectionsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon-sm" asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          asChild
+                        >
                           <Link
                             aria-label={`Ver chats de ${connection.name || 'WhatsApp'}`}
                             to={`/inbox?connection=${encodeURIComponent(connection.id)}`}
@@ -264,12 +301,12 @@ export function ConnectionsPage() {
       {!connections.isLoading && !connections.error && !filtered.length && (
         <Panel>
           <Empty
-            title={search ? 'Sin resultados' : 'Sin conexiones'}
+            title={search ? t('noResults') : t('connections.none')}
             icon={<WhatsAppIcon size={28} />}
           >
             {search
-              ? 'Probá con otro nombre, número o customer.'
-              : 'Registrá un número de WhatsApp o generá un enlace desde Customers.'}
+              ? t('connections.noResultsDescription')
+              : t('connections.noneDescription')}
           </Empty>
         </Panel>
       )}
@@ -280,7 +317,10 @@ export function ConnectionsPage() {
       />
       {create && <ConnectionEditor onClose={() => setCreate(false)} />}
       {editing && (
-        <ConnectionUpdateEditor connection={editing} onClose={() => setEditing(null)} />
+        <ConnectionUpdateEditor
+          connection={editing}
+          onClose={() => setEditing(null)}
+        />
       )}
     </>
   )
@@ -300,6 +340,7 @@ function ConnectionCard({
   actions: ReactNode
 }) {
   const title = connection.name || connection.display_phone_number || 'WhatsApp'
+
   return (
     <article className="connection-card">
       <div className="connection-card-header">
@@ -356,7 +397,9 @@ function ConnectionCard({
           <div>
             <span>Número</span>
             <strong>
-              {connection.display_phone_number || connection.external_id || 'Sin número'}
+              {connection.display_phone_number ||
+                connection.external_id ||
+                'Sin número'}
             </strong>
           </div>
         </div>
@@ -374,19 +417,31 @@ function ConnectionCard({
         </div>
       </div>
       <div className="connection-card-footer">
-        <Button variant="outline" size="sm" asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+        >
           <Link to={`/connections/${encodeURIComponent(connection.id)}`}>
             Ver detalle
           </Link>
         </Button>
-        <Button variant="outline" size="sm" asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+        >
           <Link to={`/inbox?connection=${encodeURIComponent(connection.id)}`}>
             <MessageCircle />
             Chats
           </Link>
         </Button>
         {canWrite && (
-          <Button variant="outline" size="sm" onClick={onEdit}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onEdit}
+          >
             <Pencil />
             Editar
           </Button>
@@ -399,7 +454,10 @@ function ConnectionCard({
 function HealthStatus({ connection }: { connection: Connection }) {
   if (connection.credential_status === 'expired')
     return <Status value="credential_expired" />
-  if (connection.health_status) return <Status value={connection.health_status} />
+
+  if (connection.health_status)
+    return <Status value={connection.health_status} />
+
   return <span className="text-xs text-muted-foreground">Sin comprobar</span>
 }
 

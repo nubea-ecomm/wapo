@@ -48,6 +48,7 @@ describe('console permissions', () => {
 
   it('limits billing users to overview and settings', () => {
     const billing = permissions(session('billing'))
+
     expect(billing.canVisit('/')).toBe(true)
     expect(billing.canVisit('/settings')).toBe(true)
     expect(billing.canVisit('/customers')).toBe(false)

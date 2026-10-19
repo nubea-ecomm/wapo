@@ -52,9 +52,12 @@ const UsersPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('../pages/settings-page').then((m) => ({ default: m.SettingsPage })),
 )
+
 export function App() {
   const { session } = useSession()
+
   if (!session) return <LoginPage />
+
   return (
     <HashRouter>
       <Routes>
@@ -131,6 +134,7 @@ export function App() {
 function PermissionGuard() {
   const { session } = useSession()
   const location = useLocation()
+
   return permissions(session).canVisit(location.pathname) ? (
     <Outlet />
   ) : (

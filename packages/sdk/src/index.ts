@@ -1,5 +1,9 @@
 export { WapoClient } from './client.js'
+
 export { WapoAdminClient } from './admin-client.js'
+
 export { WapoError } from './transport.js'
+
 export type * from './types.js'
+
 export { WapoAuthClient } from './auth-client.js'
