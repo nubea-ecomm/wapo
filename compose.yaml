@@ -1,0 +1,56 @@
+name: wapo
+x-server: &server
+  build:
+    context: .
+    dockerfile: apps/server/Dockerfile
+  env_file: .env
+  environment:
+    DATABASE_URL: postgres://wapo:${POSTGRES_PASSWORD:-wapo-local-only}@postgres:5432/wapo?sslmode=disable
+  restart: unless-stopped
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: wapo
+      POSTGRES_DB: wapo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wapo-local-only}
+    ports: ['127.0.0.1:54329:5432']
+    volumes: ['postgres-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wapo -d wapo']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  migrate:
+    <<: *server
+    command: ['migrate']
+    restart: 'no'
+    depends_on:
+      postgres: { condition: service_healthy }
+  api:
+    <<: *server
+    ports: ['127.0.0.1:8080:8080']
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+  worker:
+    <<: *server
+    command: ['worker']
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+    profiles: ['dashboard']
+    ports: ['127.0.0.1:5173:8080']
+    restart: unless-stopped
+  valkey:
+    image: valkey/valkey:8-alpine
+    profiles: ['cache']
+    volumes: ['valkey-data:/data']
+    command: ['valkey-server', '--appendonly', 'yes']
+volumes:
+  postgres-data:
+  valkey-data:

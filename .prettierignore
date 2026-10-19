@@ -1,0 +1,14 @@
+node_modules
+**/dist
+pnpm-lock.yaml
+**/*.go
+**/go.sum
+**/*.sql
+.env*
+LICENSE
+
+artifacts
+test-results
+playwright-report
+
+packages/docs/vendor/
