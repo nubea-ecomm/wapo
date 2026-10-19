@@ -21,7 +21,7 @@
     "postinstall": "node scripts/copy-docs-assets.mjs"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^12.1.0",
+    "@apidevtools/swagger-parser": "^13.1.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
     "@scalar/api-reference": "1.75.0",
