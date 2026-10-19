@@ -22,7 +22,7 @@ export function SettingsPage() {
       />
       <div
         role="tablist"
-        aria-label="Configuración"
+        aria-label={t('settings')}
         className="mb-6 flex gap-1 border-b pb-2"
       >
         {[
@@ -60,20 +60,18 @@ export function SettingsPage() {
                   <dd>{session?.url}</dd>
                   <dt>{t('project')}</dt>
                   <dd className="mono">
-                    {session?.tenantId || 'Sin seleccionar'}
+                    {session?.tenantId || t('settings.noneSelected')}
                   </dd>
                   <dt>{t('settings.role')}</dt>
                   <dd>
                     {session?.role === 'operator'
                       ? 'Operador global'
-                      : 'Acceso de proyecto'}
+                      : t('settings.projectAccess')}
                   </dd>
                 </dl>
               </Panel>
               <Panel title={t('settings.integrate')}>
-                <p className="muted">
-                  Accedé a la API de Wapo con una clave del proyecto.
-                </p>
+                <p className="muted">{t('settings.integrateDescription')}</p>
                 <pre className="code-block">{`curl ${session?.url}/v1/customers -H "X-API-Key: <tu-api-key>"`}</pre>
                 {permissions(session).canManageProject && (
                   <Button
@@ -81,15 +79,12 @@ export function SettingsPage() {
                     size="sm"
                     asChild
                   >
-                    <Link to="/api-keys">Administrar claves</Link>
+                    <Link to="/api-keys">{t('settings.manageKeys')}</Link>
                   </Button>
                 )}
               </Panel>
               <Panel title={t('settings.publicApi')}>
-                <p className="muted">
-                  Referencia interactiva, ejemplos y especificación legible por
-                  herramientas.
-                </p>
+                <p className="muted">{t('settings.referenceDescription')}</p>
                 <div className="row-actions">
                   <Button
                     variant="outline"
@@ -101,7 +96,7 @@ export function SettingsPage() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Documentación <ExternalLink size={14} />
+                      {t('settings.documentation')} <ExternalLink size={14} />
                     </a>
                   </Button>
                   <Button

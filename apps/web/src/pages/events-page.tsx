@@ -121,10 +121,10 @@ export function EventsPage() {
             value={range}
             onChange={(event) => setRange(event.target.value)}
           >
-            <option value="1h">Última hora</option>
-            <option value="24h">Últimas 24 horas</option>
-            <option value="7d">Últimos 7 días</option>
-            <option value="30d">Últimos 30 días</option>
+            <option value="1h">{t('events.lastHour')}</option>
+            <option value="24h">{t('events.last24Hours')}</option>
+            <option value="7d">{t('events.last7Days')}</option>
+            <option value="30d">{t('events.last30Days')}</option>
           </NativeSelect>
         </div>
         <Button
@@ -210,7 +210,7 @@ export function EventsPage() {
       </div>
       <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
         <span>{entries.length} registros cargados</span>
-        <span>{live ? 'Actualización cada 5 segundos' : 'En pausa'}</span>
+        <span>{live ? t('events.live') : t('events.paused')}</span>
       </div>
       <LoadMore
         available={logs.hasNextPage}

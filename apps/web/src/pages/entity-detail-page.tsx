@@ -19,12 +19,14 @@ import { Button } from '../components/ui/button'
 import { NativeSelect } from '../components/ui/native-select'
 import { WhatsAppIcon } from '../components/icons/whatsapp-icon'
 import { TemplateList } from '../components/template-list'
+import { useI18n } from '../app/i18n'
 
 export function EntityDetailPage({
   kind,
 }: {
   kind: 'customers' | 'connections'
 }) {
+  const { t } = useI18n()
   const { id = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const entity = useApi<{ data: Customer & Connection }>(
@@ -55,14 +57,14 @@ export function EntityDetailPage({
   const tabs =
     kind === 'customers'
       ? [
-          ['overview', 'Resumen'],
-          ['connections', 'Conexiones'],
-          ['templates', 'Templates'],
+          ['overview', t('detail.summary')],
+          ['connections', t('connections')],
+          ['templates', t('templates')],
         ]
       : [
-          ['overview', 'Resumen'],
-          ['health', 'Diagnóstico'],
-          ['templates', 'Templates'],
+          ['overview', t('detail.summary')],
+          ['health', t('detail.diagnostics')],
+          ['templates', t('templates')],
         ]
 
   return (
@@ -72,16 +74,17 @@ export function EntityDetailPage({
         className="mb-5 inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="size-3.5" />
-        {kind === 'customers' ? 'Customers' : 'Conexiones'}
+        {kind === 'customers' ? t('customers') : t('connections')}
       </Link>
       <PageHeader
         title={
-          current?.name || (kind === 'customers' ? 'Customer' : 'Conexión')
+          current?.name ||
+          (kind === 'customers' ? 'Customer' : t('connections.connection'))
         }
         description={
           kind === 'customers'
-            ? 'Datos y cuentas del negocio.'
-            : 'Cuenta de WhatsApp.'
+            ? t('detail.customerDescription')
+            : t('detail.connectionDescription')
         }
       />
       <ErrorNotice error={entity.error} />
@@ -110,7 +113,7 @@ export function EntityDetailPage({
               {kind === 'customers' && <CustomerMetrics customerId={id} />}
               <Panel title="Datos">
                 <dl className="grid grid-cols-[120px_1fr] gap-4 text-sm">
-                  <dt className="text-muted-foreground">Nombre</dt>
+                  <dt className="text-muted-foreground">{t('name')}</dt>
                   <dd>{current.name}</dd>
                   {kind === 'customers' ? (
                     <>
@@ -121,9 +124,13 @@ export function EntityDetailPage({
                     </>
                   ) : (
                     <>
-                      <dt className="text-muted-foreground">Número</dt>
+                      <dt className="text-muted-foreground">
+                        {t('connections.number')}
+                      </dt>
                       <dd>{current.display_phone_number || '-'}</dd>
-                      <dt className="text-muted-foreground">Estado</dt>
+                      <dt className="text-muted-foreground">
+                        {t('common.status')}
+                      </dt>
                       <dd>
                         <Status value={current.status} />
                       </dd>
@@ -190,7 +197,7 @@ export function EntityDetailPage({
                 </div>
               ))}
               {!related.isLoading && !related.error && !connections.length && (
-                <Empty title="Sin conexiones" />
+                <Empty title={t('detail.noConnections')} />
               )}
               <LoadMore
                 available={related.hasNextPage}
@@ -236,8 +243,8 @@ export function EntityDetailPage({
                 </>
               )}
               {!related.isLoading && !related.error && !selected && (
-                <Empty title="Sin cuentas de WhatsApp">
-                  Conectá un número para administrar sus templates.
+                <Empty title={t('detail.noAccounts')}>
+                  {t('templates.noAccountsDescription')}
                 </Empty>
               )}
               {kind === 'customers' && (

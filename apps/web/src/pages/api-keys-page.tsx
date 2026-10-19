@@ -62,7 +62,7 @@ export function ApiKeysPage() {
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={120}
-              placeholder="Backend de producción"
+              placeholder={t('apiKeys.placeholder')}
             />
           </Field>
           <Button
@@ -146,8 +146,7 @@ export function ApiKeysPage() {
                           name={k.name}
                           destructive={{
                             label: t('apiKeys.revoke'),
-                            description:
-                              'Las integraciones que usen esta clave perderán acceso inmediatamente.',
+                            description: t('apiKeys.revokeDescription'),
                             disabled: revoke.isPending,
                             onConfirm: async () => {
                               await revoke.mutateAsync(k.id)
@@ -166,7 +165,7 @@ export function ApiKeysPage() {
           !keys.isLoading &&
           !keys.error && (
             <Empty title={t('apiKeys.none')}>
-              Seleccioná un proyecto y creá una credencial para su API.
+              {t('apiKeys.noneDescription')}
             </Empty>
           )
         )}

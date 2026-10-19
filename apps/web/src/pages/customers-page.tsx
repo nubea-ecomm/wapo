@@ -135,7 +135,7 @@ export function CustomersPage() {
                           onClick={() => setSelected(c)}
                         >
                           <WhatsAppIcon />
-                          Conectar WhatsApp
+                          {t('customers.connect')}
                         </Button>
                         <ResourceActions
                           name={c.name}
@@ -148,14 +148,14 @@ export function CustomersPage() {
                                 ),
                             },
                             {
-                              label: 'Editar customer',
+                              label: t('customers.edit'),
                               icon: <Pencil />,
                               onSelect: () => setEditor(c),
                             },
                           ]}
                           destructive={{
-                            label: 'Eliminar customer',
-                            description: `¿Eliminar ${c.name}? Primero debés desconectar sus conexiones.`,
+                            label: t('customers.delete'),
+                            description: `${t('customers.delete')}: ${c.name}. ${t('customers.deleteDescription')}`,
                             disabled: remove.isPending,
                             onConfirm: () => remove.mutateAsync(c.id),
                           }}

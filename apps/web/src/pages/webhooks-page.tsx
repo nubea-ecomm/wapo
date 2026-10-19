@@ -85,9 +85,9 @@ export function WebhooksPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Evento</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Intentos</TableHead>
+                  <TableHead>{t('webhooks.event')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
+                  <TableHead>{t('webhooks.attempts')}</TableHead>
                   <TableHead>HTTP</TableHead>
                   <TableHead />
                 </TableRow>
@@ -108,7 +108,7 @@ export function WebhooksPage() {
                       {d.state === 'failed' && (
                         <ConfirmButton
                           disabled={retry.isPending}
-                          message="¿Reintentar esta entrega? El receptor debe deduplicar el evento para evitar efectos repetidos."
+                          message={t('webhooks.retryDescription')}
                           onConfirm={() => retry.mutateAsync(d.id)}
                         >
                           Reintentar
@@ -126,10 +126,7 @@ export function WebhooksPage() {
           </Empty>
         )}
       </Panel>
-      <p className="hint">
-        Validá X-Webhook-Signature sobre los bytes originales y deduplicá por
-        X-Idempotency-Key.
-      </p>
+      <p className="hint">{t('webhooks.securityHint')}</p>
       <LoadMore
         available={hooks.hasNextPage}
         busy={hooks.isFetchingNextPage}

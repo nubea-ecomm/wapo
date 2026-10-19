@@ -8,6 +8,7 @@ import { FormDialog } from './form-dialog'
 import { Button } from './ui/button'
 import { Field, ErrorNotice } from './ui'
 import { TemplateSendDialog } from './template-send-dialog'
+import { useI18n } from '../app/i18n'
 
 export function NewChatDialog({
   onClose,
@@ -17,6 +18,7 @@ export function NewChatDialog({
   onCreated: (id: string) => void
 }) {
   const [connectionId, setConnectionId] = useState('')
+  const { t } = useI18n()
   const [composing, setComposing] = useState(false)
   const connections = useApi<Page<Connection>>('/v1/connections')
   const available = (connections.data?.data || []).filter(
@@ -33,7 +35,7 @@ export function NewChatDialog({
     return (
       <TemplateSendDialog
         connection={selected}
-        title="Nueva conversación"
+        title={t('chat.new')}
         onBack={() => setComposing(false)}
         onClose={onClose}
         onSent={(message) => {
@@ -48,10 +50,10 @@ export function NewChatDialog({
       title={
         <span className="flex items-center gap-2">
           <WhatsAppIcon size={20} />
-          Nueva conversación
+          {t('chat.new')}
         </span>
       }
-      description="Elegí desde qué número vas a iniciar el contacto."
+      description={t('chat.chooseConnection')}
       onClose={onClose}
     >
       <form
@@ -63,8 +65,8 @@ export function NewChatDialog({
         }}
       >
         <Field
-          label="Conexión de WhatsApp"
-          hint="Solo se muestran conexiones activas y con credenciales vigentes."
+          label={t('chat.connection')}
+          hint={t('chat.connectionHint')}
         >
           <NativeSelect
             disabled={connections.isLoading}
@@ -74,8 +76,8 @@ export function NewChatDialog({
           >
             <option value="">
               {connections.isLoading
-                ? 'Cargando conexiones…'
-                : 'Elegí una conexión'}
+                ? t('chat.loadingConnections')
+                : t('chat.chooseConnectionOption')}
             </option>
             {available.map((connection) => (
               <option
@@ -91,7 +93,7 @@ export function NewChatDialog({
         </Field>
         {!connections.isLoading && !available.length && (
           <p className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
-            No hay conexiones disponibles para iniciar una conversación.
+            {t('chat.noConnections')}
           </p>
         )}
         <ErrorNotice error={connections.error} />
@@ -101,10 +103,10 @@ export function NewChatDialog({
             variant="outline"
             onClick={onClose}
           >
-            Cancelar
+            {t('common.cancel')}
           </Button>
           <Button disabled={!selected}>
-            Elegir template <ArrowRight />
+            {t('chat.chooseTemplate')} <ArrowRight />
           </Button>
         </div>
       </form>

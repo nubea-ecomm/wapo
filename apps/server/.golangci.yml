@@ -1,4 +1,4 @@
-version: "2"
+version: '2'
 
 linters:
   default: none
@@ -22,5 +22,5 @@ formatters:
     - gofumpt
 
 run:
-  go: "1.26"
+  go: '1.26'
   timeout: 5m

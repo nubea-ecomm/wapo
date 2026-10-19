@@ -143,7 +143,7 @@ export function UsersPage() {
                           user.project_ids?.includes(project.id),
                         )
                         .map((project) => project.name)
-                        .join(', ') || 'Sin acceso'}
+                        .join(', ') || t('users.noAccess')}
                 </TableCell>
                 <TableCell>
                   <Status value={user.active ? 'active' : 'inactive'} />
@@ -173,7 +173,7 @@ export function UsersPage() {
         ) : (
           !filtered.length && (
             <Empty title={all.length ? t('noResults') : t('users.none')}>
-              Probá con otro nombre o filtro.
+              {t('noResults')}
             </Empty>
           )
         )}

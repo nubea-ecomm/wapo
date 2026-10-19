@@ -74,7 +74,8 @@ export function ConnectionsPage() {
   )
   const filtered = whatsapp.filter((connection) => {
     const customer =
-      customerNames.get(connection.customer_id || '') || 'Proyecto'
+      customerNames.get(connection.customer_id || '') ||
+      t('connections.project')
 
     return `${connection.name || ''} ${connection.display_phone_number || ''} ${connection.external_id || ''} ${connection.business_account_id || ''} ${customer}`
       .toLowerCase()
@@ -100,12 +101,12 @@ export function ConnectionsPage() {
         name={name}
         actions={[
           {
-            label: 'Editar conexión',
+            label: t('connections.edit'),
             icon: <Pencil />,
             onSelect: () => setEditing(connection),
           },
           {
-            label: 'Ver diagnóstico',
+            label: t('connections.diagnostics'),
             icon: <Activity />,
             onSelect: () =>
               navigate(
@@ -123,8 +124,7 @@ export function ConnectionsPage() {
         ]}
         destructive={{
           label: 'Desconectar',
-          description:
-            'Se eliminarán la conexión y sus credenciales locales. El número y la cuenta no se eliminan de Meta.',
+          description: t('connections.deleteDescription'),
           disabled: remove.isPending,
           onConfirm: () => remove.mutateAsync(connection.id),
         }}
@@ -154,7 +154,9 @@ export function ConnectionsPage() {
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <span className="hidden px-2 text-xs text-muted-foreground sm:inline">
             {whatsapp.length}{' '}
-            {whatsapp.length === 1 ? 'conexión' : 'conexiones'}
+            {whatsapp.length === 1
+              ? t('connections.singular')
+              : t('connections.plural')}
           </span>
           <div className="search-input min-w-48 flex-1 sm:max-w-xs">
             <Search className="size-4" />
@@ -203,7 +205,8 @@ export function ConnectionsPage() {
               key={connection.id}
               connection={connection}
               customer={
-                customerNames.get(connection.customer_id || '') || 'Proyecto'
+                customerNames.get(connection.customer_id || '') ||
+                t('connections.project')
               }
               canWrite={permissions(session).canWrite}
               onEdit={() => setEditing(connection)}
@@ -262,7 +265,7 @@ export function ConnectionsPage() {
                     </TableCell>
                     <TableCell>
                       {customerNames.get(connection.customer_id || '') ||
-                        'Proyecto'}
+                        t('connections.project')}
                     </TableCell>
                     <TableCell>
                       <span className="whitespace-nowrap">
@@ -339,6 +342,7 @@ function ConnectionCard({
   onEdit: () => void
   actions: ReactNode
 }) {
+  const { t } = useI18n()
   const title = connection.name || connection.display_phone_number || 'WhatsApp'
 
   return (
@@ -369,7 +373,7 @@ function ConnectionCard({
             className="connection-alert danger"
             to={`/connections/${encodeURIComponent(connection.id)}?tab=health`}
           >
-            <span>El access token venció</span>
+            <span>{t('connections.tokenExpired')}</span>
             <span>Renovar →</span>
           </Link>
         )}
@@ -395,11 +399,11 @@ function ConnectionCard({
             <strong title={customer}>{customer}</strong>
           </div>
           <div>
-            <span>Número</span>
+            <span>{t('connections.number')}</span>
             <strong>
               {connection.display_phone_number ||
                 connection.external_id ||
-                'Sin número'}
+                t('connections.noNumber')}
             </strong>
           </div>
         </div>
@@ -411,7 +415,7 @@ function ConnectionCard({
             </code>
           </div>
           <div>
-            <span>Conexión</span>
+            <span>{t('connections.connection')}</span>
             <code title={connection.id}>{compactID(connection.id)}</code>
           </div>
         </div>
@@ -443,7 +447,7 @@ function ConnectionCard({
             onClick={onEdit}
           >
             <Pencil />
-            Editar
+            {t('connections.editAction')}
           </Button>
         )}
       </div>
@@ -452,13 +456,19 @@ function ConnectionCard({
 }
 
 function HealthStatus({ connection }: { connection: Connection }) {
+  const { t } = useI18n()
+
   if (connection.credential_status === 'expired')
     return <Status value="credential_expired" />
 
   if (connection.health_status)
     return <Status value={connection.health_status} />
 
-  return <span className="text-xs text-muted-foreground">Sin comprobar</span>
+  return (
+    <span className="text-xs text-muted-foreground">
+      {t('common.notChecked')}
+    </span>
+  )
 }
 
 function connectionType(connection: Connection) {
