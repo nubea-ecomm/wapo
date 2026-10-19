@@ -1,11 +1,17 @@
 # @nubea-ecomm/wapo-sdk
 
+[![Wapo SDK version](https://img.shields.io/npm/v/%40nubea-ecomm%2Fwapo-sdk?label=Wapo%20SDK&color=171717)](https://www.npmjs.com/package/@nubea-ecomm/wapo-sdk)
+
 Typed JavaScript and TypeScript client for the public Wapo messaging API.
 
 ## Install
 
+Choose the command for your package manager:
+
 ```bash
 npm install @nubea-ecomm/wapo-sdk
+# or: pnpm add @nubea-ecomm/wapo-sdk
+# or: yarn add @nubea-ecomm/wapo-sdk
 ```
 
 Node.js 18 or newer is required. Modern browsers with `fetch` and

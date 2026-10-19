@@ -1,4 +1,12 @@
-# Wapo
+<p align="center">
+  <img src="apps/web/public/favicon.svg" alt="Wapo logo" width="96" height="96">
+</p>
+
+<h1 align="center">Wapo</h1>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@nubea-ecomm/wapo-sdk"><img src="https://img.shields.io/npm/v/%40nubea-ecomm%2Fwapo-sdk?label=Wapo%20SDK&color=171717" alt="Wapo SDK version"></a>
+</p>
 
 Open source messaging infrastructure with a public API, customer onboarding and a
 multi-tenant management console. Go + PostgreSQL + React/Vite + TypeScript.
@@ -166,11 +174,30 @@ Apache-2.0 licensed. External providers retain their own fees and requirements.
 
 ## JavaScript and TypeScript SDK
 
-The public SDK package is `@nubea-ecomm/wapo-sdk`:
+The public SDK package is `@nubea-ecomm/wapo-sdk`. It requires Node.js 18 or
+newer, or a modern browser with `fetch` and `AbortSignal.timeout`.
+
+Install it with your preferred package manager:
 
 ```bash
 npm install @nubea-ecomm/wapo-sdk
+# or: pnpm add @nubea-ecomm/wapo-sdk
+# or: yarn add @nubea-ecomm/wapo-sdk
 ```
+
+Create a client using your Wapo API URL and a project API key:
+
+```ts
+import { WapoClient } from '@nubea-ecomm/wapo-sdk'
+
+const wapo = new WapoClient({
+  baseUrl: 'https://api.example.com',
+  apiKey: process.env.WAPO_API_KEY!,
+})
+```
+
+See the [SDK guide](packages/sdk/README.md) for usage, error handling and sending
+messages. Never expose a project or operator API key in browser code.
 
 SDK versions and changelogs are automated with Release Please. Conventional
 `fix:` commits produce patches, `feat:` commits produce minor releases, and
