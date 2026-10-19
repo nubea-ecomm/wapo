@@ -23,7 +23,7 @@ jobs:
     if: startsWith(inputs.release_tag || github.event.release.tag_name, 'sdk-v')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.release_tag || github.event.release.tag_name }}
           fetch-depth: 0
