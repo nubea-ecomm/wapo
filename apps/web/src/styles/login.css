@@ -11,12 +11,14 @@
   max-width: 380px;
 }
 .login-brand {
-  display: block;
-  text-align: center;
-  font-size: 25px;
-  font-weight: 650;
-  letter-spacing: -1px;
+  display: flex;
+  justify-content: center;
   margin-bottom: 28px;
+}
+.login-brand .wapo-logo {
+  width: 144px;
+  height: auto;
+  color: var(--foreground);
 }
 .login h1 {
   font-size: 23px;

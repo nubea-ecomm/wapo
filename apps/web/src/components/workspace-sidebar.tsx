@@ -5,7 +5,7 @@ import { useI18n } from '../app/i18n'
 import { WorkspaceNavigation } from './workspace-navigation'
 import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip'
-
+import { WapoLogo } from './wapo-logo'
 export function WorkspaceSidebar({
   onSearch,
   onNavigate,
@@ -24,9 +24,8 @@ export function WorkspaceSidebar({
     <TooltipProvider delayDuration={250}>
       <div className="sidebar-brand-row">
         <a className="brand" href="#/" aria-label="Wapo console">
-          <span className="brand-full">wapo</span>
-          <span className="brand-compact">w</span>
-          <span className="brand-tag">console</span>
+          <WapoLogo className="brand-full" />
+          <WapoLogo compact className="brand-compact" />
         </a>
         {onCollapsedChange && (
           <Tooltip>

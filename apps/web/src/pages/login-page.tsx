@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
 import { Label } from '../components/ui/label'
 import { useI18n } from '../app/i18n'
+import { WapoLogo } from '../components/wapo-logo'
 
 export function LoginPage() {
   const { connectUser } = useSession()
@@ -25,7 +26,7 @@ export function LoginPage() {
         transition={{ duration: 0.3 }}
       >
         <a className="login-brand" href="#/">
-          wapo
+          <WapoLogo />
         </a>
         <h1>{t('signIn')}</h1>
         <form
