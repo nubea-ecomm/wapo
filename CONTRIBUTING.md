@@ -19,6 +19,19 @@ Run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`,
 `make test-integration` and the relevant contract/browser checks. Use `make fmt-go`
 for Go formatting and `go vet ./...` for Go diagnostics. CI repeats these checks.
 
+## SonarCloud
+
+The `SonarCloud` workflow analyzes pushes to `main` and pull requests, including
+Go and web test coverage. To activate it, import this public repository into the
+`nubea-ecomm` organization on SonarCloud with project key `nubea-ecomm_wapo`,
+disable SonarCloud automatic analysis, and add an analysis token as the
+`SONAR_TOKEN` GitHub Actions repository secret. Until that secret exists, the
+workflow reports a warning and skips the external scan instead of failing pull
+requests.
+
+The scanner configuration lives in `sonar-project.properties`. Keep its source,
+test and coverage paths aligned when moving packages or changing test runners.
+
 Tests should cover behavior: tenant isolation, secret handling, idempotency,
 provider failure boundaries, schema compatibility and critical user actions. Avoid
 tests that merely duplicate implementation. Never call a real messaging provider
