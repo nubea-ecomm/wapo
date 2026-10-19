@@ -43,7 +43,7 @@
   gap: 10px;
   border-radius: 5px;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--foreground);
 }
 .nav-group a:hover {
@@ -99,7 +99,7 @@
   width: 100%;
   justify-content: flex-start;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--foreground);
   font-weight: 400;
 }
@@ -109,7 +109,7 @@
   border-left: 1px solid var(--border);
 }
 .nav-children a {
-  font-size: 12px;
+  font-size: 11px;
 }
 .nav-children a svg {
   width: 14px;

@@ -14,7 +14,7 @@
 }
 .panel:has(table) td {
   padding: 14px 20px;
-  font-size: 13px;
+  font-size: 12px;
 }
 .panel:has(table) td:last-child {
   text-align: right;

@@ -54,7 +54,7 @@ textarea {
   padding: 11px 12px;
   color: var(--foreground);
   width: 100%;
-  font-size: 13px;
+  font-size: 12px;
 }
 textarea {
   resize: vertical;
@@ -67,19 +67,19 @@ select {
   cursor: pointer;
 }
 h1 {
-  font-size: 26px;
-  letter-spacing: -1.1px;
+  font-size: 22px;
+  letter-spacing: -0.8px;
   margin: 9px 0 10px;
   line-height: 1.2;
   font-weight: 650;
 }
 h2 {
-  font-size: 15px;
+  font-size: 14px;
   margin: 0;
   font-weight: 650;
 }
 h3 {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 p {
@@ -98,7 +98,7 @@ pre,
   overflow-wrap: anywhere;
 }
 .muted {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted-foreground);
 }
 .hint {
