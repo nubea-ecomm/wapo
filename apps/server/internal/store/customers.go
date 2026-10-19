@@ -35,15 +35,6 @@ func (s *Store) getCustomer(ctx context.Context, project, id string) (Object, er
 }
 
 func (s *Store) putCustomer(ctx context.Context, project, id string, object Object, create bool) error {
-	name, _ := object["name"].(string)
-	externalCustomerID := nullableString(object["external_customer_id"])
-	email := nullableString(object["email"])
-
-	metadata, err := nullableJSON(object["metadata"])
-	if err != nil {
-		return err
-	}
-
 	createdAt, _ := object["created_at"].(string)
 	if createdAt == "" {
 		createdAt = time.Now().UTC().Format(time.RFC3339Nano)
@@ -62,41 +53,19 @@ func (s *Store) putCustomer(ctx context.Context, project, id string, object Obje
 		return err
 	}
 
-	tx, err := s.Pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	query := `INSERT INTO customers(project_id,id,name,external_customer_id,email,metadata,created_at)
-		VALUES($1,$2,$3,$4,$5,$6,$7)`
-	resourceQuery := "INSERT INTO resources(project_id,kind,id,data,created_at) VALUES($1,'customers',$2,$3,$4)"
+	query := "INSERT INTO resources(project_id,kind,id,data,created_at) VALUES($1,'customers',$2,$3,$4)"
 
 	if !create {
-		query += ` ON CONFLICT(project_id,id) DO UPDATE SET name=EXCLUDED.name,
-			external_customer_id=EXCLUDED.external_customer_id,email=EXCLUDED.email,metadata=EXCLUDED.metadata`
-		resourceQuery += " ON CONFLICT(project_id,kind,id) DO UPDATE SET data=EXCLUDED.data"
+		query += " ON CONFLICT(project_id,kind,id) DO UPDATE SET data=EXCLUDED.data"
 	}
 
-	if _, err = tx.Exec(ctx, query, project, id, name, externalCustomerID, email, metadata, createdTime); err != nil {
-		return err
-	}
+	_, err = s.Pool.Exec(ctx, query, project, id, data, createdTime)
 
-	if _, err = tx.Exec(ctx, resourceQuery, project, id, data, createdTime); err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return err
 }
 
 func (s *Store) deleteCustomer(ctx context.Context, project, id string) error {
-	tx, err := s.Pool.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	tag, err := tx.Exec(ctx, "DELETE FROM customers WHERE project_id=$1 AND id=$2", project, id)
+	tag, err := s.Pool.Exec(ctx, "DELETE FROM resources WHERE project_id=$1 AND kind='customers' AND id=$2", project, id)
 	if err != nil {
 		return err
 	}
@@ -105,11 +74,7 @@ func (s *Store) deleteCustomer(ctx context.Context, project, id string) error {
 		return ErrNotFound
 	}
 
-	if _, err = tx.Exec(ctx, "DELETE FROM resources WHERE project_id=$1 AND kind='customers' AND id=$2", project, id); err != nil {
-		return err
-	}
-
-	return tx.Commit(ctx)
+	return nil
 }
 
 func (s *Store) listCustomers(ctx context.Context, project string, filter map[string]string, after string, limit int) ([]Object, string, error) {
@@ -193,23 +158,6 @@ func customerObject(id, name string, externalCustomerID, email *string, metadata
 	}
 
 	return object, nil
-}
-
-func nullableString(value any) *string {
-	text, ok := value.(string)
-	if !ok || text == "" {
-		return nil
-	}
-
-	return &text
-}
-
-func nullableJSON(value any) ([]byte, error) {
-	if value == nil {
-		return nil, nil
-	}
-
-	return json.Marshal(value)
 }
 
 func encodeCustomerCursor(createdAt time.Time, id string) string {

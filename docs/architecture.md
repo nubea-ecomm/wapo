@@ -46,8 +46,9 @@ domains. Assignment labels do not create user accounts.
 PostgreSQL stores mature domains in typed relational tables and retains a
 project-scoped JSONB resource store for evolving provider-shaped records, plus
 explicit key, request-journal, event and outbox tables. Customers use the typed
-`customers` table; a transactional resource mirror is temporarily retained so an
-older application image can be rolled back safely. Database unique
+`customers` table; a transactional resource mirror and database synchronization
+trigger are temporarily retained so old and new application images can coexist
+during a rolling deployment or rollback. Database unique
 indexes enforce customer external IDs and phone bindings. WhatsApp phone IDs and
 WABA ownership are exclusive to one tenant, because Meta callback overrides are
 WABA-scoped. PostgreSQL ownership triggers permit multiple numbers under the same

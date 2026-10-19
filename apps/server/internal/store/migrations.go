@@ -117,5 +117,22 @@ func validateMigrationFiles(files []string) error {
 		}
 	}
 
+	ordered := make([]int, 0, len(versions))
+	for version := range versions {
+		ordered = append(ordered, version)
+	}
+
+	sort.Ints(ordered)
+
+	if len(ordered) == 0 || ordered[0] != 1 {
+		return fmt.Errorf("migration sequence must start at 001")
+	}
+
+	for index := 1; index < len(ordered); index++ {
+		if ordered[index] != ordered[index-1]+1 {
+			return fmt.Errorf("migration sequence jumps from %03d to %03d", ordered[index-1], ordered[index])
+		}
+	}
+
 	return nil
 }

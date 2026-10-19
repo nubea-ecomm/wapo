@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+umask 077
 
 directory=${BACKUP_DIR:-artifacts/backups}
 mkdir -p "$directory"

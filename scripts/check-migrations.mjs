@@ -43,6 +43,10 @@ export function validateMigrations(names) {
 
   const ordered = [...versions.keys()].sort((a, b) => a - b)
 
+  if (!ordered.length || ordered[0] !== 1) {
+    errors.push('migration sequence must start at 001')
+  }
+
   for (let index = 1; index < ordered.length; index += 1) {
     if (ordered[index] !== ordered[index - 1] + 1) {
       errors.push(
