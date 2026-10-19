@@ -9,7 +9,7 @@
       "include-component-in-tag": true,
       "include-v-in-tag": true,
       "changelog-path": "CHANGELOG.md",
-      "pull-request-title-pattern": "chore(sdk): release ${version}"
+      "pull-request-title-pattern": "chore${scope}: release ${component} ${version}"
     }
   }
 }
