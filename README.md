@@ -134,8 +134,11 @@ make lint-go             # Go formatting and logical whitespace checks.
 make test-go             # Unit tests; database integration tests skip without TEST_DATABASE_URL.
 make test-integration    # Requires the local Compose PostgreSQL service.
 pnpm test:contract      # Requires built wapo-api image and local Compose PostgreSQL.
-pnpm test:e2e           # Requires running API + local .env; starts Vite automatically.
+pnpm test:e2e           # Requires running API + local .env and full request logging; starts Vite automatically.
 ```
+
+Set `REQUEST_LOG_SAMPLE_RATE=1` for the end-to-end suite because its observability
+flow verifies a specific successful request record.
 
 The reproducible k6 workload mixes 80% lightweight authenticated reads with 20%
 message-history queries. Point it at a disposable project; arrival rate and duration
