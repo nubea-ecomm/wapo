@@ -1,0 +1,61 @@
+[data-slot='button'] {
+  transition:
+    background-color 150ms,
+    color 150ms,
+    border-color 150ms,
+    box-shadow 150ms,
+    transform 120ms;
+}
+[data-slot='button']:active:not(:disabled) {
+  transform: scale(0.98);
+}
+[data-slot='card'] {
+  transition:
+    border-color 180ms,
+    box-shadow 180ms;
+}
+[data-state='open'][data-slot='dialog-content'],
+[data-state='open'][data-slot='sheet-content'] {
+  animation-duration: 180ms;
+}
+[data-slot='collapsible-content'][data-state='open'] {
+  animation: section-expand 180ms ease-out;
+  overflow: hidden;
+}
+[data-slot='collapsible-content'][data-state='closed'] {
+  animation: section-collapse 140ms ease-in;
+  overflow: hidden;
+}
+@keyframes section-expand {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+@keyframes section-collapse {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-slot='button']:active:not(:disabled) {
+    transform: none;
+  }
+}

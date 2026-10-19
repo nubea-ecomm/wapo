@@ -1,0 +1,37 @@
+.workspace-nav .nav-group a {
+  position: relative;
+  isolation: isolate;
+  min-height: 36px;
+  border-radius: 6px;
+  color: var(--muted-foreground);
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+.workspace-nav .nav-group a:hover {
+  color: var(--foreground);
+}
+.workspace-nav .nav-group a.active {
+  background: transparent;
+  color: var(--foreground);
+  font-weight: 500;
+}
+.workspace-nav .nav-item-label {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.workspace-nav .nav-active-surface {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: #e9e9e9;
+  pointer-events: none;
+}
+.dark .workspace-nav .nav-active-surface {
+  background: #242424;
+}
+.workspace-nav .nav-group a.active svg {
+  stroke-width: 1.8;
+}

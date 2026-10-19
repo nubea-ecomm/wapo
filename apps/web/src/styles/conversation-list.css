@@ -1,0 +1,168 @@
+.inbox {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  height: calc(100vh - 205px);
+  min-height: 550px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--background);
+}
+.conversation-list {
+  border-right: 1px solid var(--border);
+  overflow: auto;
+}
+.inbox-tools {
+  padding: 17px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  background: var(--background);
+  z-index: 1;
+}
+.inbox-tools .search-input {
+  max-width: none;
+}
+.inbox-tools select {
+  font-size: 11px;
+  padding: 8px;
+  border: 0;
+  background: var(--muted);
+}
+.conversation-preview {
+  width: 100%;
+  background: var(--background);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  display: flex;
+  gap: 10px;
+  padding: 18px 14px;
+  color: var(--foreground);
+}
+.conversation-preview:hover {
+  background: var(--muted);
+}
+.conversation-preview.selected {
+  background: var(--muted);
+}
+.contact-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.conversation-preview > div {
+  min-width: 0;
+  flex: 1;
+}
+.conversation-preview > div > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.conversation-preview b {
+  font-size: 12px;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.conversation-preview small {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+.conversation-preview p {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 6px 0;
+}
+.conversation-preview span:not(.contact-avatar) {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.thread-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+.thread-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 25px;
+  color: var(--muted-foreground);
+}
+.thread-empty svg {
+  stroke-width: 1;
+}
+.thread-empty h2 {
+  color: var(--muted-foreground);
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.thread-empty p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.conversation-thread {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.thread-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.thread-header b {
+  font-size: 13px;
+  font-weight: 550;
+}
+.thread-header small {
+  font-size: 10px;
+  color: var(--muted-foreground);
+  margin-top: 5px;
+}
+.assignment-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 22px;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+.assignment-bar form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex: 1;
+}
+.assignment-bar input {
+  font-size: 10px;
+  border: 0;
+  padding: 6px;
+  width: 140px;
+}
+.assignment-bar button {
+  font-size: 10px;
+}

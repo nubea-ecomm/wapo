@@ -1,0 +1,118 @@
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.list-row:last-child {
+  border-bottom: 0;
+}
+.list-row b {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.list-row small {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-top: 5px;
+}
+.channel-avatar {
+  width: 37px;
+  height: 37px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+.channel-avatar.whatsapp {
+  background: #f1f7f2;
+  color: #4f7a5b;
+  border-color: #e4eee6;
+}
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+.table-scroll {
+  overflow: auto;
+  width: 100%;
+}
+table {
+  border-collapse: collapse;
+  text-align: left;
+  width: 100%;
+  font-size: 12px;
+}
+th {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 450;
+  border-bottom: 1px solid var(--border);
+  padding: 11px 13px;
+  white-space: nowrap;
+}
+td {
+  padding: 16px 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--muted-foreground);
+}
+td b {
+  font-weight: 500;
+  color: var(--foreground);
+}
+td small {
+  margin-top: 5px;
+  color: var(--muted-foreground);
+}
+td code {
+  font-size: 11px;
+}
+tr:last-child td {
+  border-bottom: 0;
+}
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 260px;
+  color: var(--muted-foreground);
+}
+.search-input input {
+  font-size: 12px;
+  padding: 8px 9px;
+}
+.secret-result {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--muted);
+  padding: 18px;
+  margin: 20px 0;
+  line-height: 1.7;
+  font-size: 12px;
+}
+.secret-result > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+.secret-result code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.secret-result > input {
+  margin: 12px 0;
+  font-size: 11px;
+}
+.secret-result b {
+  font-weight: 550;
+}

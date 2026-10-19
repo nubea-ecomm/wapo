@@ -1,0 +1,73 @@
+.panel:has(table) {
+  padding: 0;
+  overflow: hidden;
+}
+.panel:has(table) > .panel-heading {
+  padding: 16px 20px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+.panel:has(table) th {
+  background: var(--muted);
+  height: 40px;
+  padding: 10px 20px;
+}
+.panel:has(table) td {
+  padding: 14px 20px;
+  font-size: 13px;
+}
+.panel:has(table) td:last-child {
+  text-align: right;
+}
+.resource-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted-foreground);
+}
+.resource-name {
+  color: var(--foreground);
+  font-weight: 500;
+  text-align: left;
+}
+.resource-name:hover {
+  text-decoration: underline;
+}
+.search-input {
+  position: relative;
+  width: 260px;
+  max-width: 100%;
+}
+.search-input > svg {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+.search-input input {
+  padding-left: 32px;
+  background: var(--background);
+}
+@media (max-width: 600px) {
+  .panel-heading {
+    flex-wrap: wrap;
+  }
+  .panel-heading .search-input {
+    width: 100%;
+  }
+}
+.dark .notice.error {
+  background: #321e1c;
+  border-color: #63352e;
+  color: #f4b3aa;
+}
+.dark .channel-avatar.whatsapp {
+  background: #1c3023;
+  border-color: #2b4834;
+  color: #9cceaa;
+}

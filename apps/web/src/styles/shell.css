@@ -1,0 +1,123 @@
+@import './navigation.css';
+@import './resource-cards.css';
+@import './overview.css';
+.app-shell {
+  min-height: 100dvh;
+}
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 232px;
+  padding: 20px 12px 12px;
+  border-right: 1px solid var(--border);
+  background: var(--muted);
+  flex-direction: column;
+  z-index: 30;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  margin-bottom: 23px;
+  color: var(--foreground);
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+}
+.brand-tag {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  font-weight: 400;
+  letter-spacing: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.main {
+  margin-left: 232px;
+  min-width: 0;
+}
+.workspace-header {
+  height: 57px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.page-content {
+  max-width: 1440px;
+  margin: auto;
+  padding: 30px;
+}
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+.page-heading h1 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  margin: 0 0 6px;
+}
+.page-heading p {
+  margin: 0;
+}
+@media (max-width: 767px) {
+  .main {
+    margin-left: 0;
+  }
+  .workspace-header {
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .page-content {
+    padding: 24px 16px;
+  }
+  .page-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .page-heading h1 {
+    font-size: 22px;
+  }
+  .form-row {
+    flex-wrap: wrap;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .tenant-grid,
+  .connection-grid {
+    grid-template-columns: 1fr;
+  }
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .workspace-header > span:first-of-type {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .workspace-header > span {
+    flex-shrink: 0;
+  }
+  .workspace-header .account-name,
+  .workspace-header .account-trigger > svg {
+    display: none;
+  }
+  .workspace-header .account-trigger {
+    flex-shrink: 0;
+    padding: 0;
+  }
+}

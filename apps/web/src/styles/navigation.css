@@ -1,0 +1,123 @@
+.workspace-picker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  margin-bottom: 21px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.workspace-avatar,
+.account-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+.workspace-nav {
+  display: grid;
+  gap: 21px;
+}
+.nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  padding: 0 10px;
+  margin: 0 0 6px;
+}
+.nav-group {
+  display: grid;
+  gap: 2px;
+}
+.nav-group a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--foreground);
+}
+.nav-group a:hover {
+  background: var(--muted);
+}
+.nav-group a.active {
+  background: var(--muted);
+  color: var(--foreground);
+  font-weight: 500;
+}
+.sidebar-bottom {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 24px;
+}
+.account-trigger {
+  width: auto;
+  margin-left: auto;
+  max-width: 208px;
+  justify-content: flex-start;
+  font-size: 12px;
+  padding: 6px 8px;
+  height: auto;
+}
+.navigation-search-trigger {
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 0 22px;
+  background: white;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.navigation-search-trigger kbd {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-family: inherit;
+}
+.workspace-nav {
+  gap: 8px;
+  overflow-y: auto;
+}
+.workspace-nav > [data-slot='separator'] {
+  margin: 10px 0;
+}
+.nav-section-trigger {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--foreground);
+  font-weight: 400;
+}
+.nav-children {
+  margin: 4px 0 6px 17px;
+  padding-left: 9px;
+  border-left: 1px solid var(--border);
+}
+.nav-children a {
+  font-size: 12px;
+}
+.nav-children a svg {
+  width: 14px;
+}
+
+.tenant-picker-trigger {
+  width: 100%;
+  height: 44px;
+  padding: 7px 9px;
+  gap: 9px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  box-shadow: none;
+}

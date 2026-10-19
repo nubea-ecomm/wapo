@@ -1,0 +1,15 @@
+@layer theme, base, legacy, components, utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import './tokens.css' layer(base);
+@import './theme.css';
+@import './shell.css' layer(legacy);
+@import './components.css' layer(legacy);
+@import './inbox.css' layer(legacy);
+@import './login.css' layer(legacy);
+
+@import './resource-tables.css';
+
+@import './navigation-active.css';
+
+@import './motion.css';

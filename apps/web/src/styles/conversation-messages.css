@@ -1,0 +1,108 @@
+.timeline {
+  background: var(--muted);
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 25px;
+}
+.message-bubble {
+  max-width: 80%;
+  padding: 12px 15px;
+  border-radius: 11px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px #00000003;
+}
+.message-bubble.outbound {
+  align-self: flex-end;
+  background: var(--muted);
+  border-color: var(--border);
+}
+.message-bubble p {
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0 0 7px;
+}
+.message-bubble small {
+  font-size: 8px;
+  color: var(--muted-foreground);
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.load-older {
+  align-self: center;
+}
+.reply-form {
+  padding: 16px 20px;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+}
+.reply-form textarea {
+  font-size: 12px;
+  border: 1px solid var(--border);
+  min-height: 65px;
+}
+.reply-form > div:last-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 11px;
+  gap: 10px;
+}
+.reply-form small {
+  font-size: 9px;
+  color: var(--muted-foreground);
+}
+.conversation-thread > .notice {
+  margin: 10px 20px;
+}
+@media (max-width: 1100px) {
+  .inbox {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+  .thread-header {
+    padding: 14px;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 900px) {
+  .inbox {
+    grid-template-columns: 225px minmax(0, 1fr);
+  }
+  .conversation-preview {
+    padding: 14px 10px;
+  }
+  .conversation-preview small {
+    display: none;
+  }
+  .reply-form small {
+    display: none;
+  }
+}
+@media (max-width: 750px) {
+  .inbox {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .conversation-list {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    max-height: 330px;
+  }
+  .thread-panel {
+    height: 620px;
+  }
+  .thread-header {
+    flex-wrap: nowrap;
+  }
+  .message-bubble {
+    max-width: 90%;
+  }
+}

@@ -1,0 +1,93 @@
+.tenant-grid,
+.connection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 22px 0;
+}
+.tenant-card,
+.connection-card {
+  border: 1px solid var(--line);
+  background: var(--background);
+  border-radius: 8px;
+  padding: 22px;
+  min-width: 0;
+}
+.tenant-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.tenant-card h3,
+.connection-card h3 {
+  margin: 0 0 10px;
+}
+.tenant-card code,
+.connection-card code {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+.tenant-card p,
+.connection-card p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.tenant-card > .row-actions {
+  margin-top: 25px;
+}
+.connection-card dl {
+  margin: 20px 0;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 90px 1fr;
+  font-size: 11px;
+}
+.connection-card dt {
+  color: var(--muted-foreground);
+}
+.connection-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.settings-list {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  font-size: 12px;
+}
+.settings-list dt {
+  color: var(--muted-foreground);
+}
+.settings-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.settings-checklist {
+  padding-left: 17px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 2;
+}
+.code-block {
+  background: var(--muted);
+  border-radius: 7px;
+  padding: 16px;
+  font-size: 10px;
+  line-height: 1.9;
+  overflow: auto;
+}
+
+@media (max-width: 1100px) {
+  .tenant-grid,
+  .connection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .tenant-grid,
+  .connection-grid {
+    grid-template-columns: 1fr;
+  }
+}
