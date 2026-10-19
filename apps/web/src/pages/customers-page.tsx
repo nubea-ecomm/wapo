@@ -16,7 +16,7 @@ import { usePaged } from '../hooks/use-paged'
 import { LoadMore } from '../components/ui'
 import { useState } from 'react'
 import { Plus, Search, Pencil, Building2 } from 'lucide-react'
-import type { Customer } from '@wapo/sdk'
+import type { Customer } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import {

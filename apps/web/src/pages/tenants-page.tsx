@@ -2,7 +2,7 @@ import { ProjectAvatar } from '../components/project-avatar'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search } from 'lucide-react'
-import type { Page, Project } from '@wapo/sdk'
+import type { Page, Project } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
 import {

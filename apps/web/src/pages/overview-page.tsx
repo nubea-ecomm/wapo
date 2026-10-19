@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
-import type { Page, Connection, ProjectEvent } from '@wapo/sdk'
+import type { Page, Connection, ProjectEvent } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
 import {

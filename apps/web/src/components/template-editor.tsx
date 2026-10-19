@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { TemplateInput } from '@wapo/sdk'
+import type { TemplateInput } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { FormDialog } from './form-dialog'

@@ -1,5 +1,9 @@
 import { createContext, useContext } from 'react'
-import type { WapoAdminClient, WapoClient, ConsoleUser } from '@wapo/sdk'
+import type {
+  WapoAdminClient,
+  WapoClient,
+  ConsoleUser,
+} from '@nubea-ecomm/wapo-sdk'
 
 export interface Session {
   id: string

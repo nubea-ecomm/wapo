@@ -1,8 +1,27 @@
 {
-  "name": "@wapo/sdk",
+  "name": "@nubea-ecomm/wapo-sdk",
   "version": "0.1.0",
+  "description": "Typed JavaScript and TypeScript client for the Wapo messaging API",
   "type": "module",
   "license": "Apache-2.0",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nubea-ecomm/wapo.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/nubea-ecomm/wapo#readme",
+  "bugs": "https://github.com/nubea-ecomm/wapo/issues",
+  "keywords": [
+    "wapo",
+    "whatsapp",
+    "messaging",
+    "sdk",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -14,6 +33,11 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"

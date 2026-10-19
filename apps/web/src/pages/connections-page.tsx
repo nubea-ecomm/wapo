@@ -9,7 +9,7 @@ import {
   Plus,
   Search,
 } from 'lucide-react'
-import type { Connection, Customer, Page } from '@wapo/sdk'
+import type { Connection, Customer, Page } from '@nubea-ecomm/wapo-sdk'
 import { WhatsAppIcon } from '../components/icons/whatsapp-icon'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'

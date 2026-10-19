@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Project } from '@wapo/sdk'
+import type { Project } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { Input } from './ui/input'

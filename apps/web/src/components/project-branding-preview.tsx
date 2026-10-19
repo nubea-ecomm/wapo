@@ -1,4 +1,4 @@
-import type { ProjectSettings } from '@wapo/sdk'
+import type { ProjectSettings } from '@nubea-ecomm/wapo-sdk'
 import { WhatsAppIcon } from './icons/whatsapp-icon'
 
 export function ProjectBrandingPreview({

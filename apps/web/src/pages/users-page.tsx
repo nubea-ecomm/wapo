@@ -1,7 +1,7 @@
 import { UserAccessEditor } from '../components/user-access-editor'
 import { UserAvatar } from '../components/user-avatar'
 import { useState } from 'react'
-import type { ConsoleUser, Page, Project } from '@wapo/sdk'
+import type { ConsoleUser, Page, Project } from '@nubea-ecomm/wapo-sdk'
 import { Plus, Search } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'

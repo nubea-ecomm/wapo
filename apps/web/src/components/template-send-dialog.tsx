@@ -5,7 +5,7 @@ import {
   type Connection,
   type Message,
   type MessageTemplate,
-} from '@wapo/sdk'
+} from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { usePaged } from '../hooks/use-paged'

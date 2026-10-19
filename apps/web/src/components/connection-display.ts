@@ -1,4 +1,4 @@
-import type { Connection } from '@wapo/sdk'
+import type { Connection } from '@nubea-ecomm/wapo-sdk'
 import type { MessageKey } from '../app/i18n'
 
 export function connectionTypeKey(connection: Connection): MessageKey {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { LogEntry } from '@wapo/sdk'
+import type { LogEntry } from '@nubea-ecomm/wapo-sdk'
 import { Search, RefreshCw, Pause, Play, AlertTriangle } from 'lucide-react'
 import { usePaged } from '../hooks/use-paged'
 import {

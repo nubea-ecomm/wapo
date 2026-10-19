@@ -1,4 +1,4 @@
-import { WapoError } from '@wapo/sdk'
+import { WapoError } from '@nubea-ecomm/wapo-sdk'
 
 export function apiErrorCode(error: unknown) {
   if (

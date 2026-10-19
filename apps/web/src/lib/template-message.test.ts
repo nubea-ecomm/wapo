@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { MessageTemplate } from '@wapo/sdk'
+import type { MessageTemplate } from '@nubea-ecomm/wapo-sdk'
 import {
   normalizeWhatsAppRecipient,
   templateParameterFields,

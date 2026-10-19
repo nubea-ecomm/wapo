@@ -1,6 +1,6 @@
 import { UserAccessFields, type UserAccessValue } from './user-access-fields'
 import { useState } from 'react'
-import type { ConsoleUser } from '@wapo/sdk'
+import type { ConsoleUser } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { FormDialog } from './form-dialog'

@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { MessagesSquare, Plus, Search } from 'lucide-react'
-import type { Connection, Conversation, Customer, Page } from '@wapo/sdk'
+import type {
+  Connection,
+  Conversation,
+  Customer,
+  Page,
+} from '@nubea-ecomm/wapo-sdk'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { useSession } from '../app/session-context'

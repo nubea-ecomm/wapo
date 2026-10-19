@@ -12,7 +12,7 @@ import { usePaged } from '../hooks/use-paged'
 import { LoadMore } from '../components/ui'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import type { Webhook, Page } from '@wapo/sdk'
+import type { Webhook, Page } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'
 import {

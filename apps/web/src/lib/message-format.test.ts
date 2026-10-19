@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { Message } from '@wapo/sdk'
+import type { Message } from '@nubea-ecomm/wapo-sdk'
 import { messageText, dateLabel } from './message-format'
 
 const base: Message = {

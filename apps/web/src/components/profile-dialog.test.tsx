@@ -1,4 +1,4 @@
-import { WapoAdminClient, WapoClient } from '@wapo/sdk'
+import { WapoAdminClient, WapoClient } from '@nubea-ecomm/wapo-sdk'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, it, vi } from 'vitest'
