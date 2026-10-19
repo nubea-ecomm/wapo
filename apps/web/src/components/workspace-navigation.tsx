@@ -37,7 +37,7 @@ export function WorkspaceNavigation({ onNavigate }: { onNavigate: () => void }) 
       ))
   }
   return (
-    <nav className="workspace-nav" aria-label={t('navigation')}>
+    <nav className="workspace-nav" aria-label={t('primaryNavigation')}>
       <div className="nav-group">{links('main')}</div>
       <Separator />
       {navigationGroups.map((group) => (

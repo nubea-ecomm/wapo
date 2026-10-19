@@ -10,6 +10,6 @@ describe('nextAvatarVariant', () => {
     })
     const current = 0
     const next = nextAvatarVariant('user-a', current)
-    expect(avatarHash(`user-a${next}`)).not.toBe(avatarHash(`user-a${current}`))
+    expect(avatarHash(`user-a${next}`) % 6).not.toBe(avatarHash(`user-a${current}`) % 6)
   })
 })
