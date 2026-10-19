@@ -5,7 +5,7 @@ import type { ConsoleUser, Page, Project } from '@wapo/sdk'
 import { Plus, Search } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
-import { PageHeader, ErrorNotice, Empty, Loading } from '../components/ui'
+import { PageHeader, ErrorNotice, Empty, Loading, Status } from '../components/ui'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { NativeSelect } from '../components/ui/native-select'
@@ -123,17 +123,7 @@ export function UsersPage() {
                         .join(', ') || 'Sin acceso'}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={
-                      user.active
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                        : 'bg-muted/50 text-muted-foreground'
-                    }
-                  >
-                    <span className="size-1.5 rounded-full bg-current" />
-                    {user.active ? 'Activo' : 'Inactivo'}
-                  </Badge>
+                  <Status value={user.active ? 'active' : 'inactive'} />
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
                   {dateLabel(user.created_at)}

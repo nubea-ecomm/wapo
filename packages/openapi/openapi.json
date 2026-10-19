@@ -428,6 +428,48 @@
       }
     },
     "/v1/connections/{id}": {
+      "patch": {
+        "operationId": "update_connection",
+        "tags": ["Connections"],
+        "summary": "Update connection",
+        "description": "Rename a connection or rotate its Meta access token. Replacement credentials are verified against the existing phone and business account before being encrypted. Omit access_token to keep the current credential.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ConnectionUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated connection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "data": { "$ref": "#/components/schemas/Connection" } },
+                  "required": ["data"]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
+            }
+          }
+        }
+      },
       "delete": {
         "operationId": "delete_connections",
         "tags": ["Connections"],
@@ -6582,6 +6624,23 @@
           "business_account_id": "987654321098765",
           "access_token": "<meta-access-token>"
         }
+      },
+      "ConnectionUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "access_token": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Optional replacement Meta credential. Leave omitted to preserve the current encrypted token."
+          }
+        },
+        "minProperties": 1,
+        "additionalProperties": false
       },
       "Message": {
         "type": "object",

@@ -1,12 +1,22 @@
+import { useState, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import {
+  Activity,
+  FileText,
+  LayoutGrid,
+  List,
+  MessageCircle,
+  Pencil,
+  Plus,
+  Search,
+} from 'lucide-react'
+import type { Connection, Page, Customer } from '@wapo/sdk'
 import { WhatsAppIcon } from '../components/icons/whatsapp-icon'
 import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
 import { usePaged } from '../hooks/use-paged'
-import { LoadMore } from '../components/ui'
-import { useState } from 'react'
-import { MessageCircle } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import type { Connection, Page, Customer } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
+import { permissions } from '../app/permissions'
 import { useApi, useAction } from '../hooks/use-api'
 import {
   PageHeader,
@@ -15,121 +25,390 @@ import {
   Status,
   Empty,
   Loading,
-  ConfirmButton,
+  LoadMore,
 } from '../components/ui'
 import { ConnectionEditor } from '../components/connection-editor'
+import { ConnectionUpdateEditor } from '../components/connection-update-editor'
+import { ResourceActions } from '../components/resource-actions'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/table'
+
+type ViewMode = 'cards' | 'table'
+
+function savedView(): ViewMode {
+  try {
+    return localStorage.getItem('wapo.connections-view') === 'table' ? 'table' : 'cards'
+  } catch {
+    return 'cards'
+  }
+}
+
 export function ConnectionsPage() {
   const { client, session } = useSession()
+  const navigate = useNavigate()
   const [create, setCreate] = useState(false)
+  const [editing, setEditing] = useState<Connection | null>(null)
+  const [view, setView] = useState<ViewMode>(savedView)
+  const [search, setSearch] = useState('')
   const connections = usePaged<Connection>('/v1/connections')
   const customers = useApi<Page<Customer>>('/v1/customers')
   const remove = useAction((id: string) => client.deleteConnection(id))
+  const whatsapp = connections.items.filter(
+    (connection) => connection.channel === 'whatsapp',
+  )
+  const customerNames = new Map(
+    (customers.data?.data || []).map((customer) => [customer.id, customer.name]),
+  )
+  const filtered = whatsapp.filter((connection) => {
+    const customer = customerNames.get(connection.customer_id || '') || 'Proyecto'
+    return `${connection.name || ''} ${connection.display_phone_number || ''} ${connection.external_id || ''} ${connection.business_account_id || ''} ${customer}`
+      .toLowerCase()
+      .includes(search.trim().toLowerCase())
+  })
+  function selectView(next: ViewMode) {
+    setView(next)
+    try {
+      localStorage.setItem('wapo.connections-view', next)
+    } catch {
+      // The preference is optional in restricted browser contexts.
+    }
+  }
+  function actions(connection: Connection) {
+    const name = connection.name || connection.display_phone_number || 'WhatsApp'
+    return (
+      <ResourceActions
+        name={name}
+        actions={[
+          {
+            label: 'Editar conexión',
+            icon: <Pencil />,
+            onSelect: () => setEditing(connection),
+          },
+          {
+            label: 'Ver diagnóstico',
+            icon: <Activity />,
+            onSelect: () =>
+              navigate(`/connections/${encodeURIComponent(connection.id)}?tab=health`),
+          },
+          {
+            label: 'Administrar templates',
+            icon: <FileText />,
+            onSelect: () =>
+              navigate(`/connections/${encodeURIComponent(connection.id)}?tab=templates`),
+          },
+        ]}
+        destructive={{
+          label: 'Desconectar',
+          description:
+            'Se eliminarán la conexión y sus credenciales locales. El número y la cuenta no se eliminan de Meta.',
+          disabled: remove.isPending,
+          onConfirm: () => remove.mutateAsync(connection.id),
+        }}
+      />
+    )
+  }
   return (
     <>
       <PageHeader
         title="Conexiones"
-        description="Números de WhatsApp conectados."
+        description="Administrá números, credenciales y salud de WhatsApp."
         action={
-          <Button
-            variant="default"
-            size="default"
-
-            disabled={!session?.tenantId}
-            onClick={() => setCreate(true)}
-          >
-            <WhatsAppIcon size={16} /> Conectar WhatsApp
+          <Button disabled={!session?.tenantId} onClick={() => setCreate(true)}>
+            <Plus />
+            Conectar WhatsApp
           </Button>
         }
       />
-      <ErrorNotice error={connections.error || remove.error} />
-      {connections.isLoading && <Loading variant="cards" />}
-      <div className="connection-grid">
-        {connections.items
-          .filter((c) => c.channel === 'whatsapp')
-          .map((c) => (
-            <article className="connection-card" key={c.id}>
-              <div className="tenant-card-heading">
-                <span className={`channel-avatar ${c.channel}`}>
-                  <WhatsAppIcon size={23} />
-                </span>
-                <Status value={c.status} />
-              </div>
-              {(c.health_status === 'error' || c.health_status === 'warning') && (
-                <Link
-                  to={`/connections/${encodeURIComponent(c.id)}?tab=health`}
-                  className="mb-3 block rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
-                >
-                  {c.health_issues || 1}{' '}
-                  {c.health_issues === 1 ? 'problema detectado' : 'problemas detectados'}.
-                  Ver diagnóstico →
-                </Link>
-              )}
-              <h3>
-                <Link
-                  className="hover:underline"
-                  to={`/connections/${encodeURIComponent(c.id)}`}
-                >
-                  {c.name || c.display_phone_number || c.channel}
-                </Link>
-              </h3>
-              <p>{`WhatsApp / ${c.connection_type || 'Cloud API'}`}</p>
-              <dl>
-                <dt>Customer</dt>
-                <dd>
-                  {customers.data?.data.find((x) => x.id === c.customer_id)?.name ||
-                    'Proyecto'}
-                </dd>
-                {c.external_id && (
-                  <>
-                    <dt>Meta Phone ID</dt>
-                    <dd>{c.external_id}</dd>
-                  </>
-                )}
-                <dt>Conexión</dt>
-                <dd className="mono">{c.id}</dd>
-              </dl>
-              <div className="row-actions">
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/connections/${encodeURIComponent(c.id)}?tab=health`}>
-                    Diagnóstico
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/connections/${encodeURIComponent(c.id)}?tab=templates`}>
-                    Templates
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/inbox?connection=${encodeURIComponent(c.id)}`}>
-                    <MessageCircle size={13} /> Ver chats
-                  </Link>
-                </Button>
-                <ConfirmButton
-                  disabled={remove.isPending}
-                  message="¿Eliminar la conexión local? Esto no elimina el número ni la cuenta en Meta."
-                  onConfirm={() => remove.mutateAsync(c.id)}
-                >
-                  Desconectar
-                </ConfirmButton>
-              </div>
-            </article>
-          ))}
+      <ErrorNotice error={connections.error || customers.error || remove.error} />
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <span className="hidden px-2 text-xs text-muted-foreground sm:inline">
+            {whatsapp.length} {whatsapp.length === 1 ? 'conexión' : 'conexiones'}
+          </span>
+          <div className="search-input min-w-48 flex-1 sm:max-w-xs">
+            <Search className="size-4" />
+            <Input
+              aria-label="Buscar conexiones"
+              placeholder="Buscar por nombre, número o customer…"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+        </div>
+        <div
+          className="flex rounded-md border p-0.5"
+          role="group"
+          aria-label="Vista de conexiones"
+        >
+          <Button
+            type="button"
+            size="icon-sm"
+            variant={view === 'cards' ? 'secondary' : 'ghost'}
+            aria-label="Ver como cards"
+            aria-pressed={view === 'cards'}
+            onClick={() => selectView('cards')}
+          >
+            <LayoutGrid />
+          </Button>
+          <Button
+            type="button"
+            size="icon-sm"
+            variant={view === 'table' ? 'secondary' : 'ghost'}
+            aria-label="Ver como tabla"
+            aria-pressed={view === 'table'}
+            onClick={() => selectView('table')}
+          >
+            <List />
+          </Button>
+        </div>
       </div>
-      {!connections.isLoading && !connections.error && connections.items.length === 0 && (
+      {connections.isLoading && (
+        <Loading variant={view === 'cards' ? 'cards' : 'table'} />
+      )}
+      {!connections.isLoading && filtered.length > 0 && view === 'cards' && (
+        <div className="connection-grid">
+          {filtered.map((connection) => (
+            <ConnectionCard
+              key={connection.id}
+              connection={connection}
+              customer={customerNames.get(connection.customer_id || '') || 'Proyecto'}
+              canWrite={permissions(session).canWrite}
+              onEdit={() => setEditing(connection)}
+              actions={actions(connection)}
+            />
+          ))}
+        </div>
+      )}
+      {!connections.isLoading && filtered.length > 0 && view === 'table' && (
+        <Panel title="Conexiones de WhatsApp" className="resource-table">
+          <div className="table-scroll">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Conexión</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Número</TableHead>
+                  <TableHead>Salud</TableHead>
+                  <TableHead className="text-right">
+                    <span className="sr-only">Acciones</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((connection) => (
+                  <TableRow key={connection.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <span className="channel-avatar whatsapp size-9">
+                          <WhatsAppIcon size={18} />
+                        </span>
+                        <div>
+                          <Link
+                            className="resource-name"
+                            to={`/connections/${encodeURIComponent(connection.id)}`}
+                          >
+                            {connection.name ||
+                              connection.display_phone_number ||
+                              'WhatsApp'}
+                          </Link>
+                          <small>{connectionType(connection)}</small>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Status value={connection.status} />
+                        {connection.credential_status === 'expired' && (
+                          <Status value="credential_expired" />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {customerNames.get(connection.customer_id || '') || 'Proyecto'}
+                    </TableCell>
+                    <TableCell>
+                      <span className="whitespace-nowrap">
+                        {connection.display_phone_number || connection.external_id || '—'}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <HealthStatus connection={connection} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon-sm" asChild>
+                          <Link
+                            aria-label={`Ver chats de ${connection.name || 'WhatsApp'}`}
+                            to={`/inbox?connection=${encodeURIComponent(connection.id)}`}
+                          >
+                            <MessageCircle />
+                          </Link>
+                        </Button>
+                        {actions(connection)}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Panel>
+      )}
+      {!connections.isLoading && !connections.error && !filtered.length && (
         <Panel>
-          <Empty title="Sin conexiones" icon={<WhatsAppIcon size={28} />}>
-            Registrá tu número de WhatsApp o generá un enlace de conexión desde Customers.
+          <Empty
+            title={search ? 'Sin resultados' : 'Sin conexiones'}
+            icon={<WhatsAppIcon size={28} />}
+          >
+            {search
+              ? 'Probá con otro nombre, número o customer.'
+              : 'Registrá un número de WhatsApp o generá un enlace desde Customers.'}
           </Empty>
         </Panel>
       )}
       <LoadMore
         available={connections.hasNextPage}
         busy={connections.isFetchingNextPage}
-        load={() => {
-          void connections.fetchNextPage()
-        }}
+        load={() => void connections.fetchNextPage()}
       />
       {create && <ConnectionEditor onClose={() => setCreate(false)} />}
+      {editing && (
+        <ConnectionUpdateEditor connection={editing} onClose={() => setEditing(null)} />
+      )}
     </>
   )
+}
+
+function ConnectionCard({
+  connection,
+  customer,
+  canWrite,
+  onEdit,
+  actions,
+}: {
+  connection: Connection
+  customer: string
+  canWrite: boolean
+  onEdit: () => void
+  actions: ReactNode
+}) {
+  const title = connection.name || connection.display_phone_number || 'WhatsApp'
+  return (
+    <article className="connection-card">
+      <div className="connection-card-header">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="channel-avatar whatsapp size-10">
+            <WhatsAppIcon size={21} />
+          </span>
+          <div className="min-w-0">
+            <Link
+              className="block truncate text-sm font-semibold hover:underline"
+              to={`/connections/${encodeURIComponent(connection.id)}`}
+            >
+              {title}
+            </Link>
+            <p className="mt-0.5 truncate">{connectionType(connection)}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Status value={connection.status} />
+          {actions}
+        </div>
+      </div>
+      <div className="connection-card-body">
+        {connection.credential_status === 'expired' && (
+          <Link
+            className="connection-alert danger"
+            to={`/connections/${encodeURIComponent(connection.id)}?tab=health`}
+          >
+            <span>El access token venció</span>
+            <span>Renovar →</span>
+          </Link>
+        )}
+        {connection.credential_status !== 'expired' &&
+          (connection.health_status === 'error' ||
+            connection.health_status === 'warning') && (
+            <Link
+              className={`connection-alert ${connection.health_status === 'error' ? 'danger' : 'warning'}`}
+              to={`/connections/${encodeURIComponent(connection.id)}?tab=health`}
+            >
+              <span>
+                {connection.health_issues || 1}{' '}
+                {connection.health_issues === 1
+                  ? 'problema detectado'
+                  : 'problemas detectados'}
+              </span>
+              <span>Revisar →</span>
+            </Link>
+          )}
+        <div className="connection-summary">
+          <div>
+            <span>Customer</span>
+            <strong title={customer}>{customer}</strong>
+          </div>
+          <div>
+            <span>Número</span>
+            <strong>
+              {connection.display_phone_number || connection.external_id || 'Sin número'}
+            </strong>
+          </div>
+        </div>
+        <div className="connection-identifiers">
+          <div>
+            <span>Phone ID</span>
+            <code title={connection.external_id}>
+              {compactID(connection.external_id || '—')}
+            </code>
+          </div>
+          <div>
+            <span>Conexión</span>
+            <code title={connection.id}>{compactID(connection.id)}</code>
+          </div>
+        </div>
+      </div>
+      <div className="connection-card-footer">
+        <Button variant="outline" size="sm" asChild>
+          <Link to={`/connections/${encodeURIComponent(connection.id)}`}>
+            Ver detalle
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link to={`/inbox?connection=${encodeURIComponent(connection.id)}`}>
+            <MessageCircle />
+            Chats
+          </Link>
+        </Button>
+        {canWrite && (
+          <Button variant="outline" size="sm" onClick={onEdit}>
+            <Pencil />
+            Editar
+          </Button>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function HealthStatus({ connection }: { connection: Connection }) {
+  if (connection.credential_status === 'expired')
+    return <Status value="credential_expired" />
+  if (connection.health_status) return <Status value={connection.health_status} />
+  return <span className="text-xs text-muted-foreground">Sin comprobar</span>
+}
+
+function connectionType(connection: Connection) {
+  return connection.connection_type === 'coexistence'
+    ? 'WhatsApp Business + API'
+    : 'Cloud API dedicada'
+}
+
+function compactID(id: string) {
+  return id.length > 20 ? `${id.slice(0, 10)}…${id.slice(-6)}` : id
 }

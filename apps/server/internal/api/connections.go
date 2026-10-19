@@ -19,6 +19,10 @@ func (s *Server) connections(w http.ResponseWriter, r *http.Request, id string) 
 		s.getOnly(w, r, "connections", id)
 		return
 	}
+	if r.Method == "PATCH" && id != "" {
+		s.updateConnection(w, r, id)
+		return
+	}
 	if r.Method == "DELETE" && id != "" {
 		if e := s.Store.Delete(r.Context(), p, "connections", id); e != nil {
 			dbError(w, e)

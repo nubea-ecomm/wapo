@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { SetupLink } from '@wapo/sdk'
-import { ConfirmButton } from './ui'
-import { Badge } from './ui/badge'
+import { ConfirmButton, Status } from './ui'
 import { dateLabel } from '../lib/message-format'
 export function SetupLinkHistory({
   links,
@@ -27,14 +26,14 @@ export function SetupLinkHistory({
           </summary>
           {links.map((item) => {
             const active = item.status === 'active' && Date.parse(item.expires_at) > now
-            const label =
+            const visibleStatus =
               item.status === 'completed' || item.status === 'used'
-                ? 'Completado'
+                ? 'completed'
                 : item.status === 'revoked'
-                  ? 'Revocado'
+                  ? 'revoked'
                   : active
-                    ? 'Activo'
-                    : 'Vencido'
+                    ? 'active'
+                    : 'expired'
             return (
               <div
                 className="flex items-center gap-3 border-b py-3 last:border-0"
@@ -52,7 +51,7 @@ export function SetupLinkHistory({
                     Vence {dateLabel(item.expires_at)}
                   </p>
                 </div>
-                <Badge variant="outline">{label}</Badge>
+                <Status value={visibleStatus} />
                 {active && (
                   <ConfirmButton
                     message="¿Revocar este enlace de conexión?"

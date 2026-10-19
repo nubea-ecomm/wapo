@@ -5,7 +5,7 @@ import { Plus, Search } from 'lucide-react'
 import type { Page, Project } from '@wapo/sdk'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
-import { PageHeader, ErrorNotice, Empty, Loading } from '../components/ui'
+import { PageHeader, ErrorNotice, Empty, Loading, Status } from '../components/ui'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
@@ -124,17 +124,7 @@ export function TenantsPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={
-                      tenant.status === 'active'
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                        : 'bg-muted/50 text-muted-foreground'
-                    }
-                  >
-                    <span className="size-1.5 rounded-full bg-current" />
-                    {tenant.status === 'active' ? 'Activo' : 'Suspendido'}
-                  </Badge>
+                  <Status value={tenant.status} />
                 </TableCell>
                 <TableCell className="tabular-nums text-muted-foreground">
                   {tenant.active_keys ?? 0}

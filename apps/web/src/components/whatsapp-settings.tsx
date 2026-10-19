@@ -6,9 +6,8 @@ import type { WhatsAppSettings as Settings } from '@wapo/sdk'
 import { Link } from 'react-router-dom'
 import { useSession } from '../app/session-context'
 import { useApi } from '../hooks/use-api'
-import { Panel, ErrorNotice, Loading } from './ui'
+import { Panel, ErrorNotice, Loading, Status } from './ui'
 import { Button } from './ui/button'
-import { Badge } from './ui/badge'
 import { CopyCode } from './copy-code'
 const credentials = [
   {
@@ -87,22 +86,18 @@ WEB_ORIGIN=${window.location.origin}`
         podrá autorizar su número desde un enlace.
       </p>
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <Badge
-          variant="outline"
-          className={
-            ready
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'bg-muted text-muted-foreground'
+        <Status
+          value={ready === undefined ? 'unknown' : ready ? 'configured' : 'warning'}
+          label={
+            ready === undefined
+              ? 'Comprobando credenciales…'
+              : ready
+                ? 'Credenciales configuradas'
+                : 'Faltan credenciales'
           }
-        >
-          {ready === undefined
-            ? 'Comprobando credenciales…'
-            : ready
-              ? 'Credenciales configuradas'
-              : 'Faltan credenciales'}
-        </Badge>
+        />
         {config && !config.public_https && (
-          <Badge variant="outline">Falta una URL pública HTTPS para Meta</Badge>
+          <Status value="warning" label="Falta una URL pública HTTPS para Meta" />
         )}
         <span className="text-xs text-muted-foreground">
           Los valores secretos no se muestran en la consola.
@@ -150,13 +145,15 @@ WEB_ORIGIN=${window.location.origin}`
                     {item.source}
                   </p>
                 </div>
-                <Badge variant="outline" className="h-fit w-fit">
-                  {!config
-                    ? 'Sin comprobar'
-                    : config.credentials[item.name]
-                      ? 'Configurado'
-                      : 'Pendiente'}
-                </Badge>
+                <Status
+                  value={
+                    !config
+                      ? 'unknown'
+                      : config.credentials[item.name]
+                        ? 'configured'
+                        : 'pending'
+                  }
+                />
               </div>
             ))}
           </div>
