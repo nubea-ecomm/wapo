@@ -69,6 +69,46 @@ export interface BusinessProfileInput extends Omit<
   profile_picture_handle?: string
 }
 
+export type ContactProperty = string | number | boolean | null
+
+export interface MarketingPreference {
+  status: 'stopped' | 'resumed'
+  marketing_allowed: boolean
+  detail: string
+  source: '' | 'meta_webhook' | 'meta_delivery_error' | 'meta_synchronous_error'
+  sequence: number
+  last_event_at?: string
+}
+
+export interface Contact {
+  id: string
+  connection_id: string
+  customer_id?: string
+  wa_id: string
+  phone_number: string
+  business_scoped_user_id?: string
+  parent_business_scoped_user_id?: string
+  username?: string
+  profile_name?: string
+  display_name: string
+  display_name_source: 'local' | 'meta' | 'username' | 'phone'
+  email?: string
+  properties: Record<string, ContactProperty>
+  phone_number_id: string
+  connection_name?: string
+  marketing_preference: MarketingPreference
+  created_at: string
+  updated_at: string
+}
+
+export interface ContactInput {
+  connection_id: string
+  phone_number: string
+  display_name: string
+  email?: string
+  properties?: Record<string, ContactProperty>
+}
+
 export interface Message {
   id: string
   connection_id: string

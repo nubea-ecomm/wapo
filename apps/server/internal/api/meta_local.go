@@ -83,6 +83,13 @@ func (s *Server) localMetaData(w http.ResponseWriter, r *http.Request, c store.O
 			return true
 		}
 
+		if edge == "conversations" {
+			if e = s.enrichConversationContacts(r.Context(), project(r), []store.Object{record}); e != nil {
+				dbError(w, e)
+				return true
+			}
+		}
+
 		if edge == "messages" {
 			record = s.compatibilityMessage(record)
 		} else if edge == "conversations" {
@@ -98,6 +105,13 @@ func (s *Server) localMetaData(w http.ResponseWriter, r *http.Request, c store.O
 	if e != nil {
 		dbError(w, e)
 		return true
+	}
+
+	if edge == "conversations" {
+		if e = s.enrichConversationContacts(r.Context(), project(r), rows); e != nil {
+			dbError(w, e)
+			return true
+		}
 	}
 
 	for i, record := range rows {

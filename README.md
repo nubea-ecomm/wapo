@@ -56,8 +56,8 @@ provider webhooks to preserve incoming data.
 
 ## Included
 
-- Ten console screens: overview, tenants, users, customers, chats, channels, API
-  keys, webhooks, activity and configuration.
+- Eleven console screens: overview, tenants, users, customers, contacts, chats,
+  channels, API keys, webhooks, activity and configuration.
 - Administrator email/password login, bcrypt password hashes, revocable sessions,
   SMTP member invitations, account activation/deactivation and password reset from
   the console.
@@ -69,6 +69,8 @@ provider webhooks to preserve incoming data.
   profile for About, description, address, email, category and websites.
 - Persistent conversations, contact identity per channel, assignment labels,
   close/reopen, replies, history and five-second console polling.
+- Typed WhatsApp contacts, custom properties, provider-synchronized marketing
+  preferences, pre-send suppression and permanent local erasure.
 - Native `/v1`, operator `/admin/v1`, compatibility `/platform/v1` and
   `/meta/whatsapp` APIs, project isolation, request IDs and idempotency journals.
 - Durable signed webhook outbox, retries, failed-delivery inspection and manual retry.
@@ -173,7 +175,7 @@ PostgreSQL only on 127.0.0.1:54329 and preserves it in a named volume. `make dow
 stops services without deleting data. Migrations are numbered, transactional,
 checksum-checked and applied once. Do not edit an applied migration.
 
-[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Email notifications](docs/email-notifications.md) / [WhatsApp Business profile](docs/whatsapp-business-profile.md) / [Contributing](CONTRIBUTING.md)
+[Architecture and limitations](docs/architecture.md) / [Operations](docs/operations.md) / [Email notifications](docs/email-notifications.md) / [WhatsApp Business profile](docs/whatsapp-business-profile.md) / [Contacts and consent](docs/contacts-and-consent.md) / [Contributing](CONTRIBUTING.md)
 
 Apache-2.0 licensed. External providers retain their own fees and requirements.
 

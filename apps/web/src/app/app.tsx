@@ -30,6 +30,9 @@ const TenantsPage = lazy(() =>
 const CustomersPage = lazy(() =>
   import('../pages/customers-page').then((m) => ({ default: m.CustomersPage })),
 )
+const ContactsPage = lazy(() =>
+  import('../pages/contacts-page').then((m) => ({ default: m.ContactsPage })),
+)
 const ConnectionsPage = lazy(() =>
   import('../pages/connections-page').then((m) => ({
     default: m.ConnectionsPage,
@@ -94,6 +97,10 @@ export function App() {
             <Route
               path="customers"
               element={<CustomersPage />}
+            />
+            <Route
+              path="contacts"
+              element={<ContactsPage />}
             />
             <Route
               path="connections"

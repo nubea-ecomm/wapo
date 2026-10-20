@@ -23,7 +23,7 @@ func TestPublicResourcesNeverExposeSecrets(t *testing.T) {
 }
 
 func TestWebhookEventAllowlistAndPhoneIDs(t *testing.T) {
-	for _, event := range []string{"whatsapp.message.received", "whatsapp.phone_number.created", "whatsapp.history.received", "message.sent", "*"} {
+	for _, event := range []string{"whatsapp.message.received", "whatsapp.phone_number.created", "whatsapp.history.received", "whatsapp.contact.marketing_preference_changed", "message.sent", "*"} {
 		if !validEvent(event) {
 			t.Errorf("valid event rejected: %s", event)
 		}

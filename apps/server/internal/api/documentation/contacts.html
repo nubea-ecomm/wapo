@@ -1,0 +1,41 @@
+{{define "contacts"}}
+<section id="contacts">
+  <span class="section-number">03 / Contacts</span>
+  <h2>Contacts and marketing consent</h2>
+  <p>
+    Wapo creates a typed contact for every person and WhatsApp connection. Use
+    <strong>Console → Contacts</strong> to search, edit local display data,
+    filter marketing status or permanently erase a contact.
+  </p>
+  <p>
+    Marketing consent is read-only and scoped to one business number. A missing
+    preference means marketing is allowed. Meta
+    <code>user_preferences</code> webhooks and error <code>131050</code> can
+    stop marketing; a later provider resume restores it.
+  </p>
+  <div class="callout">
+    <strong>Suppression happens before Meta.</strong> Known MARKETING templates
+    for a stopped contact return <code>422 marketing_preference_stopped</code>.
+    Utility, authentication and in-window free-form messages remain available.
+  </div>
+  <div class="code-block">
+    <div class="code-heading">
+      <span>Find stopped contacts</span
+      ><button
+        type="button"
+        data-copy
+      >
+        Copy
+      </button>
+    </div>
+    <pre><code>curl "$WAPO_URL/v1/contacts?marketing_status=stopped" \
+  -H "X-API-Key: $WAPO_API_KEY"</code></pre>
+  </div>
+  <p>
+    Real transitions emit
+    <code>whatsapp.contact.marketing_preference_changed</code>. Permanent
+    erasure removes related local data in one transaction, but cannot recall
+    webhooks already delivered to external systems.
+  </p>
+</section>
+{{end}}

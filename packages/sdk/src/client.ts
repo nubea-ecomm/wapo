@@ -8,6 +8,8 @@ import type {
   Connection,
   BusinessProfile,
   BusinessProfileInput,
+  Contact,
+  ContactInput,
   Conversation,
   Customer,
   CustomerInput,
@@ -123,6 +125,53 @@ export class WapoClient extends Transport {
       `/v1/connections/${encode(connectionId)}/business-profile`,
       input,
     )
+  }
+  listContacts(
+    options: {
+      after?: string
+      search?: string
+      connection_id?: string
+      marketing_status?: 'stopped' | 'resumed'
+    } = {},
+  ) {
+    const query = new URLSearchParams()
+
+    if (options.after) query.set('after', options.after)
+
+    if (options.search) query.set('search', options.search)
+
+    if (options.connection_id) query.set('connection_id', options.connection_id)
+
+    if (options.marketing_status)
+      query.set('marketing_status', options.marketing_status)
+
+    return this.request<Page<Contact>>(
+      'GET',
+      `/v1/contacts${query.size ? `?${query.toString()}` : ''}`,
+    )
+  }
+  contact(id: string) {
+    return this.request<{ data: Contact }>('GET', `/v1/contacts/${encode(id)}`)
+  }
+  createContact(input: ContactInput) {
+    return this.request<{ data: Contact }>('POST', '/v1/contacts', input)
+  }
+  updateContact(
+    id: string,
+    input: Partial<
+      Pick<ContactInput, 'display_name' | 'email' | 'properties'>
+    > & {
+      use_provider_name?: true
+    },
+  ) {
+    return this.request<{ data: Contact }>(
+      'PATCH',
+      `/v1/contacts/${encode(id)}`,
+      input,
+    )
+  }
+  eraseContact(id: string) {
+    return this.request('DELETE', `/v1/contacts/${encode(id)}`)
   }
   listMessages(connectionId?: string) {
     return this.request<Page<Message>>(

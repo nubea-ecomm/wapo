@@ -52,7 +52,7 @@ implemented. Language selection is validated/stored; hosted copy is Spanish.
 
 ## Remaining platform services
 
-Broadcasts/scheduling, contact management and marketing preference synchronization,
+Broadcasts/scheduling, full platform contact-route parity,
 conversation assignments, display name request tracking, resumable media ingest,
 embeddable inbox tokens, hosted dynamic Flow endpoints, funding, notifications,
 findings, workflow execution, function deployment and agent runs remain pending.
@@ -64,37 +64,10 @@ member invitation endpoints are native operational features; they do not impleme
 the reference platform's pending notification service or alter its compatibility
 inventory.
 
-## Product gap priorities
-
-Route compatibility is not product parity. Comparing the current standalone build
-with Kapso's public platform and API documentation on 2026-10-19 leaves these major
-capability groups, roughly in recommended implementation order:
-
-1. **Broadcasts and scheduling:** durable draft/scheduled/sending lifecycle,
-   recipient imports, per-recipient status and pacing, plus marketing suppression.
-2. **Team inbox:** real user assignments instead of labels, WebSocket updates,
-   richer contact sidebar/filtering, browser notifications and restricted embedded
-   or standalone inbox access.
-3. **Contacts and consent:** first-class contacts, custom properties, erasure and
-   per-number marketing preference synchronization.
-4. **Automation:** workflow definitions and executions, triggers, waits, branching,
-   human handoff, callable functions and AI-agent/tool traces.
-5. **Managed platform infrastructure:** pre-verified or locally provisioned phone
-   numbers, inventory, Meta funding/usage, billing and business-verification
-   document submission. These require external provider and commercial operations,
-   not only API code.
-6. **Advanced WhatsApp management:** display-name request lifecycle, resumable
-   profile-picture upload, full Flows authoring/data endpoints, calling media,
-   recordings/transcripts and business username UI.
-7. **Platform intelligence and operations:** project event definitions, richer log
-   search/catalogs, webhook buffering/ordering/automatic pause, configurable email
-   and Slack routing, findings and investigations.
-
-Wapo already has customer onboarding, project isolation, native messaging,
-templates, persisted conversations, signed webhook delivery, health checks, a
-shared inbox, business-profile editing and basic project email notifications. Some
-advanced Meta-shaped routes are relayed by the compatibility API but still lack a
-standalone domain model, management UI or durable workflow around them.
+Wapo has native typed contacts with custom properties, erasure and per-number
+marketing preference synchronization. Graph-shaped contact reads use the same local
+identity, while the full reference Platform contact route family remains a separate
+compatibility gap.
 
 ## Verification
 

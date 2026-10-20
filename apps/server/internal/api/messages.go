@@ -102,6 +102,31 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 		return
 	}
 
+	marketing := false
+
+	if typ == "whatsapp" {
+		var marketingErr error
+
+		marketing, marketingErr = s.marketingSend(r.Context(), p, c, payload, r.URL.Path)
+		if marketingErr != nil {
+			dbError(w, marketingErr)
+			return
+		}
+
+		if marketing {
+			allowed, preferenceErr := s.Store.MarketingAllowed(r.Context(), p, str(c, "id"), str(payload, "to"))
+			if preferenceErr != nil {
+				dbError(w, preferenceErr)
+				return
+			}
+
+			if !allowed {
+				fail(w, 422, "marketing_preference_stopped", "Contact stopped marketing messages on this WhatsApp number")
+				return
+			}
+		}
+	}
+
 	if str(payload, "type") == "text" && str(object(payload, "text"), "body") == "" {
 		fail(w, 422, "validation_error", "text.body is required")
 		return
@@ -175,6 +200,26 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 					rawJSON(w, 409, response)
 
 					return
+				}
+
+				if stopped, detail := providerResponseHasError(provider, 131050); stopped {
+					sourceKey := "marketing-preference:synchronous:" + key
+					if preferenceErr := s.recordMarketingPreference(ctx, p, c, str(payload, "to"), "", "stopped", detail, "meta_synchronous_error", sourceKey, time.Now().UTC()); preferenceErr != nil {
+						dbError(w, preferenceErr)
+						return
+					}
+
+					if !compat {
+						response := []byte(`{"error":{"code":"marketing_preference_stopped","message":"Contact stopped marketing messages on this WhatsApp number"}}`)
+						if err := s.Store.Complete(ctx, p, key, 422, response); err != nil {
+							dbError(w, err)
+							return
+						}
+
+						rawJSON(w, 422, response)
+
+						return
+					}
 				}
 
 				if err := s.Store.Complete(ctx, p, key, pe.Status, pe.Body); err != nil {

@@ -53,10 +53,29 @@ func SaveMessage(ctx context.Context, tx pgx.Tx, p string, msg Object) error {
 		_ = tx.QueryRow(ctx, "SELECT coalesce(data->>'customer_id','') FROM resources WHERE project_id=$1 AND kind='connections' AND id=$2", p, connection).Scan(&customer)
 	}
 
-	contactRecord := Object{"id": ConversationID(connection, contact), "wa_id": contact, "phone_number": contact, "connection_id": connection, "profile_name": msg["contact_name"], "display_name": msg["contact_name"], "updated_at": time.Now().UTC().Format(time.RFC3339Nano)}
+	profileName, _ := msg["contact_name"].(string)
+	payload, _ := msg["payload"].(map[string]any)
+	displayName := profileName
+
+	if displayName == "" {
+		displayName, _ = payload["username"].(string)
+	}
+
+	if displayName == "" {
+		displayName = contact
+	}
+
+	contactRecord := Object{"id": ConversationID(connection, contact), "wa_id": contact, "phone_number": contact, "connection_id": connection, "profile_name": profileName, "display_name": displayName, "display_name_custom": false, "business_scoped_user_id": payload["from_user_id"], "parent_business_scoped_user_id": payload["from_parent_user_id"], "username": payload["username"], "properties": Object{}, "updated_at": time.Now().UTC().Format(time.RFC3339Nano)}
 	contactJSON, _ := json.Marshal(contactRecord)
 
-	if _, e := tx.Exec(ctx, `INSERT INTO resources(project_id,kind,id,data) VALUES($1,'contacts',$2,$3) ON CONFLICT(project_id,kind,id) DO UPDATE SET data=resources.data||jsonb_build_object('profile_name',COALESCE(NULLIF(EXCLUDED.data->'profile_name','null'::jsonb),resources.data->'profile_name'),'updated_at',EXCLUDED.data->'updated_at')`, p, ConversationID(connection, contact), contactJSON); e != nil {
+	if _, e := tx.Exec(ctx, `INSERT INTO resources(project_id,kind,id,data) VALUES($1,'contacts',$2,$3) ON CONFLICT(project_id,kind,id) DO UPDATE SET data=resources.data
+		||jsonb_build_object('profile_name',COALESCE(NULLIF(EXCLUDED.data->>'profile_name',''),resources.data->>'profile_name',''),'updated_at',EXCLUDED.data->'updated_at')
+		||CASE WHEN coalesce((resources.data->>'display_name_custom')::boolean,false) THEN '{}'::jsonb
+			WHEN coalesce(EXCLUDED.data->>'profile_name','')<>'' OR coalesce(EXCLUDED.data->>'username','')<>'' THEN jsonb_build_object('display_name',EXCLUDED.data->'display_name','display_name_custom',false)
+			ELSE '{}'::jsonb END
+		||CASE WHEN coalesce(EXCLUDED.data->>'business_scoped_user_id','')<>'' THEN jsonb_build_object('business_scoped_user_id',EXCLUDED.data->'business_scoped_user_id') ELSE '{}'::jsonb END
+		||CASE WHEN coalesce(EXCLUDED.data->>'parent_business_scoped_user_id','')<>'' THEN jsonb_build_object('parent_business_scoped_user_id',EXCLUDED.data->'parent_business_scoped_user_id') ELSE '{}'::jsonb END
+		||CASE WHEN coalesce(EXCLUDED.data->>'username','')<>'' THEN jsonb_build_object('username',EXCLUDED.data->'username') ELSE '{}'::jsonb END`, p, ConversationID(connection, contact), contactJSON); e != nil {
 		return e
 	}
 
