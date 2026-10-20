@@ -10,7 +10,6 @@ CREATE TABLE contacts (
  username text NOT NULL DEFAULT '',
  profile_name text NOT NULL DEFAULT '',
  display_name text NOT NULL DEFAULT '',
- display_name_custom boolean NOT NULL DEFAULT false,
  email text NOT NULL DEFAULT '',
  properties jsonb NOT NULL DEFAULT '{}',
  created_at timestamptz NOT NULL DEFAULT now(),
@@ -23,12 +22,11 @@ CREATE INDEX contacts_updated_lookup ON contacts(project_id,updated_at DESC,id D
 CREATE INDEX contacts_connection_lookup ON contacts(project_id,connection_id,updated_at DESC);
 CREATE INDEX contacts_phone_lookup ON contacts(project_id,phone_number);
 
-INSERT INTO contacts(project_id,id,connection_id,customer_id,wa_id,phone_number,business_scoped_user_id,parent_business_scoped_user_id,username,profile_name,display_name,display_name_custom,email,properties,created_at,updated_at)
+INSERT INTO contacts(project_id,id,connection_id,customer_id,wa_id,phone_number,business_scoped_user_id,parent_business_scoped_user_id,username,profile_name,display_name,email,properties,created_at,updated_at)
 SELECT contact.project_id,contact.id,contact.data->>'connection_id',coalesce(connection.data->>'customer_id',''),
  contact.data->>'wa_id',coalesce(nullif(contact.data->>'phone_number',''),contact.data->>'wa_id'),
  coalesce(contact.data->>'business_scoped_user_id',''),coalesce(contact.data->>'parent_business_scoped_user_id',''),coalesce(contact.data->>'username',''),
- coalesce(contact.data->>'profile_name',''),coalesce(nullif(contact.data->>'display_name',''),nullif(contact.data->>'profile_name',''),contact.data->>'username',contact.data->>'wa_id'),
- coalesce((contact.data->>'display_name_custom')::boolean,coalesce(contact.data->>'display_name','')<>'' AND contact.data->>'display_name'<>coalesce(contact.data->>'profile_name','')),
+ coalesce(contact.data->>'profile_name',''),coalesce(nullif(contact.data->>'display_name',''),contact.data->>'profile_name',''),
  coalesce(contact.data->>'email',''),coalesce(contact.data->'properties',contact.data->'metadata','{}'::jsonb),
  contact.created_at,coalesce(nullif(contact.data->>'updated_at','')::timestamptz,contact.created_at)
 FROM resources contact
@@ -74,18 +72,18 @@ BEGIN
  IF NEW.kind='contacts' AND coalesce(NEW.data->>'connection_id','')<>'' AND coalesce(NEW.data->>'wa_id','')<>'' THEN
   SELECT coalesce(data->>'customer_id','') INTO linked_customer
   FROM resources WHERE project_id=NEW.project_id AND kind='connections' AND id=NEW.data->>'connection_id';
-  INSERT INTO contacts(project_id,id,connection_id,customer_id,wa_id,phone_number,business_scoped_user_id,parent_business_scoped_user_id,username,profile_name,display_name,display_name_custom,email,properties,created_at,updated_at)
+  INSERT INTO contacts(project_id,id,connection_id,customer_id,wa_id,phone_number,business_scoped_user_id,parent_business_scoped_user_id,username,profile_name,display_name,email,properties,created_at,updated_at)
   VALUES(NEW.project_id,NEW.id,NEW.data->>'connection_id',coalesce(nullif(NEW.data->>'customer_id',''),linked_customer,''),
    NEW.data->>'wa_id',coalesce(nullif(NEW.data->>'phone_number',''),NEW.data->>'wa_id'),coalesce(NEW.data->>'business_scoped_user_id',''),
    coalesce(NEW.data->>'parent_business_scoped_user_id',''),coalesce(NEW.data->>'username',''),coalesce(NEW.data->>'profile_name',''),
-   coalesce(nullif(NEW.data->>'display_name',''),nullif(NEW.data->>'profile_name',''),NEW.data->>'username',NEW.data->>'wa_id'),coalesce((NEW.data->>'display_name_custom')::boolean,false),coalesce(NEW.data->>'email',''),
+   coalesce(nullif(NEW.data->>'display_name',''),NEW.data->>'profile_name',''),coalesce(NEW.data->>'email',''),
    coalesce(NEW.data->'properties',NEW.data->'metadata','{}'::jsonb),NEW.created_at,
    coalesce(nullif(NEW.data->>'updated_at','')::timestamptz,now()))
   ON CONFLICT(project_id,id) DO UPDATE SET
    connection_id=EXCLUDED.connection_id,customer_id=EXCLUDED.customer_id,wa_id=EXCLUDED.wa_id,
    phone_number=EXCLUDED.phone_number,business_scoped_user_id=EXCLUDED.business_scoped_user_id,
    parent_business_scoped_user_id=EXCLUDED.parent_business_scoped_user_id,username=EXCLUDED.username,
-   profile_name=EXCLUDED.profile_name,display_name=EXCLUDED.display_name,display_name_custom=EXCLUDED.display_name_custom,
+   profile_name=EXCLUDED.profile_name,display_name=EXCLUDED.display_name,
    email=EXCLUDED.email,properties=EXCLUDED.properties,updated_at=EXCLUDED.updated_at;
  END IF;
  RETURN NEW;
