@@ -32,6 +32,8 @@ React dashboard / public clients / TypeScript SDK
 - Setup link: customer-scoped, expiring, revocable onboarding capability.
 - Connection: a customer's channel account; many connections per customer.
   WhatsApp bindings carry phone ID, WABA ID and dedicated/coexistence type.
+- Contact: an end user scoped to one connection, with provider identity, local
+  properties and a provider-controlled marketing preference.
 - Message: channel-neutral record plus original provider payload.
 - Event: append-only source event, deduplicated by project/source key.
 - Subscription/delivery: project or connection webhooks and durable retries.
@@ -46,18 +48,16 @@ domains. Assignment labels do not create user accounts.
 
 PostgreSQL stores mature domains in typed relational tables and retains a
 project-scoped JSONB resource store for evolving provider-shaped records, plus
-explicit key, request-journal, event and outbox tables. Customers use the typed
-`customers` table; a transactional resource mirror and database synchronization
-trigger are temporarily retained so old and new application images can coexist
-during a rolling deployment or rollback. Database unique
+explicit key, request-journal, event and outbox tables. Customers and contacts use
+typed tables; transactional resource mirrors and database synchronization triggers
+are temporarily retained so old and new application images can coexist during a
+rolling deployment or rollback. Database unique
 indexes enforce customer external IDs and phone bindings. WhatsApp phone IDs and
 WABA ownership are exclusive to one tenant, because Meta callback overrides are
 WABA-scoped. PostgreSQL ownership triggers permit multiple numbers under the same
-WABA only within its owning tenant. This keeps the initial
-surface small; relational foreign keys for customer/connection lifecycle and
-specialized contact/conversation tables should replace generic resource storage
-as those domains mature. Customer deletion currently requires deleting connections
-first; webhook deliveries whose subscription disappears are cancelled.
+WABA only within its owning tenant. Conversation and message resources remain JSONB
+while those domains mature. Customer deletion currently requires deleting
+connections first; webhook deliveries whose subscription disappears are cancelled.
 
 API keys are stored as SHA-256 hashes of high-entropy secrets. Meta tokens, webhook
 secrets and dedicated registration PINs use AES-256-GCM, with project ID as
@@ -195,3 +195,17 @@ validate and relay reads/updates to Meta without creating a stale local profile
 copy. The console edits text, contact, category and website fields and displays the
 current image. Creating a new profile-picture handle through Meta resumable upload
 is not implemented.
+
+Contacts are typed PostgreSQL records scoped to one project and one WhatsApp
+connection. Generic contact resources remain as a rolling-deployment mirror.
+Marketing preference is provider-controlled and stored per contact/number; no row
+means allowed. Meta preference webhooks and error 131050 update state and emit a
+signed transition event. Known marketing templates are suppressed before provider
+egress when the preference is stopped. Contact erasure removes related local
+messages, calls, media references, conversation, preference and known events
+transactionally.
+
+Conversation reads resolve the current typed contact instead of relying on the
+historical name snapshot. Effective-name precedence is local customization, Meta
+profile name, WhatsApp username, then phone number. Provider updates continue to
+refresh the name only until an operator customizes it.

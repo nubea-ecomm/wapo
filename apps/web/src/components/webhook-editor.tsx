@@ -24,6 +24,7 @@ const availableEvents = [
   'whatsapp.phone_number.deleted',
   'whatsapp.history.received',
   'whatsapp.contacts.received',
+  'whatsapp.contact.marketing_preference_changed',
   'whatsapp.account.updated',
 ]
 

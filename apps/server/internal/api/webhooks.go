@@ -133,7 +133,7 @@ func validEvent(v string) bool {
 		}
 	}
 
-	if v == "whatsapp.phone_number.created" || v == "whatsapp.phone_number.deleted" || v == "whatsapp.history.received" || v == "whatsapp.contacts.received" || v == "whatsapp.account.updated" {
+	if v == "whatsapp.phone_number.created" || v == "whatsapp.phone_number.deleted" || v == "whatsapp.history.received" || v == "whatsapp.contacts.received" || v == "whatsapp.contact.marketing_preference_changed" || v == "whatsapp.account.updated" {
 		return true
 	}
 

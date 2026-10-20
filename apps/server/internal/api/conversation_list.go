@@ -27,6 +27,11 @@ func (s *Server) listConversations(w http.ResponseWriter, r *http.Request) {
 
 	connections := map[string]store.Object{}
 
+	if err = s.enrichConversationContacts(r.Context(), project(r), rows); err != nil {
+		dbError(w, err)
+		return
+	}
+
 	for _, conversation := range rows {
 		message := object(conversation, "last_message")
 		if str(message, "display_text") != "" || str(object(message, "payload"), "type") != "template" {

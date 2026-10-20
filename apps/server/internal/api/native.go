@@ -33,6 +33,17 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if kind == "contacts" && len(parts) <= 2 {
+		id := ""
+		if len(parts) == 2 {
+			id = parts[1]
+		}
+
+		s.contacts(w, r, id)
+
+		return
+	}
+
 	id := ""
 	if len(parts) > 1 {
 		id = parts[1]

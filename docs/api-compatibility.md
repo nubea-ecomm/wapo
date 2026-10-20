@@ -52,7 +52,7 @@ implemented. Language selection is validated/stored; hosted copy is Spanish.
 
 ## Remaining platform services
 
-Broadcasts/scheduling, contact management and marketing preference synchronization,
+Broadcasts/scheduling, full platform contact-route parity,
 conversation assignments, display name request tracking, resumable media ingest,
 embeddable inbox tokens, hosted dynamic Flow endpoints, funding, notifications,
 findings, workflow execution, function deployment and agent runs remain pending.
@@ -63,6 +63,11 @@ Wapo's project-scoped `/v1/notification-settings`, SMTP email outbox and console
 member invitation endpoints are native operational features; they do not implement
 the reference platform's pending notification service or alter its compatibility
 inventory.
+
+Wapo has native typed contacts with custom properties, erasure and per-number
+marketing preference synchronization. Graph-shaped contact reads use the same local
+identity, while the full reference Platform contact route family remains a separate
+compatibility gap.
 
 ## Verification
 

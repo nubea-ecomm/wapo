@@ -301,6 +301,200 @@
         }
       }
     },
+    "/v1/contacts": {
+      "get": {
+        "operationId": "list_contacts",
+        "tags": ["Contacts"],
+        "summary": "List WhatsApp contacts",
+        "description": "Lists project contacts newest activity first. A missing marketing preference means marketing is allowed.",
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "connection_id",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "marketing_status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["stopped", "resumed"] }
+          },
+          { "name": "after", "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contacts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Contact" }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "has_more": { "type": "boolean" },
+                        "after": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "create_contact",
+        "tags": ["Contacts"],
+        "summary": "Create a WhatsApp contact",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ContactInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contact created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Contact" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/contacts/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "get": {
+        "operationId": "get_contact",
+        "tags": ["Contacts"],
+        "summary": "Get a contact",
+        "responses": {
+          "200": {
+            "description": "Contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Contact" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "update_contact",
+        "tags": ["Contacts"],
+        "summary": "Update local contact fields",
+        "description": "Updates display name, email or custom properties. WhatsApp identity and marketing preference are provider-controlled.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ContactUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contact updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Contact" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "erase_contact",
+        "tags": ["Contacts"],
+        "summary": "Permanently erase a contact",
+        "description": "Deletes the contact and related local conversations, messages, marketing preference, request responses and known contact events. Already delivered external webhooks cannot be recalled.",
+        "responses": {
+          "204": { "description": "Contact erased" },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/connections": {
       "get": {
         "operationId": "list_connections",
@@ -7612,6 +7806,144 @@
           "vertical": { "$ref": "#/components/schemas/BusinessVertical" }
         }
       },
+      "ContactProperty": {
+        "nullable": true,
+        "oneOf": [
+          { "type": "string", "maxLength": 500 },
+          { "type": "number" },
+          { "type": "boolean" }
+        ]
+      },
+      "MarketingPreference": {
+        "type": "object",
+        "required": [
+          "status",
+          "marketing_allowed",
+          "detail",
+          "source",
+          "sequence"
+        ],
+        "properties": {
+          "status": { "type": "string", "enum": ["stopped", "resumed"] },
+          "marketing_allowed": { "type": "boolean" },
+          "detail": { "type": "string" },
+          "source": {
+            "type": "string",
+            "enum": [
+              "",
+              "meta_webhook",
+              "meta_delivery_error",
+              "meta_synchronous_error"
+            ]
+          },
+          "sequence": { "type": "integer", "format": "int64", "minimum": 0 },
+          "last_event_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "required": [
+          "id",
+          "connection_id",
+          "wa_id",
+          "phone_number",
+          "display_name",
+          "display_name_source",
+          "properties",
+          "marketing_preference",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "connection_id": { "type": "string" },
+          "customer_id": { "type": "string" },
+          "wa_id": { "type": "string" },
+          "phone_number": { "type": "string" },
+          "business_scoped_user_id": { "type": "string", "readOnly": true },
+          "parent_business_scoped_user_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "username": { "type": "string", "readOnly": true },
+          "profile_name": {
+            "type": "string",
+            "description": "Latest name reported by WhatsApp; read-only."
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "Effective display name using local, Meta profile, username and phone precedence."
+          },
+          "display_name_source": {
+            "type": "string",
+            "enum": ["local", "meta", "username", "phone"],
+            "readOnly": true
+          },
+          "email": { "type": "string", "format": "email" },
+          "properties": {
+            "type": "object",
+            "maxProperties": 50,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ContactProperty"
+            }
+          },
+          "phone_number_id": { "type": "string" },
+          "connection_name": { "type": "string" },
+          "marketing_preference": {
+            "$ref": "#/components/schemas/MarketingPreference"
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ContactInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["connection_id", "phone_number", "display_name"],
+        "properties": {
+          "connection_id": { "type": "string" },
+          "phone_number": { "type": "string" },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "email": { "type": "string", "format": "email" },
+          "properties": {
+            "type": "object",
+            "maxProperties": 50,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ContactProperty"
+            }
+          }
+        }
+      },
+      "ContactUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "email": { "type": "string", "format": "email" },
+          "properties": {
+            "type": "object",
+            "maxProperties": 50,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ContactProperty"
+            }
+          },
+          "use_provider_name": {
+            "type": "boolean",
+            "enum": [true],
+            "description": "Clear a local display-name override and resume Meta/username/phone fallback."
+          }
+        }
+      },
       "LogEntry": {
         "type": "object",
         "properties": {
@@ -7661,6 +7993,10 @@
     {
       "name": "Customers",
       "description": "Businesses inside the authenticated tenant. External customer IDs are unique per tenant."
+    },
+    {
+      "name": "Contacts",
+      "description": "People scoped to a WhatsApp connection, with local properties and provider-controlled marketing consent."
     },
     {
       "name": "Connections",
@@ -7746,7 +8082,7 @@
   "x-tagGroups": [
     {
       "name": "Workspace",
-      "tags": ["Project", "Customers", "Connections", "Onboarding"]
+      "tags": ["Project", "Customers", "Contacts", "Connections", "Onboarding"]
     },
     {
       "name": "Messaging",

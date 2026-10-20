@@ -3,6 +3,7 @@ package api
 import (
 	"crypto/subtle"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -51,10 +52,11 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 					Metadata struct {
 						PhoneID string `json:"phone_number_id"`
 					} `json:"metadata"`
-					Calls    []store.Object `json:"calls"`
-					Messages []store.Object `json:"messages"`
-					Statuses []store.Object `json:"statuses"`
-					Contacts []struct {
+					Calls           []store.Object `json:"calls"`
+					Messages        []store.Object `json:"messages"`
+					Statuses        []store.Object `json:"statuses"`
+					UserPreferences []store.Object `json:"user_preferences"`
+					Contacts        []struct {
 						Profile struct {
 							Name string `json:"name"`
 						} `json:"profile"`
@@ -90,6 +92,20 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 			}
 
 			c := rows[0]
+
+			for index, preference := range v.UserPreferences {
+				waID, status, detail, occurredAt, valid := parseMarketingPreference(preference)
+				if !valid {
+					continue
+				}
+
+				sourceKey := fmt.Sprintf("marketing-preference:%s:%s:%s:%d", v.Metadata.PhoneID, waID, occurredAt.Format(time.RFC3339Nano), index)
+				if e = s.recordMarketingPreference(r.Context(), p, c, waID, "", status, detail, "meta_webhook", sourceKey, occurredAt); e != nil {
+					dbError(w, e)
+					return
+				}
+			}
+
 			if e = s.receiveCalls(r, p, c, v.Calls); e != nil {
 				dbError(w, e)
 				return
@@ -173,6 +189,18 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 				if e != nil {
 					dbError(w, e)
 					return
+				}
+
+				if state == "failed" {
+					if stopped, detail := providerHasError(status, 131050); stopped {
+						waID := normalizedPhone(str(status, "recipient_id"))
+						sourceKey := "marketing-preference:delivery:" + id + ":" + str(status, "timestamp")
+
+						if e = s.recordMarketingPreference(r.Context(), p, c, waID, "", "stopped", detail, "meta_delivery_error", sourceKey, parseProviderTime(str(status, "timestamp"))); e != nil {
+							dbError(w, e)
+							return
+						}
+					}
 				}
 			}
 		}

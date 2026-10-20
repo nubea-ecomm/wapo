@@ -26,6 +26,11 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 		return
 	}
 
+	if e = s.enrichConversationContacts(r.Context(), project(r), []store.Object{c}); e != nil {
+		dbError(w, e)
+		return
+	}
+
 	if str(c, "channel") == "whatsapp" {
 		open, expiresAt, windowErr := s.Store.ServiceWindow(r.Context(), project(r), str(c, "connection_id"), str(c, "contact"))
 		if windowErr != nil {

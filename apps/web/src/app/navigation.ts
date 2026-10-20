@@ -12,6 +12,7 @@ import {
   Plug,
   Layers,
   SlidersHorizontal,
+  ContactRound,
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { MessageKey } from './i18n'
@@ -54,6 +55,13 @@ export const navigation = [
     to: '/inbox',
     labelKey: 'inbox',
     icon: MessagesSquare,
+    group: 'main',
+    operator: false,
+  },
+  {
+    to: '/contacts',
+    labelKey: 'contacts',
+    icon: ContactRound,
     group: 'main',
     operator: false,
   },
