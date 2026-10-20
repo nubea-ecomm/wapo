@@ -1,0 +1,90 @@
+.home-page section[id] {
+  scroll-margin-top: 96px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-pending {
+    opacity: 0;
+  }
+  .hero-copy h1 {
+    animation: hero-enter 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-copy > p {
+    animation: hero-enter 700ms 80ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-copy .actions {
+    animation: hero-enter 700ms 140ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero-copy .command-line {
+    animation: hero-enter 700ms 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .hero .console-wrap {
+    animation: hero-enter 900ms 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .site-header[data-menu-open] nav {
+    animation: menu-enter 180ms ease-out both;
+  }
+  .primary-action,
+  .secondary-action,
+  .closing-action {
+    transition:
+      transform 180ms,
+      box-shadow 180ms,
+      background 180ms,
+      border-color 180ms;
+  }
+  .primary-action:hover,
+  .closing-action-primary:hover {
+    box-shadow: 0 6px 24px #ffffff12;
+  }
+  .primary-action:active,
+  .secondary-action:active,
+  .closing-action:active {
+    transform: translateY(1px);
+  }
+  .code-top .is-copied .copy-check path {
+    stroke-dasharray: 24;
+    animation: copy-confirm 250ms ease-out both;
+  }
+}
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes copy-confirm {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal-pending {
+    opacity: 1;
+  }
+  .request-step,
+  .request-json,
+  .request-replay,
+  .code-line {
+    transition: none;
+  }
+}

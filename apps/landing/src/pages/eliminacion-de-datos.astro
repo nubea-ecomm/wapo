@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { site } from '../config'
+---
+
+<BaseLayout
+  title="Eliminación de datos | Wapo"
+  description="Instrucciones para solicitar la eliminación de datos personales de Wapo."
+  bodyClass="legal-dark-page"
+  locale="es"
+>
+  <div class="legal-shell shell">
+    <aside class="legal-aside">
+      <p class="eyebrow">CONTROL DE DATOS</p>
+      <h1>Eliminar<br />mis datos</h1>
+      <p>Solicitud gratuita<br />por correo electrónico</p>
+    </aside>
+    <article class="legal-content">
+      <p class="legal-intro">
+        Podés solicitar la eliminación de los datos asociados a tu cuenta o a tu
+        interacción con una organización que utiliza la instancia de Wapo
+        operada por {site.operator}.
+      </p>
+      <section>
+        <h2>Cómo hacer la solicitud</h2><ol class="steps">
+          <li>
+            <span>01</span><div>
+              <b>Escribinos</b><p>
+                Enviá un correo a <a
+                  href={`mailto:${site.contactEmail}?subject=Solicitud de eliminación de datos | Wapo`}
+                  >{site.contactEmail}</a
+                > con el asunto “Solicitud de eliminación de datos | Wapo”.
+              </p>
+            </div>
+          </li><li>
+            <span>02</span><div>
+              <b>Identificá los datos</b><p>
+                Indicá el correo o número de teléfono relacionado, la
+                organización con la que interactuaste y qué información querés
+                eliminar. No envíes contraseñas, códigos ni tokens.
+              </p>
+            </div>
+          </li><li>
+            <span>03</span><div>
+              <b>Verificamos y respondemos</b><p>
+                Podremos pedir información limitada para verificar tu identidad.
+                Confirmaremos la recepción y responderemos dentro del plazo
+                exigido por la normativa aplicable.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+      <section>
+        <h2>Qué sucede después</h2><p>
+          Eliminaremos o anonimizaremos los datos que controlemos, salvo
+          aquellos que debamos conservar para cumplir una obligación legal,
+          proteger la seguridad o resolver una disputa. Las copias de respaldo
+          se eliminarán conforme a su ciclo normal de rotación.
+        </p><p>
+          Si una empresa cliente incorporó tus datos, podemos remitirle la
+          solicitud porque esa empresa decide la finalidad del tratamiento. La
+          eliminación en Wapo no elimina automáticamente información que Meta,
+          WhatsApp u otro tercero conserve en sus propios sistemas.
+        </p>
+      </section>
+      <section>
+        <h2>Instalaciones independientes</h2><p>
+          Wapo es software de código abierto. Si usaste una instalación operada
+          por otra organización, contactá directamente a esa organización. {
+            site.operator
+          } no puede acceder ni eliminar datos de servidores gestionados por terceros.
+        </p>
+      </section>
+      <div class="contact-card">
+        <span>SOLICITAR ELIMINACIÓN</span><a
+          href={`mailto:${site.contactEmail}?subject=Solicitud de eliminación de datos | Wapo`}
+          >{site.contactEmail} ↗</a
+        ><p>Incluí solo la información necesaria para localizar tu registro.</p>
+      </div>
+    </article>
+  </div>
+</BaseLayout>

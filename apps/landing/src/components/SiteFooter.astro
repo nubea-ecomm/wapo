@@ -1,0 +1,50 @@
+---
+import { site } from '../config'
+import {
+  copy,
+  localePaths,
+  privacyPath,
+  deletionPath,
+  type Locale,
+} from '../i18n'
+import GitHubIcon from './GitHubIcon.astro'
+import WapoLogo from './WapoLogo.astro'
+
+interface Props {
+  locale?: Locale
+}
+
+const { locale = 'en' } = Astro.props
+const t = copy[locale]
+---
+
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div>
+      <a
+        class="brand"
+        href={localePaths[locale]}
+        aria-label="Wapo"
+        ><WapoLogo /></a
+      >
+      <p>{t.footer.summary}</p>
+    </div>
+    <div class="footer-links">
+      <span>{t.footer.product}</span>
+      <a
+        class="github-link"
+        href={site.repositoryUrl}
+        ><GitHubIcon />{t.footer.openSource}</a
+      >
+    </div>
+    <div class="footer-links">
+      <span>{t.footer.legal}</span>
+      <a href={privacyPath(locale)}>{t.footer.privacy}</a>
+      <a href={deletionPath(locale)}>{t.footer.deletion}</a>
+    </div>
+  </div>
+  <div class="shell footer-bottom">
+    <span>© {new Date().getFullYear()} {site.operator}</span>
+    <span>{site.location}</span>
+  </div>
+</footer>

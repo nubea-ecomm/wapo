@@ -1,0 +1,42 @@
+---
+interface Props {
+  columns?: number
+  rows?: number
+  class?: string
+}
+
+const { columns = 96, rows = 12, class: className = '' } = Astro.props
+
+// Deterministic waveform so the build output is stable between renders.
+const heights = Array.from({ length: columns }, (_, column) => {
+  const wave =
+    Math.sin(column * 0.21) * 0.45 +
+    Math.sin(column * 0.057 + 1.3) * 0.35 +
+    Math.sin(column * 0.83) * 0.2
+  return Math.max(1, Math.round(((wave + 1) / 2) * rows))
+})
+---
+
+<svg
+  class:list={['pixel-signal', className]}
+  viewBox={`0 0 ${columns * 4} ${rows * 4}`}
+  preserveAspectRatio="none"
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+>
+  {
+    heights.map((height, column) => (
+      <g style={`--column: ${column}`}>
+        {Array.from({ length: height }, (_, row) => (
+          <rect
+            x={column * 4}
+            y={(rows - row - 1) * 4}
+            width="3"
+            height="3"
+            opacity={row === height - 1 ? 1 : 0.28 + (row / height) * 0.5}
+          />
+        ))}
+      </g>
+    ))
+  }
+</svg>

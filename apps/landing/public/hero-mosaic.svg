@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="384" viewBox="0 0 384 384">
+  <style>
+    rect { width: 11px; height: 11px; fill: #e8e8ec; opacity: .14; }
+    @media (prefers-reduced-motion: no-preference) {
+      rect { animation: pixel-light 7.3s ease-in-out infinite; animation-delay: -2.1s; }
+      rect:nth-child(2n) { animation-duration: 9.7s; animation-delay: -6.4s; }
+      rect:nth-child(3n) { animation-duration: 5.9s; animation-delay: -1.3s; }
+      rect:nth-child(5n) { animation-duration: 11.3s; animation-delay: -8.7s; }
+      rect:nth-child(7n) { animation-duration: 8.1s; animation-delay: -3.8s; }
+      rect:nth-child(4n + 1) { animation-direction: reverse; }
+      rect:nth-child(6n + 1) { animation-delay: -4.9s; }
+      rect:nth-child(8n + 3) { animation-delay: -7.2s; }
+    }
+    @keyframes pixel-light {
+      0%, 100% { opacity: .03; }
+      16% { opacity: .1; }
+      34% { opacity: .4; }
+      48% { opacity: .32; }
+      69%, 84% { opacity: .02; }
+    }
+  </style>
+  <rect x="0" y="0"/><rect x="84" y="12"/><rect x="156" y="36"/>
+  <rect x="228" y="0"/><rect x="300" y="24"/><rect x="360" y="48"/>
+  <rect x="36" y="36"/><rect x="120" y="60"/><rect x="192" y="48"/>
+  <rect x="264" y="72"/><rect x="324" y="84"/><rect x="12" y="84"/>
+  <rect x="60" y="108"/><rect x="144" y="96"/><rect x="216" y="120"/>
+  <rect x="288" y="108"/><rect x="372" y="132"/><rect x="96" y="144"/>
+  <rect x="24" y="156"/><rect x="168" y="156"/><rect x="240" y="168"/>
+  <rect x="312" y="156"/><rect x="348" y="192"/><rect x="48" y="204"/>
+  <rect x="120" y="192"/><rect x="192" y="216"/><rect x="276" y="204"/>
+  <rect x="0" y="240"/><rect x="84" y="252"/><rect x="156" y="240"/>
+  <rect x="228" y="264"/><rect x="300" y="252"/><rect x="360" y="276"/>
+  <rect x="36" y="288"/><rect x="108" y="276"/><rect x="180" y="300"/>
+  <rect x="252" y="312"/><rect x="324" y="300"/><rect x="12" y="336"/>
+  <rect x="72" y="360"/><rect x="144" y="336"/><rect x="216" y="372"/>
+  <rect x="288" y="348"/><rect x="372" y="360"/><rect x="48" y="12"/>
+  <rect x="192" y="0"/><rect x="336" y="12"/><rect x="72" y="72"/>
+  <rect x="240" y="36"/><rect x="348" y="120"/><rect x="180" y="108"/>
+  <rect x="12" y="192"/><rect x="132" y="132"/><rect x="288" y="144"/>
+  <rect x="72" y="168"/><rect x="216" y="192"/><rect x="324" y="228"/>
+  <rect x="132" y="228"/><rect x="264" y="240"/><rect x="48" y="252"/>
+  <rect x="204" y="288"/><rect x="348" y="324"/><rect x="96" y="324"/>
+  <rect x="168" y="372"/><rect x="264" y="372"/><rect x="24" y="372"/>
+  <rect x="108" y="24"/><rect x="300" y="60"/><rect x="0" y="120"/>
+  <rect x="252" y="132"/><rect x="372" y="216"/><rect x="156" y="276"/>
+  <rect x="60" y="312"/><rect x="228" y="336"/><rect x="336" y="372"/>
+</svg>

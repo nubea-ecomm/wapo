@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { site } from '../config'
+---
+
+<BaseLayout
+  title="Política de privacidad | Wapo"
+  description="Cómo Wapo recopila, utiliza, conserva y protege datos personales."
+  bodyClass="legal-dark-page"
+  locale="es"
+>
+  <div class="legal-shell shell">
+    <aside class="legal-aside">
+      <p class="eyebrow">LEGAL</p>
+      <h1>Política de<br />privacidad</h1>
+      <p>
+        Última actualización<br /><b
+          >{
+            new Intl.DateTimeFormat('es', {
+              dateStyle: 'long',
+              timeZone: 'UTC',
+            }).format(new Date(site.updatedAt))
+          }</b
+        >
+      </p>
+    </aside>
+    <article class="legal-content">
+      <p class="legal-intro">
+        Esta política explica cómo {site.operator} (“nosotros”) trata datos personales
+        al operar la instancia alojada de Wapo, una plataforma para integrar y gestionar
+        comunicaciones de WhatsApp.
+      </p>
+
+      <section>
+        <h2>1. Responsable y alcance</h2><p>
+          El responsable del tratamiento es <b>{site.operator}</b>, con
+          operación en {site.location}. Para consultas de privacidad podés
+          escribir a <a href={`mailto:${site.contactEmail}`}
+            >{site.contactEmail}</a
+          >.
+        </p><p>
+          Esta política se aplica al sitio público, la consola y la API de la
+          instancia de Wapo operada por {site.operator}. Wapo también puede
+          instalarse por terceros: cada operador de una instalación
+          independiente es responsable de sus propias prácticas y debe publicar
+          su propia política.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Datos que tratamos</h2><ul>
+          <li>
+            <b>Datos de cuenta:</b> nombre, correo electrónico, rol, proyectos asignados
+            y datos de autenticación protegidos.
+          </li><li>
+            <b>Datos de clientes y contactos:</b> identificadores, nombre, número
+            de teléfono, correo, preferencias de marketing y propiedades que los usuarios
+            autorizados incorporen.
+          </li><li>
+            <b>Comunicaciones:</b> contenido, archivos, plantillas, estado y metadatos
+            de mensajes enviados o recibidos mediante WhatsApp.
+          </li><li>
+            <b>Datos de integración:</b> identificadores de cuentas y números de WhatsApp
+            Business, configuración de webhooks y credenciales cifradas.
+          </li><li>
+            <b>Datos técnicos:</b> dirección IP, identificador de solicitud, ruta,
+            fecha, duración, código de respuesta, eventos y registros de seguridad.
+            No almacenamos el cuerpo completo de cada solicitud en los registros de
+            acceso.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Para qué usamos los datos</h2><ul>
+          <li>Prestar, mantener y proteger Wapo y sus integraciones.</li><li>
+            Enviar y recibir comunicaciones solicitadas por nuestros clientes.
+          </li><li>
+            Administrar cuentas, permisos, conexiones, plantillas y webhooks.
+          </li><li>
+            Diagnosticar errores, prevenir abuso y mantener un registro de
+            operaciones.
+          </li><li>
+            Enviar avisos operativos y responder solicitudes de soporte.
+          </li><li>
+            Cumplir obligaciones legales y hacer valer acuerdos aplicables.
+          </li>
+        </ul><p>
+          No vendemos datos personales ni los usamos para crear perfiles
+          publicitarios propios.
+        </p>
+      </section>
+
+      <section>
+        <h2>4. Roles y bases del tratamiento</h2><p>
+          Respecto de los datos de las organizaciones que contratan o
+          administran Wapo, tratamos información para ejecutar el servicio
+          solicitado, proteger intereses legítimos de seguridad y cumplir
+          obligaciones legales. Respecto de contactos y destinatarios cargados
+          por un cliente, normalmente actuamos como proveedor encargado y
+          seguimos las instrucciones de ese cliente, quien debe contar con una
+          base legal y los consentimientos necesarios.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. Proveedores y transferencias</h2><p>
+          Compartimos datos únicamente cuando resulta necesario con proveedores
+          de infraestructura, correo y mensajería contratados para operar el
+          servicio, sujetos a obligaciones de confidencialidad y seguridad. Las
+          comunicaciones de WhatsApp se procesan también a través de Meta
+          Platforms y sus empresas vinculadas, conforme a sus condiciones y
+          políticas.
+        </p><p>
+          Algunos proveedores pueden procesar datos fuera de Argentina. En esos
+          casos procuramos aplicar medidas contractuales y de seguridad
+          adecuadas a la legislación aplicable.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Conservación</h2><p>
+          Conservamos los datos mientras la cuenta o proyecto permanezca activo
+          y durante el tiempo necesario para prestar el servicio, resolver
+          disputas y cumplir obligaciones. Los registros exitosos de API y
+          trabajos completados se conservan hasta 30 días; los registros de
+          auditoría y entregas fallidas, hasta 90 días. Los mensajes, contactos
+          y demás datos operativos permanecen hasta que el cliente los elimina,
+          termina el servicio o solicita su supresión, salvo que debamos
+          conservarlos por ley.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Seguridad</h2><p>
+          Aplicamos controles técnicos y organizativos razonables, incluyendo
+          cifrado de credenciales, conexiones HTTPS en producción, permisos por
+          rol, aislamiento entre proyectos, sesiones revocables y registros de
+          auditoría. Ningún sistema es completamente infalible; si detectamos un
+          incidente relevante, actuaremos y notificaremos conforme a la
+          normativa aplicable.
+        </p>
+      </section>
+
+      <section>
+        <h2>8. Tus derechos</h2><p>
+          Podés solicitar acceso, actualización, rectificación o supresión de
+          tus datos, o consultar sobre el tratamiento, escribiendo a <a
+            href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a
+          >. Es posible que necesitemos verificar tu identidad y, cuando los
+          datos hayan sido incorporados por una organización cliente, derivar la
+          solicitud a esa organización.
+        </p><p>
+          También podés seguir las <a href="/eliminacion-de-datos"
+            >instrucciones de eliminación de datos</a
+          >. En Argentina, la Agencia de Acceso a la Información Pública es el
+          órgano de control de la Ley 25.326 y recibe denuncias y reclamos.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Cookies y analítica</h2><p>
+          Esta landing no instala cookies publicitarias ni herramientas de
+          analítica de terceros. La consola puede usar almacenamiento del
+          navegador para mantener una sesión iniciada y recordar preferencias de
+          interfaz. Si incorporamos tecnologías no esenciales, actualizaremos
+          esta política y solicitaremos el consentimiento correspondiente.
+        </p>
+      </section>
+
+      <section>
+        <h2>10. Cambios y contacto</h2><p>
+          Podemos actualizar esta política para reflejar cambios legales,
+          técnicos o del servicio. Publicaremos la nueva fecha en esta página y
+          notificaremos cambios sustanciales cuando corresponda.
+        </p><div class="contact-card">
+          <span>CONSULTAS DE PRIVACIDAD</span><a
+            href={`mailto:${site.contactEmail}`}>{site.contactEmail} ↗</a
+          ><p>{site.operator}, {site.location}</p>
+        </div>
+      </section>
+    </article>
+  </div>
+</BaseLayout>

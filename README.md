@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="apps/web/public/favicon.svg" alt="Wapo logo" width="96" height="96">
+  <img src="apps/web/public/favicon-512.png" alt="Wapo logo" width="96" height="96">
 </p>
 
 <h1 align="center">Wapo</h1>

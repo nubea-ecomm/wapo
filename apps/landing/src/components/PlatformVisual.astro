@@ -1,0 +1,377 @@
+---
+interface Props {
+  index: number
+}
+const { index } = Astro.props
+const signalPaths: Record<number, string[]> = {
+  0: ['M160 36V54H66V80', 'M160 36V80', 'M160 36V54H254V80'],
+  2: ['M90 77H135', 'M185 77H230', 'M255 102V129H160V103'],
+  4: ['M68 64H94', 'M226 64H252'],
+}
+---
+
+<div
+  class="platform-visual"
+  aria-hidden="true"
+>
+  <svg
+    viewBox="0 0 320 160"
+    fill="none"
+  >
+    {
+      index === 0 && (
+        <>
+          <path
+            class="diagram-wire"
+            d="M160 24v30M66 80V54h188v26M160 54v26"
+          />
+          <rect
+            class="diagram-node"
+            x="131"
+            y="8"
+            width="58"
+            height="28"
+            rx="7"
+          />
+          <text
+            x="160"
+            y="26"
+          >
+            wapo
+          </text>
+          {[34, 128, 222].map((x, i) => (
+            <>
+              <rect
+                class="diagram-boundary"
+                x={x - 12}
+                y="68"
+                width="88"
+                height="74"
+                rx="12"
+              />
+              <rect
+                class="diagram-node"
+                x={x}
+                y="80"
+                width="64"
+                height="30"
+                rx="6"
+              />
+              <text
+                x={x + 32}
+                y="99"
+              >{`tenant_${i + 1}`}</text>
+              <circle
+                class="diagram-dot"
+                cx={x + 32}
+                cy="126"
+                r="3"
+              />
+            </>
+          ))}
+        </>
+      )
+    }
+    {
+      index === 1 && (
+        <>
+          <rect
+            class="diagram-boundary"
+            x="40"
+            y="24"
+            width="240"
+            height="112"
+            rx="12"
+          />
+          <text
+            class="diagram-muted"
+            x="160"
+            y="48"
+          >
+            AES-256-GCM
+          </text>
+          <path
+            class="diagram-wire"
+            d="M60 80h66m68 0h66"
+          />
+          <rect
+            class="diagram-node"
+            x="132"
+            y="58"
+            width="56"
+            height="52"
+            rx="12"
+          />
+          <path
+            class="diagram-bright"
+            d="M151 80v-8a9 9 0 0 1 18 0v8m-20 0h22v18h-22z"
+          />
+          <circle
+            class="diagram-dot"
+            cx="160"
+            cy="88"
+            r="2"
+          />
+          <text
+            class="diagram-muted"
+            x="86"
+            y="101"
+          >
+            ••••••
+          </text>
+          <text
+            class="diagram-muted"
+            x="234"
+            y="101"
+          >
+            a7f:9c
+          </text>
+        </>
+      )
+    }
+    {
+      index === 2 && (
+        <>
+          <path
+            class="diagram-wire"
+            d="M65 77h190M255 97v32H160v-26"
+          />
+          {[40, 135, 230].map((x, i) => (
+            <>
+              <rect
+                class="diagram-node"
+                x={x}
+                y="52"
+                width="50"
+                height="50"
+                rx="12"
+              />
+              {i < 2 ? (
+                <path
+                  class="diagram-bright"
+                  d={`M${x + 16} 70h18m-18 7h18m-18 7h10`}
+                />
+              ) : (
+                <path
+                  class="diagram-success"
+                  d="m246 77 6 6 12-13"
+                />
+              )}
+              <text
+                class="diagram-muted"
+                x={x + 25}
+                y="36"
+              >
+                {['SEND', 'OUTBOX', 'ACK'][i]}
+              </text>
+            </>
+          ))}
+          <circle
+            class="diagram-dot"
+            cx="112"
+            cy="77"
+            r="3"
+          />
+          <text
+            class="diagram-muted"
+            x="211"
+            y="145"
+          >
+            retry ↗
+          </text>
+        </>
+      )
+    }
+    {
+      index === 3 && (
+        <>
+          <rect
+            class="diagram-boundary"
+            x="46"
+            y="16"
+            width="228"
+            height="128"
+            rx="10"
+          />
+          <text
+            class="diagram-muted"
+            x="91"
+            y="39"
+          >
+            ROLE
+          </text>
+          <text
+            class="diagram-muted"
+            x="183"
+            y="39"
+          >
+            READ
+          </text>
+          <text
+            class="diagram-muted"
+            x="239"
+            y="39"
+          >
+            WRITE
+          </text>
+          <path
+            class="diagram-wire"
+            d="M46 50h228M46 81h228M46 112h228"
+          />
+          {['admin', 'member', 'audit'].map((role, i) => (
+            <>
+              <text
+                x="91"
+                y={70 + i * 31}
+              >
+                {role}
+              </text>
+              <path
+                class="diagram-success"
+                d={`m177 ${65 + i * 31} 4 4 8-8`}
+              />
+              {i === 0 ? (
+                <path
+                  class="diagram-success"
+                  d="m233 65 4 4 8-8"
+                />
+              ) : (
+                <path
+                  class="diagram-wire"
+                  d={`M234 ${65 + i * 31}h10`}
+                />
+              )}
+            </>
+          ))}
+        </>
+      )
+    }
+    {
+      index === 4 && (
+        <>
+          <ellipse
+            class="diagram-boundary"
+            cx="160"
+            cy="129"
+            rx="95"
+            ry="18"
+          />
+          <path
+            class="diagram-node"
+            d="M108 43v66c0 24 104 24 104 0V43"
+          />
+          <path
+            class="diagram-wire"
+            d="M108 65c0 24 104 24 104 0m-104 22c0 24 104 24 104 0"
+          />
+          <ellipse
+            class="diagram-node"
+            cx="160"
+            cy="43"
+            rx="52"
+            ry="18"
+          />
+          <ellipse
+            class="diagram-wire"
+            cx="160"
+            cy="43"
+            rx="31"
+            ry="9"
+          />
+          <circle
+            class="diagram-dot"
+            cx="199"
+            cy="106"
+            r="3"
+          />
+          <path
+            class="diagram-wire"
+            d="M68 64h26m132 0h26M81 58l-6 6 6 6m158-12 6 6-6 6"
+          />
+        </>
+      )
+    }
+    {
+      index === 5 && (
+        <>
+          <rect
+            class="diagram-boundary"
+            x="35"
+            y="10"
+            width="250"
+            height="140"
+            rx="10"
+          />
+          <path
+            class="diagram-wire"
+            d="M35 42h250"
+          />
+          <text
+            class="diagram-file-icon"
+            x="53"
+            y="30"
+          >
+            {'{ }'}
+          </text>
+          <text
+            class="diagram-filename"
+            x="69"
+            y="30"
+          >
+            openapi.json
+          </text>
+          <text
+            class="diagram-code"
+            x="53"
+            y="63"
+          >
+            {'{'}
+          </text>
+          <text
+            class="diagram-code"
+            x="66"
+            y="81"
+          >
+            <tspan class="diagram-code-key">{'"openapi"'}</tspan>
+            {': '}
+            <tspan class="diagram-code-value">{'"3.1.0"'}</tspan>
+            {','}
+          </text>
+          <text
+            class="diagram-code"
+            x="66"
+            y="99"
+          >
+            <tspan class="diagram-code-key">{'"paths"'}</tspan>
+            {': {'}
+          </text>
+          <text
+            class="diagram-code"
+            x="79"
+            y="117"
+          >
+            <tspan class="diagram-code-value">{'"/v1/messages"'}</tspan>
+            {': {…}'}
+          </text>
+          <text
+            class="diagram-code"
+            x="53"
+            y="135"
+          >
+            {'  } }'}
+          </text>
+        </>
+      )
+    }
+    {
+      (signalPaths[index] ?? []).map((path, route) => (
+        <path
+          class="diagram-signal"
+          d={path}
+          pathLength="100"
+          style={`--route-delay: -${index * 0.7 + route * 1.3}s`}
+        />
+      ))
+    }
+  </svg>
+</div>

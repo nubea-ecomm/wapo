@@ -404,7 +404,7 @@ test('administrator signs in with email and password and manages users inside th
   await expect(row).not.toBeVisible()
   const favicon = await page.locator('link[rel="icon"]').getAttribute('href')
 
-  expect(favicon).toBe('/favicon.svg')
+  expect(favicon).toBe('/favicon.png')
   const icon = await page.request.get(favicon!)
 
   expect(icon.ok()).toBe(true)

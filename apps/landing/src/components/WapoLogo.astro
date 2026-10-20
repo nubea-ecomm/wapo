@@ -1,0 +1,46 @@
+---
+interface Props {
+  compact?: boolean
+}
+
+const { compact = false } = Astro.props
+const glyphs = {
+  W: ['10001', '10001', '10001', '10101', '10101', '11011', '10001'],
+  A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+  P: ['11110', '10001', '10001', '11110', '10000', '10000', '10000'],
+  O: ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+}
+const letters = compact ? ['W'] : ['W', 'A', 'P', 'O']
+const blockWidth = 5
+const blockHeight = 3
+const gap = 3
+const glyphWidth = 5 * blockWidth
+const width = letters.length * glyphWidth + (letters.length - 1) * gap
+---
+
+<svg
+  viewBox={`0 0 ${width} ${7 * blockHeight}`}
+  role="img"
+  aria-label="Wapo"
+  class="wapo-logo"
+  shape-rendering="crispEdges"
+>
+  {
+    letters.map((letter, letterIndex) =>
+      glyphs[letter as keyof typeof glyphs].map((row, rowIndex) =>
+        [...row].map(
+          (pixel, columnIndex) =>
+            pixel === '1' && (
+              <rect
+                x={letterIndex * (glyphWidth + gap) + columnIndex * blockWidth}
+                y={rowIndex * blockHeight}
+                width={blockWidth}
+                height={blockHeight}
+                fill="currentColor"
+              />
+            ),
+        ),
+      ),
+    )
+  }
+</svg>

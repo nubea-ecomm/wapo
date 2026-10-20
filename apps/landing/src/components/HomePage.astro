@@ -1,0 +1,572 @@
+---
+import { site } from '../config'
+import { copy, type Locale } from '../i18n'
+import GitHubIcon from './GitHubIcon.astro'
+import SectionDivider from './SectionDivider.astro'
+import DashboardPreview from './DashboardPreview.astro'
+import PixelSignal from './PixelSignal.astro'
+import PlatformVisual from './PlatformVisual.astro'
+import ProviderIcon from './ProviderIcon.astro'
+import WapoLogo from './WapoLogo.astro'
+import WhatsAppRain from './WhatsAppRain.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import '../styles/home.css'
+import '../styles/landing-motion.css'
+import '../styles/section-frame.css'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = copy[locale]
+---
+
+<BaseLayout
+  title={t.metaTitle}
+  description={t.metaDescription}
+  bodyClass="home-page"
+  locale={locale}
+  localizedHome
+>
+  <section class="hero">
+    <div
+      class="pixel-background"
+      aria-hidden="true"
+    >
+    </div>
+    <div class="page-shell hero-copy">
+      <h1>{t.hero.title}<br /><span>{t.hero.titleMuted}</span></h1>
+      <p>{t.hero.description}</p>
+      <div class="actions">
+        <a
+          class="primary-action"
+          href="#developers"
+          >{t.hero.primary}</a
+        >
+        <a
+          class="secondary-action"
+          href={site.repositoryUrl}
+          ><GitHubIcon />{t.hero.secondary}</a
+        >
+      </div>
+      <button
+        class="command-line"
+        type="button"
+        data-copy-command
+        data-copy-label={t.hero.copy}
+        data-copied-label={t.hero.copied}
+        title={t.hero.command}
+      >
+        <span>$</span><code>git clone github.com/nubea-ecomm/wapo</code><small
+          >{t.hero.copy}</small
+        >
+      </button>
+    </div>
+
+    <DashboardPreview locale={locale} />
+  </section>
+
+  <section
+    class="included"
+    id="product"
+  >
+    <SectionDivider />
+    <div class="page-shell section-heading">
+      <div class="section-banner">
+        <ProviderIcon name="whatsapp" /><span>WhatsApp Business</span>
+      </div>
+      <h2>{t.included.title}</h2>
+      <p>{t.included.intro}</p>
+    </div>
+    <div class="page-shell feature-table">
+      {
+        t.included.items.map(([title, description], index) => (
+          <article class={`feature-card feature-card-${index + 1}`}>
+            <div class="feature-copy">
+              <div class="feature-title">
+                {index === 0 || index === 2 || index === 4 ? (
+                  <ProviderIcon name="whatsapp" />
+                ) : index === 1 ? (
+                  <ProviderIcon name="meta" />
+                ) : null}
+                <h3>{title}</h3>
+              </div>
+              <p>{description}</p>
+            </div>
+
+            {index === 0 && (
+              <div
+                class="feature-demo messaging-demo"
+                aria-hidden="true"
+              >
+                <div class="demo-message incoming">
+                  <span class="demo-avatar">N</span>
+                  <p>
+                    <b>Northwind</b>
+                    <small>{t.included.ui.message}</small>
+                  </p>
+                </div>
+                <div class="demo-message outgoing">
+                  <ProviderIcon name="whatsapp" />
+                  <p>
+                    <small>{t.included.ui.answer}</small>
+                  </p>
+                </div>
+                <div class="demo-status">✓✓ {t.included.ui.delivered}</div>
+              </div>
+            )}
+            {index === 1 && (
+              <div
+                class="feature-demo onboarding-demo"
+                aria-hidden="true"
+              >
+                <div class="onboarding-head">
+                  <ProviderIcon name="meta" />
+                  <span>Embedded Signup</span>
+                </div>
+                <div class="onboarding-row">
+                  <i>✓</i>
+                  <p>
+                    <b>Northwind</b>
+                    <small>{t.included.ui.business}</small>
+                  </p>
+                </div>
+                <div class="onboarding-row">
+                  <i>✓</i>
+                  <p>
+                    <b>+54 9 11 5555 0148</b>
+                    <small>{t.included.ui.connected}</small>
+                  </p>
+                </div>
+              </div>
+            )}
+            {index === 2 && (
+              <div
+                class="feature-demo templates-demo"
+                aria-hidden="true"
+              >
+                <div>
+                  <code>order_shipped</code>
+                  <span>{t.included.ui.approved}</span>
+                </div>
+                <div>
+                  <code>payment_received</code>
+                  <span>{t.included.ui.approved}</span>
+                </div>
+                <div>
+                  <code>delivery_update</code>
+                  <span>{t.included.ui.approved}</span>
+                </div>
+              </div>
+            )}
+            {index === 3 && (
+              <div
+                class="feature-demo webhook-demo"
+                aria-hidden="true"
+              >
+                <div>
+                  <i />
+                  <code>message.received</code>
+                  <span>200</span>
+                </div>
+                <div>
+                  <i />
+                  <code>message.status</code>
+                  <span>200</span>
+                </div>
+                <div>
+                  <i />
+                  <code>template.updated</code>
+                  <span>200</span>
+                </div>
+              </div>
+            )}
+            {index === 4 && (
+              <div
+                class="feature-demo inbox-demo"
+                aria-hidden="true"
+              >
+                {['Northwind', 'Acme Store', 'Atlas'].map((name, row) => (
+                  <div>
+                    <span class="demo-avatar">{name[0]}</span>
+                    <p>
+                      <b>{name}</b>
+                      <small>
+                        {row === 0
+                          ? t.included.ui.message
+                          : t.included.ui.reply}
+                      </small>
+                    </p>
+                    <ProviderIcon name="whatsapp" />
+                  </div>
+                ))}
+              </div>
+            )}
+            {index === 5 && (
+              <div
+                class="feature-demo observability-demo"
+                aria-hidden="true"
+              >
+                <div class="observability-top">
+                  <span>
+                    <i />
+                    {t.included.ui.live}
+                  </span>
+                  <code>30d</code>
+                </div>
+                <svg
+                  viewBox="0 0 480 150"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    class="chart-grid-line"
+                    d="M0 30H480M0 75H480M0 120H480"
+                  />
+                  <path
+                    class="chart-area"
+                    d="M0 120C45 118 50 92 90 98s58 5 86-32 55 20 91-4 57-38 93-18 73-10 120-39V150H0Z"
+                  />
+                  <path
+                    class="chart-line"
+                    d="M0 120C45 118 50 92 90 98s58 5 86-32 55 20 91-4 57-38 93-18 73-10 120-39"
+                  />
+                </svg>
+                <div class="observability-metrics">
+                  <span>
+                    <b>128k</b> {t.preview.sent}
+                  </span>
+                  <span>
+                    <b>98.7%</b> {t.preview.delivered}
+                  </span>
+                  <span>
+                    <b>0.12%</b> {t.preview.failures}
+                  </span>
+                </div>
+              </div>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section
+    class="flow-section"
+    data-reveal
+  >
+    <SectionDivider />
+    <div class="page-shell section-heading">
+      <div class="section-banner">
+        <span
+          class="banner-glyph"
+          aria-hidden="true"
+          >↗</span
+        ><span>WhatsApp / API</span>
+      </div>
+      <h2>{t.flows.title}</h2>
+      <p>{t.flows.intro}</p>
+    </div>
+    <div class="page-shell operations-grid">
+      <article class="operation-card">
+        <div
+          class="operation-visual connect-visual"
+          aria-hidden="true"
+        >
+          <div class="flow-node customer-node">
+            <span>N</span><small>Northwind</small>
+          </div>
+          <div class="flow-link"><i></i></div>
+          <div class="flow-node wapo-node">
+            <span class="brand-image"
+              ><img
+                src="/wapo-mark.png"
+                alt=""
+              /></span
+            ><small>Wapo</small>
+          </div>
+          <div class="flow-link delay"><i></i></div>
+          <div class="flow-node meta-node">
+            <span><ProviderIcon name="meta" /></span><small>Meta</small>
+          </div>
+          <div class="flow-state">
+            <span class="state-loading"><i></i>{t.flows.connecting}</span>
+            <span class="state-ready">✓ {t.flows.connected}</span>
+          </div>
+        </div>
+        <footer>
+          <h3>{t.flows.cards.connect[0]}</h3><p>{t.flows.cards.connect[1]}</p>
+        </footer>
+      </article>
+
+      <article class="operation-card">
+        <div
+          class="operation-visual delivery-visual"
+          aria-hidden="true"
+        >
+          <div class="delivery-command">
+            <code>POST /v1/messages</code><span>202</span>
+          </div>
+          <ol>
+            <li class="active">
+              <i></i><span>{t.flows.processing}</span><time>18 ms</time>
+            </li>
+            <li>
+              <i>✓</i><span class="provider-label"
+                ><ProviderIcon name="meta" />Meta Cloud API</span
+              ><time>312 ms</time>
+            </li>
+            <li><i>✓</i><span>{t.flows.delivered}</span><time>842 ms</time></li>
+          </ol>
+        </div>
+        <footer>
+          <h3>{t.flows.cards.delivery[0]}</h3><p>{t.flows.cards.delivery[1]}</p>
+        </footer>
+      </article>
+
+      <article class="operation-card">
+        <div
+          class="operation-visual template-sync"
+          aria-hidden="true"
+        >
+          <div class="sync-header">
+            <span>{t.flows.cards.templates[0]}</span><i class="sync-loader"></i>
+          </div>
+          <div class="template-row">
+            <code>order_shipped</code><span>{t.flows.approved}</span>
+          </div>
+          <div class="template-row">
+            <code>payment_received</code><span>{t.flows.approved}</span>
+          </div>
+          <div class="template-row syncing">
+            <code>delivery_update</code><span><i></i>SYNC</span>
+          </div>
+          <div class="sync-progress"><i></i></div>
+        </div>
+        <footer>
+          <h3>{t.flows.cards.templates[0]}</h3><p>
+            {t.flows.cards.templates[1]}
+          </p>
+        </footer>
+      </article>
+
+      <article class="operation-card">
+        <div
+          class="operation-visual webhook-visual"
+          aria-hidden="true"
+        >
+          <div class="webhook-endpoint">
+            <span>message.received</span><code>200</code>
+          </div>
+          <div class="webhook-endpoint retry">
+            <span>message.status</span><code><i></i>{t.flows.retrying}</code>
+          </div>
+          <div class="webhook-endpoint">
+            <span>template.updated</span><code>200</code>
+          </div>
+          <div class="webhook-log"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <footer>
+          <h3>{t.flows.cards.webhooks[0]}</h3><p>{t.flows.cards.webhooks[1]}</p>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+  <section
+    class="api-section"
+    id="developers"
+    data-reveal
+  >
+    <SectionDivider />
+    <div class="page-shell api-grid">
+      <div class="api-copy">
+        <h2>{t.api.title}</h2>
+        <p>{t.api.intro}</p>
+        <div class="api-facts">
+          <span>REST</span><span>OpenAPI 3.1</span><span>TypeScript</span>
+        </div>
+      </div>
+      <div class="code-panel">
+        <div class="code-top">
+          <div class="code-file">
+            <span
+              class="code-language"
+              aria-hidden="true"
+              >TS</span
+            ><span>send-message.ts</span>
+          </div>
+          <button
+            type="button"
+            data-copy-code
+            data-copy-label={t.hero.copy}
+            data-copied-label={t.hero.copied}
+            data-error-label={t.api.copyError}
+            aria-label={t.hero.copy}
+            title={t.hero.copy}
+          >
+            <svg
+              class="copy-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              ><rect
+                x="8"
+                y="8"
+                width="12"
+                height="12"
+                rx="2"
+              ></rect><path
+                d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"
+              ></path></svg
+            >
+            <svg
+              class="copy-check"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              ><path d="m5 12 4 4L19 6"></path></svg
+            >
+            <span data-copy-text>{t.hero.copy}</span>
+          </button>
+        </div>
+        <p
+          class="code-feedback"
+          data-copy-feedback
+          role="status"
+          aria-live="polite"
+        >
+        </p>
+        <pre
+          tabindex="0"
+          aria-label="TypeScript"><code><span class="code-line"><span class="line-number" aria-hidden="true">1</span><span class="line-code"><span class="syntax-keyword">import</span> &lbrace; <span class="syntax-type">WapoClient</span> &rbrace; <span class="syntax-keyword">from</span> <span class="syntax-string">'@nubea-ecomm/wapo-sdk'</span></span></span>
+<span class="code-line"><span class="line-number">2</span><span class="line-code" /></span>
+<span class="code-line"><span class="line-number">3</span><span class="line-code"><span class="syntax-keyword">const</span> wapo = <span class="syntax-keyword">new</span> <span class="syntax-type">WapoClient</span>(&lbrace;</span></span>
+<span class="code-line"><span class="line-number">4</span><span class="line-code">  baseUrl: process.env.<span class="syntax-property">WAPO_URL</span>!,</span></span>
+<span class="code-line"><span class="line-number">5</span><span class="line-code">  apiKey: process.env.<span class="syntax-property">WAPO_API_KEY</span>!,</span></span>
+<span class="code-line"><span class="line-number">6</span><span class="line-code">&rbrace;)</span></span>
+<span class="code-line"><span class="line-number">7</span><span class="line-code" /></span>
+<span class="code-line"><span class="line-number">8</span><span class="line-code"><span class="syntax-keyword">await</span> wapo.<span class="syntax-function">sendText</span>(</span></span>
+<span class="code-line"><span class="line-number">9</span><span class="line-code">  <span class="syntax-string">'connection-id'</span>,</span></span>
+<span class="code-line"><span class="line-number">10</span><span class="line-code">  <span class="syntax-string">'5491155550148'</span>,</span></span>
+<span class="code-line"><span class="line-number">11</span><span class="line-code">  <span class="syntax-string">'{t.included.ui.answer}'</span>,</span></span>
+<span class="code-line"><span class="line-number">12</span><span class="line-code">  <span class="syntax-string">'order-123-shipped'</span>,</span></span>
+<span class="code-line"><span class="line-number">13</span><span class="line-code">)</span></span></code></pre>
+      </div>
+      <div class="request-panel">
+        <div class="request-head">
+          <span>{t.api.status}</span><code>DEMO</code>
+        </div>
+        <div class="request-step done">
+          <i>1</i><span>{t.api.accepted}</span><time>0 ms</time>
+        </div>
+        <div class="request-step done">
+          <i>2</i><span>{t.api.queued}</span><time>18 ms</time>
+        </div>
+        <div class="request-step done">
+          <i>3</i><span>{t.api.delivered}</span><time>842 ms</time>
+        </div>
+        <div class="request-json">
+          <pre><code>{'{\n  "status": '}<span class="syntax-string">"delivered"</span>{',\n  "provider": '}<span class="syntax-string">"meta"</span>{'\n}'}</code></pre>
+        </div>
+        <button
+          type="button"
+          class="request-replay"
+          data-replay-demo
+          ><svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            ><path d="m9 5 10 7-10 7V5Z"></path></svg
+          >{t.api.replay}</button
+        >
+        <span
+          class="request-announcement"
+          data-demo-status
+          role="status"
+        ></span>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="enterprise"
+    id="security"
+    data-reveal
+  >
+    <SectionDivider />
+    <div class="page-shell section-heading">
+      <div class="section-banner">
+        <span
+          class="banner-glyph"
+          aria-hidden="true"
+          >⌘</span
+        ><span>{t.enterprise.label}</span>
+      </div><h2>{t.enterprise.title}</h2>
+    </div>
+    <div class="page-shell enterprise-grid">
+      {
+        t.enterprise.items.map(([title, description], index) => (
+          <article>
+            <PlatformVisual index={index} />
+            <div class="platform-card-copy">
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="closing">
+    <PixelSignal class="closing-signal" />
+    <WhatsAppRain />
+    <div class="page-shell closing-inner">
+      <h2>{t.final.title}</h2>
+      <p>{t.final.body}</p>
+      <div class="closing-actions">
+        <a
+          class="closing-action closing-action-primary"
+          href={site.repositoryUrl}
+          ><GitHubIcon />{t.final.primary}</a
+        >
+        <a
+          class="closing-action"
+          href={`mailto:${site.contactEmail}`}
+          >{t.final.secondary}</a
+        >
+      </div>
+    </div>
+    <div
+      class="page-shell closing-mark"
+      aria-hidden="true"
+    >
+      <WapoLogo />
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/api-demo'
+    import '../scripts/landing-motion'
+
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-copy-command]')
+      .forEach((button) => {
+        button.addEventListener('click', async () => {
+          const command = button.querySelector('code')?.textContent ?? ''
+          const label = button.querySelector('small')
+
+          try {
+            await navigator.clipboard.writeText(command)
+            if (label)
+              label.textContent = button.dataset.copiedLabel ?? 'Copied'
+            button.classList.add('is-copied')
+            window.setTimeout(() => {
+              if (label) label.textContent = button.dataset.copyLabel ?? 'Copy'
+              button.classList.remove('is-copied')
+            }, 1600)
+          } catch {
+            // Clipboard access can be unavailable outside HTTPS.
+          }
+        })
+      })
+  </script>
+</BaseLayout>

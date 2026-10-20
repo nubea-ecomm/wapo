@@ -1,0 +1,769 @@
+---
+import WapoLogo from './WapoLogo.astro'
+import ProviderIcon from './ProviderIcon.astro'
+import DashboardIcon from './DashboardIcon.astro'
+import type { Locale } from '../i18n'
+
+interface Props {
+  locale: Locale
+}
+const { locale } = Astro.props
+const labels = {
+  es: {
+    panel: 'Panel',
+    overview: 'Vista general',
+    summary: 'Resumen de mensajes.',
+    connect: 'Conectar WhatsApp',
+    messages: 'Mensajes',
+    period: 'Últimos 30 días',
+    metrics: ['Enviados', 'Recibidos', 'Entregados', 'Leídos'],
+    chart: 'Mensajes por día',
+    chartInfo: 'Volumen de mensajes enviados y recibidos.',
+    connections: 'Conexiones',
+    activity: 'Actividad reciente',
+    emptyConnections: 'Sin conexiones de WhatsApp',
+    connectInfo: 'Conectá tu número de WhatsApp para empezar.',
+    emptyEvents: 'Sin eventos todavía',
+    eventsInfo: 'Los eventos aparecerán en esta lista.',
+    nav: ['Vista general', 'Conexiones', 'Chats', 'Contactos'],
+    integrations: 'Integraciones',
+    project: 'Proyecto',
+    settings: 'Configuración',
+    docs: 'Documentación',
+  },
+  en: {
+    panel: 'Dashboard',
+    overview: 'Overview',
+    summary: 'Message summary.',
+    connect: 'Connect WhatsApp',
+    messages: 'Messages',
+    period: 'Last 30 days',
+    metrics: ['Sent', 'Received', 'Delivered', 'Read'],
+    chart: 'Messages per day',
+    chartInfo: 'Volume of sent and received messages.',
+    connections: 'Connections',
+    activity: 'Recent activity',
+    emptyConnections: 'No WhatsApp connections',
+    connectInfo: 'Connect your WhatsApp number to get started.',
+    emptyEvents: 'No events yet',
+    eventsInfo: 'Events will appear in this list.',
+    nav: ['Overview', 'Connections', 'Chats', 'Contacts'],
+    integrations: 'Integrations',
+    project: 'Project',
+    settings: 'Settings',
+    docs: 'Documentation',
+  },
+  pt: {
+    panel: 'Painel',
+    overview: 'Visão geral',
+    summary: 'Resumo de mensagens.',
+    connect: 'Conectar WhatsApp',
+    messages: 'Mensagens',
+    period: 'Últimos 30 dias',
+    metrics: ['Enviadas', 'Recebidas', 'Entregues', 'Lidas'],
+    chart: 'Mensagens por dia',
+    chartInfo: 'Volume de mensagens enviadas e recebidas.',
+    connections: 'Conexões',
+    activity: 'Atividade recente',
+    emptyConnections: 'Sem conexões do WhatsApp',
+    connectInfo: 'Conecte seu número do WhatsApp para começar.',
+    emptyEvents: 'Nenhum evento ainda',
+    eventsInfo: 'Os eventos aparecerão nesta lista.',
+    nav: ['Visão geral', 'Conexões', 'Chats', 'Contatos'],
+    integrations: 'Integrações',
+    project: 'Projeto',
+    settings: 'Configuração',
+    docs: 'Documentação',
+  },
+}[locale]
+const sent = [
+  320, 380, 350, 420, 465, 390, 310, 440, 510, 480, 560, 615, 470, 425, 530,
+  590, 670, 620, 710, 550, 490, 650, 720, 680, 790, 830, 640, 580, 760, 870,
+]
+const received = sent.map((count, index) =>
+  Math.round(count * (0.4 + (index % 5) * 0.035)),
+)
+const sentTotal = sent.reduce((total, count) => total + count, 0)
+const receivedTotal = received.reduce((total, count) => total + count, 0)
+const deliveredTotal = Math.round(sentTotal * 0.987)
+const readTotal = Math.round(sentTotal * 0.843)
+const number = new Intl.NumberFormat(locale)
+const percent = new Intl.NumberFormat(locale, {
+  style: 'percent',
+  maximumFractionDigits: 1,
+})
+const metrics = [
+  { value: number.format(sentTotal), detail: labels.period },
+  { value: number.format(receivedTotal), detail: labels.period },
+  {
+    value: percent.format(deliveredTotal / sentTotal),
+    detail: `${number.format(deliveredTotal)} ${labels.messages.toLowerCase()}`,
+  },
+  {
+    value: percent.format(readTotal / sentTotal),
+    detail: `${number.format(readTotal)} ${labels.messages.toLowerCase()}`,
+  },
+]
+const chartPath = (values: number[]) =>
+  values
+    .map(
+      (value, index) =>
+        `${index === 0 ? 'M' : 'L'}${((index * 600) / (values.length - 1)).toFixed(1)},${(152 - value * 0.144).toFixed(1)}`,
+    )
+    .join(' ')
+const demoLabel = {
+  es: 'Datos de ejemplo',
+  en: 'Sample data',
+  pt: 'Dados de exemplo',
+}[locale]
+const activityLabels = {
+  es: {
+    connected: 'Conectada',
+    names: ['Atención al cliente', 'Notificaciones'],
+    events: ['Mensaje entregado', 'Mensaje recibido', 'Plantilla aprobada'],
+    times: ['Hace 1 min', 'Hace 3 min', 'Hace 12 min'],
+  },
+  en: {
+    connected: 'Connected',
+    names: ['Customer support', 'Notifications'],
+    events: ['Message delivered', 'Message received', 'Template approved'],
+    times: ['1 min ago', '3 min ago', '12 min ago'],
+  },
+  pt: {
+    connected: 'Conectada',
+    names: ['Atendimento ao cliente', 'Notificações'],
+    events: ['Mensagem entregue', 'Mensagem recebida', 'Modelo aprovado'],
+    times: ['Há 1 min', 'Há 3 min', 'Há 12 min'],
+  },
+}[locale]
+---
+
+<div class="page-shell console-wrap">
+  <div
+    class="dashboard-preview"
+    role="img"
+    aria-label={`${labels.panel}: ${labels.overview}. ${demoLabel}. ${labels.metrics[0]}: ${number.format(sentTotal)}. ${labels.metrics[1]}: ${number.format(receivedTotal)}.`}
+  >
+    <aside
+      class="dashboard-sidebar"
+      aria-hidden="true"
+    >
+      <WapoLogo />
+      <div class="dashboard-project">
+        {labels.panel}<DashboardIcon name="selector" />
+      </div>
+      <div class="dashboard-menu">
+        {
+          labels.nav.map((label, index) => (
+            <div class:list={['dashboard-nav-item', { selected: index === 0 }]}>
+              {index === 1 ? (
+                <ProviderIcon name="whatsapp" />
+              ) : (
+                <DashboardIcon
+                  name={
+                    index === 0
+                      ? 'overview'
+                      : index === 2
+                        ? 'chats'
+                        : 'contacts'
+                  }
+                />
+              )}
+              {label}
+            </div>
+          ))
+        }
+      </div>
+      <div class="dashboard-menu">
+        <strong
+          ><DashboardIcon name="plug" />{labels.integrations}<DashboardIcon
+            name="chevron"
+          /></strong
+        >{
+          (['templates', 'key', 'webhook', 'activity'] as const).map(
+            (icon, index) => (
+              <div class="dashboard-subitem">
+                <DashboardIcon name={icon} />
+                {['Templates', 'API keys', 'Webhooks', 'Logs'][index]}
+              </div>
+            ),
+          )
+        }
+      </div>
+      <div class="dashboard-menu">
+        <strong
+          ><DashboardIcon name="sliders" />{labels.project}<DashboardIcon
+            name="chevron"
+          /></strong
+        ><div class="dashboard-subitem">
+          <DashboardIcon name="settings" />{labels.settings}
+        </div>
+      </div>
+      <div class="dashboard-docs">
+        <DashboardIcon name="book" />{labels.docs}
+      </div>
+    </aside>
+    <div
+      class="dashboard-content"
+      aria-hidden="true"
+    >
+      <div class="dashboard-breadcrumb">
+        {labels.panel}<span>/</span><b>{labels.overview}</b><small
+          >Admin<DashboardIcon name="chevron" /></small
+        >
+      </div>
+      <div class="dashboard-body">
+        <header class="dashboard-heading">
+          <div><h2>{labels.overview}</h2><p>{labels.summary}</p></div><span
+            class="dashboard-connect"
+            ><ProviderIcon name="whatsapp" />{labels.connect}</span
+          >
+        </header>
+        <div class="dashboard-section-label">
+          <b
+            >{labels.messages}<small class="dashboard-demo-label"
+              >{demoLabel}</small
+            ></b
+          ><span>{labels.period} / UTC</span>
+        </div>
+        <div class="dashboard-messages">
+          <div class="dashboard-metrics">
+            {
+              labels.metrics.map((label, index) => (
+                <div>
+                  <>
+                    <span>{label}</span>
+                    <b>{metrics[index].value}</b>
+                    <small>{metrics[index].detail}</small>
+                  </>
+                </div>
+              ))
+            }
+          </div>
+          <div class="dashboard-chart">
+            <b>{labels.chart}</b><p>{labels.chartInfo}</p>
+            <div class="dashboard-plot">
+              <div class="dashboard-axis">
+                {
+                  [1000, 750, 500, 250, 0].map((value) => (
+                    <span>{number.format(value)}</span>
+                  ))
+                }
+              </div>
+              <svg
+                viewBox="0 0 600 160"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                {
+                  [8, 44, 80, 116, 152].map((y) => (
+                    <path
+                      class="dashboard-gridline"
+                      d={`M0 ${y}H600`}
+                    />
+                  ))
+                }
+                <path
+                  class="dashboard-chart-area"
+                  d={`${chartPath(sent)} L600,152 L0,152 Z`}
+                ></path>
+                <path
+                  class="dashboard-chart-received"
+                  d={chartPath(received)}
+                ></path>
+                <path
+                  class="dashboard-chart-sent"
+                  d={chartPath(sent)}
+                ></path>
+              </svg>
+            </div>
+            <div class="dashboard-chart-legend">
+              <span>▪ {labels.metrics[1]}</span><span
+                >▪ {labels.metrics[0]}</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-bottom">
+          <section>
+            <h3>{labels.connections}<span class="dashboard-count">2</span></h3>
+            <div class="dashboard-connection-list">
+              {
+                activityLabels.names.map((name, index) => (
+                  <div class="dashboard-connection">
+                    <span class="dashboard-channel-icon">
+                      <ProviderIcon name="whatsapp" />
+                    </span>
+                    <div>
+                      <>
+                        <b>{name}</b>
+                        <small>
+                          {index === 0 ? '+1 202 555 0148' : '+1 202 555 0186'}
+                        </small>
+                      </>
+                    </div>
+                    <span class="dashboard-connected">
+                      <i />
+                      {activityLabels.connected}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </section>
+          <section>
+            <h3>{labels.activity}</h3>
+            <div class="dashboard-event-list">
+              {
+                activityLabels.events.map((event, index) => (
+                  <div class="dashboard-event">
+                    <span class="dashboard-event-dot" />
+                    <div>
+                      <>
+                        <b>{event}</b>
+                        <small>
+                          {
+                            [
+                              'message.status · delivered',
+                              'message.received',
+                              'order_shipped · approved',
+                            ][index]
+                          }
+                        </small>
+                      </>
+                    </div>
+                    <span class="dashboard-event-time">
+                      {activityLabels.times[index]}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dashboard-preview {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    overflow: hidden;
+    border: 1px solid #353537;
+    border-radius: 12px;
+    background: #0c0c0d;
+    color: #eee;
+    text-align: left;
+    box-shadow: 0 30px 100px #0005;
+    font-size: 11px;
+  }
+  .dashboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px;
+    background: #19191a;
+    border-right: 1px solid #303032;
+  }
+  .dashboard-sidebar :global(.wapo-logo) {
+    width: 88px;
+    height: auto;
+    margin: 0 8px 24px;
+  }
+  .dashboard-preview :global(.dashboard-icon) {
+    width: 15px;
+    height: 15px;
+    flex: none;
+    display: block;
+  }
+  .dashboard-project {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px;
+    border: 1px solid #363638;
+    border-radius: 5px;
+    background: #222;
+  }
+  .dashboard-menu {
+    padding: 17px 0;
+    border-bottom: 1px solid #303032;
+  }
+  .dashboard-menu strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 8px 12px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .dashboard-menu strong :global(svg:last-child) {
+    margin-left: auto;
+    width: 12px;
+    height: 12px;
+  }
+  .dashboard-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    color: #aaa;
+    border-radius: 5px;
+  }
+  .dashboard-nav-item.selected {
+    background: #29292b;
+    color: #fff;
+  }
+  .dashboard-nav-item :global(.provider-icon) {
+    width: 15px;
+    height: 15px;
+    color: currentColor;
+  }
+  .dashboard-subitem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-left: 12px;
+    border-left: 1px solid #38383a;
+    color: #b4b4b7;
+    font-size: 10px;
+  }
+  .dashboard-subitem :global(.dashboard-icon) {
+    width: 13px;
+    height: 13px;
+  }
+  .dashboard-docs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding: 24px 8px 0;
+    color: #aaa;
+  }
+  .dashboard-content {
+    min-width: 0;
+  }
+  .dashboard-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 45px;
+    border-bottom: 1px solid #303032;
+    padding: 0 24px;
+    color: #aaa;
+  }
+  .dashboard-breadcrumb > span {
+    color: #555;
+  }
+  .dashboard-breadcrumb b {
+    color: #eee;
+    font-weight: 500;
+  }
+  .dashboard-breadcrumb small {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-left: auto;
+    color: #eee;
+  }
+  .dashboard-breadcrumb small :global(.dashboard-icon) {
+    width: 12px;
+    height: 12px;
+    color: #aaa;
+  }
+  .dashboard-body {
+    padding: 26px 32px;
+  }
+  .dashboard-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 25px;
+  }
+  .dashboard-heading h2 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: -0.05em;
+  }
+  .dashboard-preview p {
+    margin: 6px 0 0;
+    color: #aaa;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .dashboard-connect {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    background: #e7e7e7;
+    color: #111;
+    border-radius: 5px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .dashboard-connect :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: #111;
+  }
+  .dashboard-section-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .dashboard-section-label > b {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dashboard-demo-label {
+    color: #888;
+    font-size: 8px;
+    font-weight: 400;
+  }
+  .dashboard-section-label > span {
+    padding: 4px 8px;
+    border: 1px solid #333;
+    border-radius: 20px;
+    font-size: 9px;
+  }
+  .dashboard-messages {
+    border: 1px solid #303032;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .dashboard-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid #303032;
+  }
+  .dashboard-metrics > div {
+    display: grid;
+    gap: 10px;
+    padding: 17px;
+    border-right: 1px solid #303032;
+  }
+  .dashboard-metrics > div:last-child {
+    border: 0;
+  }
+  .dashboard-metrics span,
+  .dashboard-metrics small {
+    color: #aaa;
+    font-size: 10px;
+  }
+  .dashboard-metrics b {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .dashboard-chart {
+    padding: 18px;
+  }
+  .dashboard-plot {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    margin-top: 23px;
+  }
+  .dashboard-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-block: 3px;
+    text-align: right;
+    color: #777;
+    font-size: 9px;
+  }
+  .dashboard-plot svg {
+    display: block;
+    width: 100%;
+    height: 144px;
+    overflow: visible;
+  }
+  .dashboard-gridline {
+    fill: none;
+    stroke: #292929;
+    stroke-dasharray: 3 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .dashboard-chart-area {
+    fill: #ffffff05;
+  }
+  .dashboard-chart-sent,
+  .dashboard-chart-received {
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .dashboard-chart-sent {
+    stroke: #ededed;
+  }
+  .dashboard-chart-received {
+    stroke: #808080;
+  }
+  .dashboard-chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 16px;
+    font-size: 9px;
+  }
+  .dashboard-chart-legend > span:first-child {
+    color: #999;
+  }
+  .dashboard-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .dashboard-bottom section {
+    padding: 16px;
+    border: 1px solid #303032;
+    border-radius: 6px;
+    background: #121213;
+  }
+  .dashboard-bottom h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 11px;
+  }
+  .dashboard-count {
+    padding: 2px 5px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 9px;
+    font-weight: 400;
+  }
+  .dashboard-connection-list,
+  .dashboard-event-list {
+    margin-top: 14px;
+  }
+  .dashboard-connection,
+  .dashboard-event {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 0;
+  }
+  .dashboard-connection + .dashboard-connection,
+  .dashboard-event + .dashboard-event {
+    border-top: 1px solid #ffffff09;
+  }
+  .dashboard-connection > div,
+  .dashboard-event > div {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+  }
+  .dashboard-connection b,
+  .dashboard-event b {
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .dashboard-connection small,
+  .dashboard-event small {
+    color: #929292;
+    font-size: 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dashboard-channel-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    background: #ffffff05;
+    border: 1px solid #ffffff0c;
+    border-radius: 7px;
+  }
+  .dashboard-channel-icon :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: #bcbcbc;
+  }
+  .dashboard-connected {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    color: #8de3a8;
+    font-size: 8px;
+    white-space: nowrap;
+  }
+  .dashboard-connected i,
+  .dashboard-event-dot {
+    flex: none;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #60dc8a;
+  }
+  .dashboard-event-dot {
+    margin-inline: 3px;
+  }
+  .dashboard-event-time {
+    margin-left: auto;
+    color: #888;
+    font-size: 8px;
+    white-space: nowrap;
+  }
+  @media (min-width: 681px) and (max-width: 950px) {
+    .dashboard-connection {
+      flex-wrap: wrap;
+    }
+    .dashboard-connected {
+      margin-left: 37px;
+    }
+    .dashboard-event-time {
+      font-size: 7px;
+    }
+  }
+  @media (max-width: 950px) {
+    .dashboard-preview {
+      grid-template-columns: 135px minmax(0, 1fr);
+    }
+    .dashboard-body {
+      padding: 20px;
+    }
+  }
+  @media (max-width: 680px) {
+    .dashboard-preview {
+      grid-template-columns: 1fr;
+    }
+    .dashboard-sidebar {
+      display: none;
+    }
+    .dashboard-body {
+      padding: 16px;
+    }
+    .dashboard-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .dashboard-metrics {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .dashboard-metrics > div:nth-child(2) {
+      border-right: 0;
+    }
+    .dashboard-metrics > div:nth-child(-n + 2) {
+      border-bottom: 1px solid #303032;
+    }
+    .dashboard-bottom {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

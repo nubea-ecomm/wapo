@@ -1,4 +1,5 @@
 packages:
+  - apps/landing
   - apps/web
   - packages/sdk
 allowBuilds:
@@ -26,3 +27,5 @@ minimumReleaseAgeExclude:
   - '@scalar/types@0.24.0'
   - '@scalar/use-hooks@0.4.21'
   - '@scalar/workspace-store@0.68.4'
+  - '@astrojs/check@0.9.11'
+  - astro@7.4.1

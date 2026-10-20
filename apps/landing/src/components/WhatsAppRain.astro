@@ -1,0 +1,111 @@
+---
+import ProviderIcon from './ProviderIcon.astro'
+
+const bubbles = [
+  { x: 56, size: 32, duration: 16, delay: -7, drift: 20, rotation: -12 },
+  { x: 65, size: 46, duration: 19, delay: -2, drift: -24, rotation: 10 },
+  { x: 73, size: 28, duration: 14, delay: -10, drift: 16, rotation: -8 },
+  { x: 83, size: 54, duration: 21, delay: -13, drift: -18, rotation: 14 },
+  { x: 93, size: 36, duration: 17, delay: -5, drift: -30, rotation: -15 },
+  { x: 61, size: 24, duration: 15, delay: -12, drift: 28, rotation: 8 },
+  { x: 78, size: 40, duration: 18, delay: -4, drift: 20, rotation: -10 },
+  { x: 88, size: 26, duration: 13, delay: -8, drift: -14, rotation: 12 },
+  { x: 69, size: 34, duration: 20, delay: -16, drift: -22, rotation: -6 },
+  { x: 97, size: 44, duration: 22, delay: -18, drift: -34, rotation: 9 },
+]
+---
+
+<div
+  class="whatsapp-rain"
+  data-whatsapp-rain
+  aria-hidden="true"
+>
+  {
+    bubbles.map((bubble) => (
+      <span
+        class="rain-bubble"
+        style={`--x:${bubble.x}%;--size:${bubble.size}px;--duration:${bubble.duration}s;--delay:${bubble.delay}s;--drift:${bubble.drift}px;--rotation:${bubble.rotation}deg`}
+      >
+        <ProviderIcon name="whatsapp" />
+      </span>
+    ))
+  }
+</div>
+
+<style>
+  .whatsapp-rain {
+    position: absolute;
+    inset: 96px 0 0;
+    overflow: hidden;
+    pointer-events: none;
+    container-type: size;
+    mask-image:
+      linear-gradient(90deg, transparent 45%, #000 70%),
+      linear-gradient(transparent, #000 12%, #000 65%, transparent 95%);
+    mask-composite: intersect;
+  }
+  .rain-bubble {
+    position: absolute;
+    top: -70px;
+    left: var(--x);
+    display: grid;
+    place-items: center;
+    width: var(--size);
+    height: var(--size);
+    border: 1px solid #65db8f50;
+    border-radius: 30% 30% 30% 8%;
+    background: #39f1810a;
+    opacity: 0;
+  }
+  .rain-bubble :global(.provider-icon) {
+    width: 54%;
+    height: 54%;
+    color: #75df9b;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .rain-bubble {
+      animation: whatsapp-rainfall var(--duration) linear var(--delay) infinite;
+      animation-play-state: paused;
+    }
+    .whatsapp-rain.is-active .rain-bubble {
+      animation-play-state: running;
+    }
+  }
+  @keyframes whatsapp-rainfall {
+    0% {
+      transform: translate3d(0, 0, 0) rotate(var(--rotation));
+      opacity: 0;
+    }
+    18% {
+      opacity: 0.48;
+    }
+    55% {
+      opacity: 0.32;
+    }
+    85%,
+    100% {
+      transform: translate3d(var(--drift), calc(100cqh + 90px), 0)
+        rotate(calc(var(--rotation) * -1));
+      opacity: 0;
+    }
+  }
+  @media (max-width: 680px) {
+    .whatsapp-rain {
+      mask-image: linear-gradient(90deg, transparent 65%, #000);
+    }
+    .rain-bubble:nth-child(even) {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const rain = document.querySelector<HTMLElement>('[data-whatsapp-rain]')
+  if (rain && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      rain.classList.toggle('is-active', entry.isIntersecting)
+    }).observe(rain)
+  } else {
+    rain?.classList.add('is-active')
+  }
+</script>

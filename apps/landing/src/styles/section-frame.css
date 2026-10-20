@@ -1,0 +1,112 @@
+.home-page .included,
+.home-page .flow-section,
+.home-page .api-section,
+.home-page .enterprise {
+  position: relative;
+  padding-block: 108px 72px;
+}
+.included::before,
+.flow-section::before,
+.api-section::before,
+.enterprise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: min(1284px, 100% - 16px);
+  margin-inline: auto;
+  border-inline: 1px solid #ffffff0a;
+  pointer-events: none;
+}
+.section-divider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 34px;
+  border-bottom: 1px solid #ffffff0c;
+  pointer-events: none;
+}
+.section-divider > span {
+  display: block;
+  width: min(1284px, 100% - 16px);
+  height: 100%;
+  margin-inline: auto;
+  background-color: #ffffff03;
+  background-image: repeating-conic-gradient(
+    #ffffff0e 0% 25%,
+    transparent 0% 50%
+  );
+  background-size: 12px 12px;
+  mask-image: linear-gradient(90deg, #0003, #000 22%, #000 78%, #0003);
+}
+.home-page .section-heading {
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.home-page .section-heading h2 {
+  font-size: clamp(32px, 3.4vw, 46px);
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+.home-page .section-heading p {
+  max-width: 680px;
+  margin: 0;
+  color: #bcbcc6;
+  font-size: 16px;
+}
+.section-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-bottom: 6px;
+  padding: 7px 11px;
+  border: 1px solid #ffffff18;
+  border-radius: 7px;
+  background: #ffffff04;
+  color: #c9c9c9;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+.section-banner .provider-icon,
+.banner-glyph {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 7px;
+  border-top: 1px solid #ffffff05;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 9px,
+    #ffffff0b 9px 10px
+  );
+  pointer-events: none;
+}
+@media (max-width: 680px) {
+  .home-page .included,
+  .home-page .flow-section,
+  .home-page .api-section,
+  .home-page .enterprise {
+    padding-block: 76px 48px;
+  }
+  .section-divider {
+    height: 24px;
+  }
+  .section-banner {
+    font-size: 11px;
+  }
+}

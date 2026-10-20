@@ -1,0 +1,106 @@
+---
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
+import headingFont from '@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2?url'
+import monoFont from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url'
+import '../styles/fonts.css'
+import '../styles/global.css'
+import SiteFooter from '../components/SiteFooter.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import { copy, localizedPath, locales, type Locale } from '../i18n'
+
+interface Props {
+  title: string
+  description: string
+  bodyClass?: string
+  locale?: Locale
+  localizedHome?: boolean
+}
+
+const { title, description, bodyClass = '', locale = 'en' } = Astro.props
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="preload"
+      href={interFont}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={headingFont}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href={monoFont}
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width"
+    />
+    <meta
+      name="description"
+      content={description}
+    />
+    <meta
+      name="theme-color"
+      content="#0f0f0f"
+    />
+    <meta
+      property="og:title"
+      content={title}
+    />
+    <meta
+      property="og:description"
+      content={description}
+    />
+    <meta
+      property="og:type"
+      content="website"
+    />
+    <meta
+      property="og:locale"
+      content={locale}
+    />
+    {
+      locales.map((code) => (
+        <link
+          rel="alternate"
+          hreflang={code}
+          href={localizedPath(Astro.url.pathname, code)}
+        />
+      ))
+    }
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={localizedPath(Astro.url.pathname, 'en')}
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/wapo-mark.png"
+    />
+    <title>{title}</title>
+  </head>
+  <body class={bodyClass}>
+    <a
+      class="skip-link"
+      href="#contenido"
+      >{copy[locale].skip}</a
+    >
+    <SiteHeader locale={locale} />
+    <main id="contenido"><slot /></main>
+    <SiteFooter locale={locale} />
+  </body>
+</html>

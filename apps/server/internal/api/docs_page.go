@@ -32,7 +32,7 @@ func (s *Server) docsAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	types := map[string]string{"docs-polish.css": "text/css; charset=utf-8", "docs-theme.js": "text/javascript; charset=utf-8", "docs-theme.css": "text/css; charset=utf-8", "docs-content.css": "text/css; charset=utf-8", "docs.css": "text/css; charset=utf-8", "docs-shell.css": "text/css; charset=utf-8", "docs-responsive.css": "text/css; charset=utf-8", "docs-search.js": "text/javascript; charset=utf-8", "docs-search.css": "text/css; charset=utf-8", "docs.js": "text/javascript; charset=utf-8", "favicon.svg": "image/svg+xml", "wapo-wordmark.svg": "image/svg+xml"}
+	types := map[string]string{"docs-polish.css": "text/css; charset=utf-8", "docs-theme.js": "text/javascript; charset=utf-8", "docs-theme.css": "text/css; charset=utf-8", "docs-content.css": "text/css; charset=utf-8", "docs.css": "text/css; charset=utf-8", "docs-shell.css": "text/css; charset=utf-8", "docs-responsive.css": "text/css; charset=utf-8", "docs-search.js": "text/javascript; charset=utf-8", "docs-search.css": "text/css; charset=utf-8", "docs.js": "text/javascript; charset=utf-8", "favicon.svg": "image/svg+xml", "favicon.png": "image/png", "favicon-512.png": "image/png", "wapo-wordmark.svg": "image/svg+xml"}
 	contentType, ok := types[name]
 
 	if !ok {

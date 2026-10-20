@@ -1,0 +1,149 @@
+---
+import { site } from '../config'
+import {
+  copy,
+  localePaths,
+  privacyPath,
+  localizedPath,
+  locales,
+  languageNames,
+  type Locale,
+} from '../i18n'
+import WapoLogo from './WapoLogo.astro'
+import GitHubIcon from './GitHubIcon.astro'
+import '../styles/header.css'
+import '../styles/language-menu.css'
+
+interface Props {
+  locale?: Locale
+}
+
+const { locale = 'en' } = Astro.props
+const t = copy[locale]
+const home = localePaths[locale]
+const labels = {
+  es: {
+    navigation: 'Navegación principal',
+    open: 'Abrir menú',
+    close: 'Cerrar menú',
+    language: 'Idioma',
+  },
+  en: {
+    navigation: 'Main navigation',
+    open: 'Open menu',
+    close: 'Close menu',
+    language: 'Language',
+  },
+  pt: {
+    navigation: 'Navegação principal',
+    open: 'Abrir menu',
+    close: 'Fechar menu',
+    language: 'Idioma',
+  },
+}[locale]
+---
+
+<header class="site-header">
+  <div class="shell header-inner">
+    <a
+      class="brand"
+      href={home}
+      aria-label="Wapo"
+    >
+      <WapoLogo />
+    </a>
+    <nav
+      id="primary-navigation"
+      aria-label={labels.navigation}
+    >
+      <div class="header-links">
+        <a href={`${home}#product`}>{t.nav.product}</a>
+        <a href={`${home}#developers`}>{t.nav.developers}</a>
+        <a href={`${home}#security`}>{t.nav.security}</a>
+        <a href={privacyPath(locale)}>{t.nav.privacy}</a>
+      </div>
+      <div class="header-tools">
+        <details class="language-menu">
+          <summary aria-label={`${labels.language}: ${languageNames[locale]}`}>
+            <svg
+              class="language-globe"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              ><circle
+                cx="12"
+                cy="12"
+                r="9"
+              ></circle><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"
+              ></path></svg
+            >
+            <span>{languageNames[locale]}</span>
+            <svg
+              class="language-chevron"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              ><path d="m7 10 5 5 5-5"></path></svg
+            >
+          </summary>
+          <div class="language-options">
+            <span class="language-heading">{labels.language}</span>
+            {
+              locales.map((code) => (
+                <a
+                  href={localizedPath(Astro.url.pathname, code)}
+                  lang={code}
+                  hreflang={code}
+                  aria-current={code === locale ? 'page' : undefined}
+                >
+                  <span>{languageNames[code]}</span>
+                  {code === locale ? (
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="m5 12 4 4L19 6" />
+                    </svg>
+                  ) : (
+                    <small>{code.toUpperCase()}</small>
+                  )}
+                </a>
+              ))
+            }
+          </div>
+        </details>
+        {
+          site.consoleUrl ? (
+            <a
+              class="button button-small"
+              href={site.consoleUrl}
+            >
+              {t.nav.signIn}
+            </a>
+          ) : (
+            <a
+              class="button button-small header-github"
+              href={site.repositoryUrl}
+            >
+              <GitHubIcon />
+              GitHub
+            </a>
+          )
+        }
+      </div>
+    </nav>
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-controls="primary-navigation"
+      aria-expanded="false"
+      aria-label={labels.open}
+      data-open-label={labels.open}
+      data-close-label={labels.close}
+    >
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<script>
+  import '../scripts/navigation'
+</script>

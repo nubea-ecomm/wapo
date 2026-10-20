@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { site } from '../config'
+import { privacyPath, deletionPath } from '../i18n'
+import { en } from '../legal/en'
+import { pt } from '../legal/pt'
+
+interface Props {
+  locale: 'en' | 'pt'
+  page: 'privacy' | 'deletion'
+}
+const { locale, page } = Astro.props
+const content = { en, pt }[locale]
+const t = content[page]
+const deletion = content.deletion
+const updated = new Intl.DateTimeFormat(locale, {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+}).format(new Date(site.updatedAt))
+const email = `mailto:${site.contactEmail}`
+const deletionEmail = `${email}?subject=${encodeURIComponent(deletion.subject)}`
+---
+
+<BaseLayout
+  title={`${t.title} | Wapo`}
+  description={t.description}
+  bodyClass="legal-dark-page"
+  locale={locale}
+>
+  <div class="legal-shell shell">
+    <aside class="legal-aside">
+      <p class="eyebrow">{page === 'privacy' ? 'LEGAL' : deletion.eyebrow}</p>
+      <h1>{t.title}</h1>
+      {
+        page === 'privacy' ? (
+          <p>
+            {content.updated}
+            <br />
+            <b>{updated}</b>
+          </p>
+        ) : (
+          <p>{deletion.note}</p>
+        )
+      }
+    </aside>
+    <article class="legal-content">
+      <p class="legal-intro">{t.intro}</p>
+      {
+        page === 'deletion' && (
+          <section>
+            <h2>{deletion.instructions}</h2>
+            <ol class="steps">
+              {deletion.steps.map((step, index) => (
+                <li>
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <b>{step.title}</b>
+                    {index === 0 ? (
+                      <p>
+                        {deletion.emailLead}{' '}
+                        <a href={deletionEmail}>{site.contactEmail}</a>{' '}
+                        {deletion.emailTail} “{deletion.subject}”.
+                      </p>
+                    ) : (
+                      <p>{step.body}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+      {
+        t.sections.map((section, index) => (
+          <section>
+            <h2>{section.title}</h2>
+            {section.items && (
+              <ul>
+                {section.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            )}
+            {section.paragraphs?.map((paragraph) => (
+              <p>{paragraph}</p>
+            ))}
+            {page === 'privacy' && index === 7 && (
+              <p>
+                <a href={deletionPath(locale)}>
+                  {content.privacy.deletionLink} ↗
+                </a>
+              </p>
+            )}
+          </section>
+        ))
+      }
+      <div class="contact-card">
+        <span>{t.contact}</span>
+        <a href={page === 'privacy' ? email : deletionEmail}
+          >{site.contactEmail} ↗</a
+        >
+        <p>
+          {
+            page === 'privacy'
+              ? `${site.operator}, ${site.location}`
+              : deletion.contactNote
+          }
+        </p>
+      </div>
+      {
+        page === 'deletion' && (
+          <p>
+            <a href={privacyPath(locale)}>{deletion.privacyLink} ↗</a>
+          </p>
+        )
+      }
+    </article>
+  </div>
+</BaseLayout>

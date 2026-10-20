@@ -18,6 +18,7 @@
     "test:web": "pnpm --filter @wapo/web test",
     "test": "pnpm --filter @nubea-ecomm/wapo-sdk build && pnpm test:sdk && pnpm test:sdk-release && pnpm test:web && pnpm test:openapi && pnpm test:migrations",
     "test:e2e": "playwright test",
+    "test:landing": "playwright test --config playwright.landing.config.ts",
     "postinstall": "node scripts/copy-docs-assets.mjs"
   },
   "devDependencies": {
@@ -32,6 +33,7 @@
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
     "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^0.14.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.71.2"
   }
