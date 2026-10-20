@@ -1,6 +1,6 @@
 {
   "name": "@nubea-ecomm/wapo-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Typed JavaScript and TypeScript client for the Wapo messaging API",
   "type": "module",
   "license": "Apache-2.0",
