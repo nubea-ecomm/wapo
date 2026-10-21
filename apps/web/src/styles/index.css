@@ -6,7 +6,8 @@
 @import './shell.css' layer(legacy);
 @import './components.css' layer(legacy);
 @import './inbox.css' layer(legacy);
-@import './login.css' layer(legacy);
+@import './login.css';
+@import './account-controls.css';
 
 @import './resource-tables.css';
 

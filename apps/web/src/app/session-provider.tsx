@@ -156,10 +156,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }).updateProfile(input)
 
     setSession((current) =>
-      current
-        ? { ...current, id: crypto.randomUUID(), user: result.data.user }
-        : null,
+      current && current.key === session.key
+        ? { ...current, user: result.data.user }
+        : current,
     )
+    // Profile preferences do not change project scope. Preserve the page instance
+    // (including its selected settings tab) while refreshing cached profile data.
+    void queryClient.invalidateQueries({ queryKey: [session.id] })
   }
 
   return (

@@ -4,7 +4,7 @@ import { useSession } from '../app/session-context'
 import { ErrorNotice, Field } from '../components/ui'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
-import { WapoLogo } from '../components/wapo-logo'
+import { AuthLayout } from '../components/auth-layout'
 import { useI18n } from '../app/i18n'
 
 export function CreateProjectPage() {
@@ -43,48 +43,38 @@ export function CreateProjectPage() {
   }
 
   return (
-    <main className="login">
-      <div className="login-content">
-        <WapoLogo />
-        <section className="login-panel">
-          <header>
-            <h1>{t('auth.firstProject')}</h1>
-            <p>{t('auth.projectDescription')}</p>
-          </header>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault()
-              void create()
-            }}
-          >
-            <Field label={t('auth.projectName')}>
-              <Input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-                maxLength={120}
-              />
-            </Field>
-            <ErrorNotice error={error} />
-            <Button disabled={busy}>
-              {busy ? t('auth.creating') : t('auth.createProject')}
-            </Button>
-          </form>
-          <a
-            className="mt-4 block underline"
-            href="#/account-security"
-          >
-            {t('auth.security')}
-          </a>
-          <Button
-            className="mt-4"
-            variant="ghost"
-            onClick={disconnect}
-          >
-            {t('signOut')}
-          </Button>
-        </section>
-      </div>
-    </main>
+    <AuthLayout
+      title={t('auth.firstProject')}
+      description={t('auth.projectDescription')}
+      footer={<a href="#/?profile=security">{t('auth.security')}</a>}
+      secondary={
+        <Button
+          variant="ghost"
+          onClick={disconnect}
+        >
+          {t('signOut')}
+        </Button>
+      }
+    >
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          void create()
+        }}
+      >
+        <Field label={t('auth.projectName')}>
+          <Input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+            maxLength={120}
+          />
+        </Field>
+        <ErrorNotice error={error} />
+        <Button disabled={busy}>
+          {busy ? t('auth.creating') : t('auth.createProject')}
+        </Button>
+      </form>
+    </AuthLayout>
   )
 }

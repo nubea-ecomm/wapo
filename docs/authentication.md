@@ -30,11 +30,36 @@ marks existing accounts as verified; new registrations explicitly start unverifi
 Passwords contain 12–72 UTF-8 bytes. Global operators retain the existing manual
 user management and invitation flows.
 
+Password fields provide an accessible show/hide control. New-password forms enforce
+the same UTF-8 byte limits locally and display a lazy-loaded zxcvbn strength estimate
+for common passwords, repetition and predictable patterns. Strength feedback is
+advisory; it does not replace the server's password validation or claim a password
+is unbreakable. Evaluation stays in the browser and does not transmit passwords.
+
+## Appearance and language
+
+Before a preference is saved, theme follows `prefers-color-scheme` and updates with
+system changes. The explicit light/dark/system choice is stored on the device.
+Language uses the first supported browser preference (`es`, `en` or `pt`, including
+regional variants), falling back to English. Login and signup offer compact theme
+and language menus in the upper-right corner. Configuration → Preferences exposes
+the same controls after login; the existing account theme switch stays synchronized.
+
+Public registration accepts optional `language` (`es` by default for API clients).
+The console sends the detected/selected language so a new account retains it after
+verification. An authenticated account's stored language takes precedence over the
+browser and is updated through the existing profile API. Theme and unauthenticated
+language selections persist locally; account language follows the user across devices.
+
+## Recovery and sessions
+
 Password recovery links expire in one hour, are single-use and are invalidated by
 replacement requests. Unknown, disabled and unverified accounts receive the same
 accepted recovery response. Resetting or changing a password revokes every session
-in the same transaction. **Account security** lists active sessions, supports
+in the same transaction. **Edit profile → Security** lists active sessions, supports
 individual revocation and allows password changes after checking the current password.
+The legacy `/#/account-security` link opens this modal; security is no longer a
+separate sidebar page and is still available before the first project is created.
 
 The existing opaque bearer-session contract is retained for the SDK and console:
 tokens are hashed in PostgreSQL, expire after 12 hours, and are stored in browser
@@ -62,6 +87,10 @@ and frontend capabilities use the selected project's role. Existing assignments
 are migrated with their previous role, preserving access.
 
 Project administrators use **Team** to invite, change roles or remove memberships.
+The screen uses a searchable, status-filtered member table. The empty state and
+header both open the invitation modal. Row menus open role editing or confirm
+project-access removal; they never change another person's password or globally
+disable/delete their account.
 Invitations expire after seven days and must be accepted by a signed-in, verified
 account with the exact invited email. A new recipient registers first and reopens
 the invitation after verification. Existing accounts retain their password and

@@ -16,7 +16,7 @@ import { AuthFlowPage } from '../pages/auth-flow-page'
 import { CreateProjectPage } from '../pages/create-project-page'
 import { JoinProjectPage } from '../pages/join-project-page'
 import { MembersPage } from '../pages/members-page'
-import { AccountSecurityPage } from '../pages/account-security-page'
+import { ProfileRouteDialog } from '../components/profile-route-dialog'
 
 const TemplatesPage = lazy(() =>
   import('../pages/templates-page').then((m) => ({ default: m.TemplatesPage })),
@@ -66,6 +66,7 @@ export function App() {
   return (
     <HashRouter>
       <AppRoutes />
+      <ProfileRouteDialog />
     </HashRouter>
   )
 }
@@ -98,21 +99,21 @@ function AppRoutes() {
 
   if (!session) return <LoginPage />
 
-  if (
-    session.user &&
-    !session.tenantId &&
-    !['/account-security', '/tenants'].includes(location.pathname)
-  )
+  if (location.pathname === '/account-security')
+    return (
+      <Navigate
+        to="/?profile=security"
+        replace
+      />
+    )
+
+  if (session.user && !session.tenantId && location.pathname !== '/tenants')
     return <CreateProjectPage />
 
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route element={<PermissionGuard />}>
-          <Route
-            path="account-security"
-            element={<AccountSecurityPage />}
-          />
           <Route
             path="members"
             element={<MembersPage />}

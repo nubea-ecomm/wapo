@@ -21,10 +21,16 @@
       href="/favicon-512.png"
     />
     <script>
+      let theme = 'system'
       try {
-        const theme = localStorage.getItem('wapo-theme')
-        document.documentElement.classList.toggle('dark', theme === 'dark')
+        theme = localStorage.getItem('wapo-theme') || 'system'
       } catch {}
+      document.documentElement.classList.toggle(
+        'dark',
+        theme === 'dark' ||
+          (theme !== 'light' &&
+            matchMedia('(prefers-color-scheme: dark)').matches),
+      )
     </script>
     <title>Wapo</title>
   </head>

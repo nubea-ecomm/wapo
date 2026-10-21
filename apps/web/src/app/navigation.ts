@@ -31,13 +31,6 @@ export type NavigationItem = {
 
 export const navigation = [
   {
-    to: '/account-security',
-    labelKey: 'auth.security',
-    icon: KeyRound,
-    group: 'project',
-    operator: false,
-  },
-  {
     to: '/templates',
     labelKey: 'templates',
     icon: FileText,

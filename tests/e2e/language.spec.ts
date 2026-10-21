@@ -17,7 +17,8 @@ test('language preference updates translated product copy across the console', a
     name: /Tu perfil|Your profile|Seu perfil/,
   })
 
-  await profile.getByLabel(/Idioma|Language/).selectOption('en')
+  await profile.getByLabel(/Idioma|Language/).click()
+  await page.getByRole('option', { name: /English|Inglés/ }).click()
   await profile
     .getByRole('button', {
       name: /Guardar cambios|Save changes|Salvar alterações/,
@@ -37,7 +38,8 @@ test('language preference updates translated product copy across the console', a
   await page.getByRole('menuitem', { name: 'Edit profile' }).click()
   const englishProfile = page.getByRole('dialog', { name: 'Your profile' })
 
-  await englishProfile.getByLabel('Language').selectOption('es')
+  await englishProfile.getByLabel('Language').click()
+  await page.getByRole('option', { name: /Spanish|Español/ }).click()
   await englishProfile.getByRole('button', { name: 'Save changes' }).click()
   await expect(
     page.getByRole('heading', { name: 'Vista general', exact: true }),

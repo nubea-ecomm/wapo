@@ -10,8 +10,16 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { NativeSelect } from './ui/native-select'
 import { nextAvatarVariant } from '../lib/avatar'
+import { Tabs } from 'radix-ui'
+import { AccountSecurityPanel } from './account-security-panel'
 
-export function ProfileDialog({ onClose }: { onClose: () => void }) {
+export function ProfileDialog({
+  onClose,
+  initialTab = 'profile',
+}: {
+  onClose: () => void
+  initialTab?: 'profile' | 'security'
+}) {
   const { session, updateProfile } = useSession()
   const { t } = useI18n()
   const user = session?.user
@@ -21,6 +29,7 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
   const [avatar, setAvatar] = useState(user?.avatar_variant || 0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
+  const [tab, setTab] = useState(initialTab)
 
   if (!user) return null
 
@@ -39,62 +48,102 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
   return (
     <FormDialog
       title={t('profile')}
-      description={t('profileDescription')}
+      description={
+        tab === 'security'
+          ? t('auth.securityDescription')
+          : t('profileDescription')
+      }
+      contentClassName="sm:max-w-lg"
       onClose={onClose}
     >
-      <form
-        className="grid gap-4"
-        onSubmit={submit}
+      <Tabs.Root
+        value={tab}
+        onValueChange={(value) => setTab(value as 'profile' | 'security')}
       >
-        <div className="flex items-center gap-4 rounded-lg border p-3">
-          <UserAvatar
-            id={user.id}
-            name={name || user.name}
-            variant={avatar}
-            className="size-14"
-          />
-          <div className="grid gap-1">
-            <span className="text-sm font-medium">{t('avatar')}</span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setAvatar(nextAvatarVariant(user.id, avatar))}
-            >
-              <Shuffle /> {t('anotherAvatar')}
-            </Button>
-          </div>
-        </div>
-        <Field label={t('name')}>
-          <Input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            maxLength={120}
-            required
-          />
-        </Field>
-        <Field label={t('email')}>
-          <Input
-            type="email"
-            readOnly={!(user.all_projects && user.role === 'admin')}
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </Field>
-        <Field label={t('language')}>
-          <NativeSelect
-            value={language}
-            onChange={(event) => setLanguage(event.target.value as Language)}
+        <Tabs.List
+          aria-label={t('profile')}
+          className="mb-5 grid grid-cols-2 rounded-lg bg-muted p-1"
+        >
+          <Tabs.Trigger
+            value="profile"
+            className="rounded-md px-3 py-2 text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
           >
-            <option value="es">{t('spanish')}</option>
-            <option value="pt">{t('portuguese')}</option>
-            <option value="en">{t('english')}</option>
-          </NativeSelect>
-        </Field>
-        <ErrorNotice error={error} />
-        <Button disabled={busy}>{busy ? t('saving') : t('save')}</Button>
-      </form>
+            {t('profile.details')}
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            value="security"
+            className="rounded-md px-3 py-2 text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+          >
+            {t('profile.security')}
+          </Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content
+          value="profile"
+          className="profile-tab-panel outline-none"
+        >
+          <form
+            className="grid gap-4"
+            onSubmit={submit}
+          >
+            <div className="flex items-center gap-4 rounded-lg border p-3">
+              <UserAvatar
+                id={user.id}
+                name={name || user.name}
+                variant={avatar}
+                className="size-14"
+              />
+              <div className="grid gap-1">
+                <span className="text-sm font-medium">{t('avatar')}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAvatar(nextAvatarVariant(user.id, avatar))}
+                >
+                  <Shuffle /> {t('anotherAvatar')}
+                </Button>
+              </div>
+            </div>
+            <Field label={t('name')}>
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                maxLength={120}
+                required
+              />
+            </Field>
+            <Field label={t('email')}>
+              <Input
+                type="email"
+                readOnly={!(user.all_projects && user.role === 'admin')}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </Field>
+            <Field label={t('language')}>
+              <NativeSelect
+                value={language}
+                onChange={(event) =>
+                  setLanguage(event.target.value as Language)
+                }
+              >
+                <option value="es">{t('spanish')}</option>
+                <option value="pt">{t('portuguese')}</option>
+                <option value="en">{t('english')}</option>
+              </NativeSelect>
+            </Field>
+            <ErrorNotice error={error} />
+            <Button disabled={busy}>{busy ? t('saving') : t('save')}</Button>
+          </form>
+        </Tabs.Content>
+        <Tabs.Content
+          value="security"
+          className="profile-tab-panel outline-none"
+        >
+          <AccountSecurityPanel />
+        </Tabs.Content>
+      </Tabs.Root>
     </FormDialog>
   )
 }

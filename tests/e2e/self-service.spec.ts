@@ -29,6 +29,7 @@ test('public registration, verification and recovery forms use the authenticatio
       name: 'New owner',
       email: 'owner@example.com',
       password: 'new-account-password-123',
+      language: 'es',
     },
   })
   await page.goto('/#/confirm?cnf=fake-confirm-token')
@@ -100,12 +101,10 @@ test('verified scoped account creates its first project and manages its own team
     await page
       .getByRole('link', { name: 'Seguridad de la cuenta', exact: true })
       .click()
+    await expect(page.getByRole('dialog', { name: 'Tu perfil' })).toBeVisible()
     await expect(
-      page.getByRole('heading', {
-        name: 'Seguridad de la cuenta',
-        exact: true,
-      }),
-    ).toBeVisible()
+      page.getByRole('tab', { name: 'Seguridad', exact: true }),
+    ).toHaveAttribute('data-state', 'active')
     await page.goto('/#/')
     await page.getByLabel('Nombre del proyecto').fill('My new workspace')
     const response = page.waitForResponse(
@@ -142,17 +141,23 @@ test('verified scoped account creates its first project and manages its own team
         json: { data: { id: 'fake-invitation' } },
       })
     })
+    await page
+      .getByRole('button', { name: 'Invitar miembro', exact: true })
+      .click()
     await page.getByLabel('Email del invitado').fill('teammate@example.com')
-    await page.getByLabel('Rol del invitado').selectOption('viewer')
+    await page.getByLabel('Rol del invitado').click()
+    await page
+      .getByRole('option', { name: 'Solo lectura', exact: true })
+      .click()
     await page.getByRole('button', { name: 'Enviar invitación' }).click()
     await expect(page.getByText(/Invitación enviada/)).toBeVisible()
     await page.reload()
     await expect(
       page.getByRole('heading', { name: 'Equipo', exact: true }),
     ).toBeVisible()
-    await page
-      .getByRole('link', { name: 'Seguridad de la cuenta', exact: true })
-      .click()
+    await page.getByRole('button', { name: 'Menú de usuario' }).click()
+    await page.getByRole('menuitem', { name: 'Editar perfil' }).click()
+    await page.getByRole('tab', { name: 'Seguridad', exact: true }).click()
     await expect(page.getByText(/Esta sesión/)).toBeVisible()
   } finally {
     if (project)

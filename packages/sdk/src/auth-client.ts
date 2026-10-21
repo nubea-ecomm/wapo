@@ -16,7 +16,12 @@ export class WapoAuthClient extends Transport {
       password,
     })
   }
-  register(input: { name: string; email: string; password: string }) {
+  register(input: {
+    name: string
+    email: string
+    password: string
+    language?: ConsoleUser['language']
+  }) {
     return this.request('POST', '/auth/v1/register', input)
   }
   confirm(token: string) {

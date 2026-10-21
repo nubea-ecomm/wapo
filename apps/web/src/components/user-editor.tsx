@@ -1,5 +1,6 @@
 import { UserAccessFields, type UserAccessValue } from './user-access-fields'
 import { useState } from 'react'
+import { PasswordInput } from './password-input'
 import type { ConsoleUser } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { useAction, useApi } from '../hooks/use-api'
@@ -111,8 +112,8 @@ export function UserEditor({
             label={user ? 'Contraseña nueva' : 'Contraseña inicial'}
             hint="Entre 12 y 72 caracteres. Cambiarla cierra las sesiones existentes."
           >
-            <Input
-              type="password"
+            <PasswordInput
+              strength
               autoComplete="new-password"
               minLength={12}
               maxLength={72}

@@ -20,6 +20,10 @@ change their email through profile PATCH; neither can non-admin all-project user
 Replacement invitations and membership changes invalidate older pending invitation
 links. Issued verification/recovery tokens remain usable when SMTP is disabled.
 See [authentication](authentication.md) and [CORS configuration](operations.md).
+`POST /auth/v1/register` also accepts an optional `language` (`es`, `en`, `pt`);
+omitting it preserves the existing Spanish API default.
+`GET /v1/members` includes `created_at` (account creation time) and
+`avatar_variant` for the project-team table; membership authorization is unchanged.
 
 The `/meta/whatsapp/{version}` router handles the 46 documented operation shapes:
 messages, marketing messages, conversations, contacts, calls, media, templates,

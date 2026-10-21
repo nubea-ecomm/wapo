@@ -1,4 +1,15 @@
 export const authEs = {
+  'auth.loginDescription':
+    'Introduce tu email y contraseña para acceder a tu cuenta.',
+  'auth.noAccount': '¿No tienes cuenta?',
+  'auth.haveAccount': '¿Ya tienes cuenta?',
+  'auth.confirmDescription':
+    'Confirma tu dirección de correo para empezar a usar Wapo.',
+  'auth.resetDescription': 'Elige una nueva contraseña para tu cuenta.',
+  'auth.recoverDescription':
+    'Te enviaremos un enlace para restablecer tu contraseña.',
+  'auth.resendDescription':
+    'Introduce tu email para recibir un nuevo enlace de verificación.',
   'auth.register': 'Crear cuenta',
   'auth.registerTitle': 'Crear tu cuenta',
   'auth.forgot': 'Olvidé mi contraseña',
@@ -55,6 +66,15 @@ export const authEs = {
 } as const
 
 export const authEn: Record<keyof typeof authEs, string> = {
+  'auth.loginDescription':
+    'Enter your email and password to access your account.',
+  'auth.noAccount': "Don't have an account?",
+  'auth.haveAccount': 'Already have an account?',
+  'auth.confirmDescription': 'Confirm your email address to start using Wapo.',
+  'auth.resetDescription': 'Choose a new password for your account.',
+  'auth.recoverDescription': "We'll email you a link to reset your password.",
+  'auth.resendDescription':
+    'Enter your email to receive a new verification link.',
   'auth.register': 'Create account',
   'auth.registerTitle': 'Create your account',
   'auth.forgot': 'Forgot password',
@@ -111,6 +131,15 @@ export const authEn: Record<keyof typeof authEs, string> = {
 }
 
 export const authPt: Record<keyof typeof authEs, string> = {
+  'auth.loginDescription': 'Digite seu email e senha para acessar sua conta.',
+  'auth.noAccount': 'Não tem uma conta?',
+  'auth.haveAccount': 'Já tem uma conta?',
+  'auth.confirmDescription':
+    'Confirme seu endereço de email para começar a usar o Wapo.',
+  'auth.resetDescription': 'Escolha uma nova senha para sua conta.',
+  'auth.recoverDescription': 'Enviaremos um link para redefinir sua senha.',
+  'auth.resendDescription':
+    'Digite seu email para receber um novo link de verificação.',
   'auth.register': 'Criar conta',
   'auth.registerTitle': 'Crie sua conta',
   'auth.forgot': 'Esqueci minha senha',

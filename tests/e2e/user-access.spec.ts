@@ -29,10 +29,12 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
   await page.getByLabel('Nombre del usuario', { exact: true }).fill(name)
   await page.getByLabel('Email del usuario', { exact: true }).fill(email)
   await page.getByLabel('Contraseña inicial', { exact: true }).fill(password)
-  await page.getByLabel('Rol', { exact: true }).selectOption('viewer')
+  await page.getByLabel('Rol', { exact: true }).click()
+  await page.getByRole('option', { name: 'Viewer', exact: true }).click()
+  await page.getByLabel('Acceso a proyectos', { exact: true }).click()
   await page
-    .getByLabel('Acceso a proyectos', { exact: true })
-    .selectOption('selected')
+    .getByRole('option', { name: 'Elegir proyectos', exact: true })
+    .click()
   await page.getByLabel('Buscar proyectos para el usuario').fill(name)
   await expect(page.getByRole('checkbox', { name, exact: true })).toBeChecked()
   await page.screenshot({
@@ -45,7 +47,7 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
   const row = page.getByRole('row').filter({ hasText: email })
 
   await expect(row.getByText('viewer', { exact: true })).toBeVisible()
-  const context = await browser.newContext()
+  const context = await browser.newContext({ locale: 'es-AR' })
   const viewer = await context.newPage()
 
   try {
@@ -87,10 +89,12 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
 
   await row.getByRole('button', { name: `Acciones de ${name}` }).click()
   await page.getByRole('menuitem', { name: 'Editar acceso' }).click()
-  await page.getByLabel('Rol', { exact: true }).selectOption('member')
+  await page.getByLabel('Rol', { exact: true }).click()
+  await page.getByRole('option', { name: 'Member', exact: true }).click()
+  await page.getByLabel('Acceso a proyectos', { exact: true }).click()
   await page
-    .getByLabel('Acceso a proyectos', { exact: true })
-    .selectOption('all')
+    .getByRole('option', { name: 'Todos los proyectos', exact: true })
+    .click()
   await page.getByRole('button', { name: 'Guardar acceso' }).click()
   await expect(row.getByText('member', { exact: true })).toBeVisible()
   await expect(row.getByText('Todos', { exact: true })).toBeVisible()

@@ -50,6 +50,12 @@
                     "writeOnly": true,
                     "minLength": 12,
                     "maxLength": 72
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": ["es", "en", "pt"],
+                    "default": "es",
+                    "description": "Initial account language. The console sends the user's explicit selection or the first supported browser language."
                   }
                 }
               }
@@ -7501,7 +7507,13 @@
             "type": "string",
             "enum": ["admin", "member", "viewer", "billing"]
           },
-          "active": { "type": "boolean" }
+          "active": { "type": "boolean" },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Account creation time, not the date the user joined the project."
+          },
+          "avatar_variant": { "type": "integer", "minimum": 0 }
         }
       },
       "Error": {
