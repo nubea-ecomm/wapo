@@ -19,6 +19,7 @@ COPY --from=build /wapo /usr/local/bin/wapo
 COPY apps/server/migrations ./migrations
 COPY packages/openapi /app/packages/openapi
 COPY --from=docs /src/packages/docs/vendor /app/packages/docs/vendor
+COPY --chmod=755 apps/server/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 USER wapo
 EXPOSE 8080
-ENTRYPOINT ["wapo"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

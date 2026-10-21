@@ -97,6 +97,31 @@ a duplicate. Daily and weekly periods use UTC.
 
 ## Release and rollback
 
+### Separate services on Unbroker
+
+Build both backend services from the repository root (not `apps/server`):
+
+| Service | Dockerfile                      | Runtime                                           |
+| ------- | ------------------------------- | ------------------------------------------------- |
+| API     | `apps/server/Dockerfile`        | Migrate, then run `wapo` on port 8080             |
+| Worker  | `apps/server/Dockerfile.worker` | Migrate, then run `wapo worker`; no HTTP listener |
+
+Select the Worker category for the worker. Leave the platform start-command
+override empty: the images include their own startup commands. Configure
+`DATABASE_URL` and the same stable `ENCRYPTION_KEY` on both services, along with
+their bootstrap and integration settings. PostgreSQL must be reachable at startup.
+
+The shared `apps/server/docker-entrypoint.sh` runs `wapo migrate` before starting
+the API or worker. A migration failure stops startup. The migration runner uses a
+PostgreSQL transaction-level advisory lock, so simultaneous starts serialize schema
+updates and skip already-applied migrations. The final `exec` forwards container
+signals directly to Wapo. One-off commands such as `migrate`, `secrets`,
+`operations` and `rotate-encryption-key` run directly without an extra migration.
+
+Deploy the API and worker from the same release. Startup migrations do not replace
+schema compatibility planning: existing replicas can still be running while the
+new release migrates. The local Compose migration service remains compatible.
+
 Deploy an immutable image to a small canary first. Migrations are forward-only,
 transactional and checksum-protected. Before rollout, confirm that the previous
 application version can run against the migrated schema. Roll application images

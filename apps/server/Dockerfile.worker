@@ -1,0 +1,25 @@
+FROM node:22-alpine AS docs
+WORKDIR /src
+RUN npm install --global pnpm@11.5.2
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json apps/web/package.json
+COPY packages/sdk/package.json packages/sdk/package.json
+COPY scripts/copy-docs-assets.mjs scripts/copy-docs-assets.mjs
+RUN pnpm install --frozen-lockfile
+FROM golang:1.26-alpine AS build
+WORKDIR /src
+COPY apps/server/go.mod apps/server/go.sum ./
+RUN go mod download
+COPY apps/server/ ./
+RUN CGO_ENABLED=0 go build -trimpath -o /wapo ./cmd/wapo
+FROM alpine:3.23
+RUN apk add --no-cache ca-certificates && adduser -D -u 10001 wapo
+WORKDIR /app/apps/server
+COPY --from=build /wapo /usr/local/bin/wapo
+COPY apps/server/migrations ./migrations
+COPY packages/openapi /app/packages/openapi
+COPY --from=docs /src/packages/docs/vendor /app/packages/docs/vendor
+COPY --chmod=755 apps/server/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+USER wapo
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["worker"]
