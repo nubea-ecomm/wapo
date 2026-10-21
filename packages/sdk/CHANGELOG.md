@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.3.0...sdk-v0.4.0) (2026-10-21)
+
+
+### Features
+
+* **web:** redesign auth, profile security, team and select controls ([#33](https://github.com/nubea-ecomm/wapo/issues/33)) ([13ac098](https://github.com/nubea-ecomm/wapo/commit/13ac0980434b2f578e4e3eaeb53e6cf28571840d))
+
 ## [0.3.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.2.0...sdk-v0.3.0) (2026-10-21)
 
 
