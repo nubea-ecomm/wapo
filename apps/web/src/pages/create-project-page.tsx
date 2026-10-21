@@ -1,0 +1,77 @@
+import { useState } from 'react'
+import { WapoAuthClient } from '@nubea-ecomm/wapo-sdk'
+import { useSession } from '../app/session-context'
+import { ErrorNotice, Field } from '../components/ui'
+import { Input } from '../components/ui/input'
+import { Button } from '../components/ui/button'
+import { WapoLogo } from '../components/wapo-logo'
+import { useI18n } from '../app/i18n'
+
+export function CreateProjectPage() {
+  const { t } = useI18n()
+  const { session, selectTenant, disconnect } = useSession()
+  const [name, setName] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<unknown>(null)
+
+  async function create() {
+    if (!session) return
+
+    setBusy(true)
+    setError(null)
+
+    try {
+      const result = await new WapoAuthClient({
+        baseUrl: session.url,
+        apiKey: session.key,
+      }).createProject(name)
+
+      selectTenant(result.data.id, result.data.name)
+      window.dispatchEvent(new Event('focus'))
+    } catch (error) {
+      setError(error)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <main className="login">
+      <div className="login-content">
+        <WapoLogo />
+        <section className="login-panel">
+          <header>
+            <h1>{t('auth.firstProject')}</h1>
+            <p>{t('auth.projectDescription')}</p>
+          </header>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              void create()
+            }}
+          >
+            <Field label={t('auth.projectName')}>
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+                maxLength={120}
+              />
+            </Field>
+            <ErrorNotice error={error} />
+            <Button disabled={busy}>
+              {busy ? t('auth.creating') : t('auth.createProject')}
+            </Button>
+          </form>
+          <Button
+            className="mt-4"
+            variant="ghost"
+            onClick={disconnect}
+          >
+            {t('signOut')}
+          </Button>
+        </section>
+      </div>
+    </main>
+  )
+}

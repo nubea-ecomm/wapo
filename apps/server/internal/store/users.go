@@ -7,21 +7,23 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/aarondl/authboss/v3"
+	"github.com/jackc/pgx/v5"
 )
 
 type ConsoleUser struct {
-	Role              string    `json:"role"`
-	AllProjects       bool      `json:"all_projects"`
-	ProjectIDs        []string  `json:"project_ids"`
-	ID                string    `json:"id"`
-	Email             string    `json:"email"`
-	Name              string    `json:"name"`
-	Language          string    `json:"language"`
-	AvatarVariant     int       `json:"avatar_variant"`
-	Active            bool      `json:"active"`
-	InvitationPending bool      `json:"invitation_pending"`
-	CreatedAt         time.Time `json:"created_at"`
+	ProjectRoles      map[string]string `json:"project_roles,omitempty"`
+	Role              string            `json:"role"`
+	AllProjects       bool              `json:"all_projects"`
+	ProjectIDs        []string          `json:"project_ids"`
+	ID                string            `json:"id"`
+	Email             string            `json:"email"`
+	Name              string            `json:"name"`
+	Language          string            `json:"language"`
+	AvatarVariant     int               `json:"avatar_variant"`
+	Active            bool              `json:"active"`
+	InvitationPending bool              `json:"invitation_pending"`
+	CreatedAt         time.Time         `json:"created_at"`
 }
 
 func NormalizeEmail(email string) (string, error) {
@@ -40,9 +42,7 @@ func PasswordHash(password string) (string, error) {
 		return "", fmt.Errorf("password must contain between 12 and 72 bytes")
 	}
 
-	hash, e := bcrypt.GenerateFromPassword([]byte(password), 12)
-
-	return string(hash), e
+	return authboss.NewBCryptHasher(12).GenerateHash(password)
 }
 
 func (s *Store) CreateUser(ctx context.Context, email, name, password string) (ConsoleUser, error) {
@@ -100,7 +100,35 @@ func (s *Store) BootstrapUser(ctx context.Context, email, password string) error
 func (s *Store) AuthenticateSession(ctx context.Context, token string) (ConsoleUser, error) {
 	var user ConsoleUser
 
-	e := s.Pool.QueryRow(ctx, `SELECT u.id,u.email,u.name,u.active,u.created_at,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id),u.language,u.avatar_variant FROM console_sessions s JOIN console_users u ON u.id=s.user_id WHERE s.hash=$1 AND s.expires_at>now() AND u.active`, Hash(token)).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &user.Role, &user.AllProjects, &user.ProjectIDs, &user.Language, &user.AvatarVariant)
+	e := s.Pool.QueryRow(ctx, `SELECT u.id,u.email,u.name,u.active,u.created_at,u.role,u.all_projects,ARRAY(SELECT project_id FROM console_user_projects WHERE user_id=u.id ORDER BY project_id),u.language,u.avatar_variant FROM console_sessions s JOIN console_users u ON u.id=s.user_id WHERE s.hash=$1 AND s.expires_at>now() AND u.active AND u.email_verified`, Hash(token)).Scan(&user.ID, &user.Email, &user.Name, &user.Active, &user.CreatedAt, &user.Role, &user.AllProjects, &user.ProjectIDs, &user.Language, &user.AvatarVariant)
+	if e == nil {
+		user.ProjectRoles, e = LoadProjectRoles(ctx, s.Pool, user.ID)
+	}
 
 	return user, e
+}
+
+func LoadProjectRoles(ctx context.Context, db interface {
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+}, id string,
+) (map[string]string, error) {
+	rows, err := db.Query(ctx, "SELECT project_id,role FROM console_user_projects WHERE user_id=$1", id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	roles := map[string]string{}
+
+	for rows.Next() {
+		var project, role string
+
+		if err = rows.Scan(&project, &role); err != nil {
+			return nil, err
+		}
+
+		roles[project] = role
+	}
+
+	return roles, rows.Err()
 }

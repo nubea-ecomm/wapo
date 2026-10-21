@@ -86,6 +86,11 @@ export function LoginPage() {
               {busy ? t('signingIn') : t('signInAction')}
             </Button>
           </form>
+          <div className="mt-5 flex flex-wrap justify-between gap-3 text-sm underline underline-offset-4">
+            <a href="#/register">{t('auth.register')}</a>
+            <a href="#/recover">{t('auth.forgot')}</a>
+            <a href="#/confirm/resend">{t('auth.resend')}</a>
+          </div>
         </section>
       </m.div>
     </main>

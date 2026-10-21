@@ -24,6 +24,477 @@
     }
   ],
   "paths": {
+    "/auth/v1/register": {
+      "post": {
+        "operationId": "register_console_account",
+        "tags": ["Console authentication"],
+        "summary": "Create a self-service account",
+        "security": [],
+        "description": "Authboss registration. SMTP must be configured. Creates an unverified account without platform privileges or project access. Verification email and account are committed atomically. Password length is 12–72 UTF-8 bytes. Shares the configurable authentication rate limit.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "email": { "type": "string", "format": "email" },
+                  "password": {
+                    "type": "string",
+                    "writeOnly": true,
+                    "minLength": 12,
+                    "maxLength": 72
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthAccepted" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/confirm": {
+      "post": {
+        "operationId": "confirm_console_email",
+        "tags": ["Console authentication"],
+        "summary": "Verify an account email",
+        "security": [],
+        "description": "Consume the Authboss confirmation token from the email (cnf query parameter). Tokens expire after 24 hours and can be used once. Does not sign the user in. Confirmation requires an explicit POST, so mail scanners do not consume links.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token"],
+                "properties": {
+                  "token": { "type": "string", "writeOnly": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthAccepted" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/confirm/resend": {
+      "post": {
+        "operationId": "resend_console_verification",
+        "tags": ["Console authentication"],
+        "summary": "Resend email verification",
+        "security": [],
+        "description": "Queues a replacement verification email for an active unverified account, invalidating the old token. The accepted response does not reveal whether the account exists. Requires SMTP and shares authentication rate limits.",
+        "requestBody": { "$ref": "#/components/requestBodies/AuthEmail" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthAccepted" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/recover": {
+      "post": {
+        "operationId": "recover_console_password",
+        "tags": ["Console authentication"],
+        "summary": "Request password recovery",
+        "security": [],
+        "description": "Queues an Authboss recovery link for an active verified account. Returns the same accepted response for unknown, disabled and unverified accounts. Requires SMTP. Tokens expire after one hour and replacements invalidate earlier tokens.",
+        "requestBody": { "$ref": "#/components/requestBodies/AuthEmail" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthAccepted" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/recover/end": {
+      "post": {
+        "operationId": "reset_console_password",
+        "tags": ["Console authentication"],
+        "summary": "Complete password recovery",
+        "security": [],
+        "description": "Consumes a single-use Authboss recovery token and sets a 12–72 byte password. Revokes all existing sessions atomically. Does not sign the user in.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token", "password"],
+                "properties": {
+                  "token": { "type": "string", "writeOnly": true },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 72,
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthAccepted" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/projects": {
+      "post": {
+        "operationId": "create_own_project",
+        "tags": ["Console authentication"],
+        "summary": "Create a project owned by the current account",
+        "description": "Requires an active verified console session, not an API key. Atomically creates a project and a project-specific admin membership. Never grants platform administration. Refresh the profile and project list after creation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 1, "maxLength": 120 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "status": { "type": "string", "enum": ["active"] }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/project-invitations/{token}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "token",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "post": {
+        "operationId": "accept_project_invitation",
+        "tags": ["Console authentication"],
+        "summary": "Accept a project invitation",
+        "description": "Requires a verified console session with the invited email. Seven-day tokens are single-use. Existing memberships are preserved. Expired, used, suspended-project, wrong-email and unknown invitations return 410. Invitations do not change global user roles.",
+        "responses": {
+          "200": {
+            "description": "Membership granted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "project_id": { "type": "string" },
+                        "accepted": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/password": {
+      "post": {
+        "operationId": "change_own_password",
+        "tags": ["Console authentication"],
+        "summary": "Change password and revoke all sessions",
+        "description": "Requires a console session and the current password. Uses Authboss to hash and persist the replacement; revokes all sessions and pending recovery tokens in the same transaction.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["current_password", "password"],
+                "properties": {
+                  "current_password": { "type": "string", "writeOnly": true },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 72,
+                    "writeOnly": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated; sign in again",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": { "type": "boolean" },
+                        "signed_out": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/sessions": {
+      "get": {
+        "operationId": "list_own_sessions",
+        "tags": ["Console authentication"],
+        "summary": "List current account sessions",
+        "description": "Requires a console session. Only returns unexpired sessions belonging to the account, without tokens or token hashes.",
+        "responses": {
+          "200": {
+            "description": "Sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "expires_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "current": { "type": "boolean" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/auth/v1/sessions/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "delete": {
+        "operationId": "revoke_own_session",
+        "tags": ["Console authentication"],
+        "summary": "Revoke an account session",
+        "description": "Only the session owner can revoke it. Unknown and other users' sessions return 404.",
+        "responses": {
+          "200": {
+            "description": "Session revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": { "revoked": { "type": "boolean" } }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/v1/members": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "X-Tenant-ID",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "get": {
+        "operationId": "list_project_members",
+        "tags": ["Project members"],
+        "summary": "List project memberships",
+        "description": "Requires a project administrator console session. API keys cannot manage memberships. Global all-project users are not listed unless explicitly assigned.",
+        "responses": {
+          "200": {
+            "description": "Project members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ProjectMember" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      },
+      "post": {
+        "operationId": "invite_project_member",
+        "tags": ["Project members"],
+        "summary": "Invite a project member",
+        "description": "Requires a project administrator console session and SMTP. Sends a seven-day invitation through the durable encrypted email outbox. New recipients register and verify their email before accepting. Existing accounts keep their credentials and other memberships.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "role": {
+                    "type": "string",
+                    "enum": ["admin", "member", "viewer", "billing"],
+                    "default": "member"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitation queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "email": { "type": "string" },
+                        "role": { "type": "string" },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
+    "/v1/members/{id}": {
+      "parameters": [
+        {
+          "in": "header",
+          "name": "X-Tenant-ID",
+          "required": true,
+          "schema": { "type": "string" }
+        },
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "patch": {
+        "operationId": "update_project_member",
+        "tags": ["Project members"],
+        "summary": "Change a project membership role",
+        "description": "Requires a project administrator console session. Affects only the selected project and applies to existing sessions immediately. The final active administrator cannot be demoted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["role"],
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": ["admin", "member", "viewer", "billing"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/MembershipUpdated" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      },
+      "delete": {
+        "operationId": "remove_project_member",
+        "tags": ["Project members"],
+        "summary": "Remove access to this project",
+        "description": "Requires a project administrator console session. Removes only the membership; preserves the account and other projects. The final active administrator cannot be removed.",
+        "responses": {
+          "200": { "$ref": "#/components/responses/MembershipUpdated" },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      }
+    },
     "/v1/customers": {
       "get": {
         "operationId": "list_customers",
@@ -3681,7 +4152,7 @@
             }
           }
         },
-        "description": "Authenticate with an active console administrator email/password. Returns an opaque bearer session and its expiry. Sessions expire after 12 hours. Limited to 10 attempts per remote IP per minute per API process."
+        "description": "Authenticate through Authboss with an active, email-verified console account. Existing accounts retain their bcrypt hashes. Returns an opaque revocable bearer session with a 12-hour expiry. Shares the PostgreSQL-backed authentication rate limit (10 attempts per source IP per minute by default). Unverified accounts return 403."
       }
     },
     "/auth/v1/logout": {
@@ -4018,6 +4489,11 @@
                   "active": {
                     "type": "boolean"
                   },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Operator-attested email change. Revokes sessions and confirmation/recovery tokens. Pending invitations must be completed or replaced first."
+                  },
                   "password": {
                     "type": "string",
                     "minLength": 12,
@@ -4057,7 +4533,7 @@
             }
           }
         ],
-        "description": "Update activation, password, role or project assignments. Role and project changes affect existing sessions on their next request. Password reset revokes sessions. The last active platform administrator is protected."
+        "description": "Update activation, email, password, role or project assignments. Role and project changes affect existing sessions on their next request. Password reset revokes sessions and recovery links. Email changes are operator-attested and revoke sessions and verification/recovery links. Password-only and activation-only changes preserve independent project roles. Explicit role/project assignment updates replace the legacy assignment set. The last active platform administrator is protected."
       },
       "delete": {
         "operationId": "delete_console_user",
@@ -4438,7 +4914,7 @@
         "operationId": "update_console_profile",
         "summary": "Update signed-in user profile",
         "tags": ["Console authentication"],
-        "description": "Updates the current console user's name, email, language or generated avatar variation. Preferences are stored in PostgreSQL and apply to all active sessions.",
+        "description": "Updates the current console user's name, language or generated avatar variation. All-project accounts retain legacy email editing; scoped accounts must ask an operator to change their sign-in email. Preferences are stored in PostgreSQL and apply to all active sessions.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6942,6 +7418,65 @@
     }
   },
   "components": {
+    "requestBodies": {
+      "AuthEmail": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": ["email"],
+              "properties": { "email": { "type": "string", "format": "email" } }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "AuthAccepted": {
+        "description": "Request accepted",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": { "accepted": { "type": "boolean" } }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthError": {
+        "description": "Validation, authentication, rate-limit or storage error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "MembershipUpdated": {
+        "description": "Membership updated",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "updated": { "type": "boolean" },
+                    "at": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "ApiKey": {
         "type": "apiKey",
@@ -6956,6 +7491,19 @@
       }
     },
     "schemas": {
+      "ProjectMember": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "member", "viewer", "billing"]
+          },
+          "active": { "type": "boolean" }
+        }
+      },
       "Error": {
         "type": "object",
         "properties": {
@@ -7594,6 +8142,14 @@
       "ConsoleUser": {
         "type": "object",
         "properties": {
+          "project_roles": {
+            "type": "object",
+            "description": "Project-specific roles. For scoped accounts, use the selected project's role instead of the legacy global role.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": ["admin", "member", "viewer", "billing"]
+            }
+          },
           "id": {
             "type": "string"
           },

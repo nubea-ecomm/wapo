@@ -103,7 +103,7 @@ func (s *Store) RotateEncryptionKey(ctx context.Context, key []byte) (int, error
 		}
 	}
 
-	invitationRows, err := tx.Query(ctx, "SELECT id,payload FROM notification_deliveries WHERE notification_type='user_invitation' AND payload ? 'invitation_token' FOR UPDATE")
+	invitationRows, err := tx.Query(ctx, "SELECT id,payload FROM notification_deliveries WHERE payload ? 'invitation_token' FOR UPDATE")
 	if err != nil {
 		return 0, err
 	}

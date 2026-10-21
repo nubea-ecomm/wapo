@@ -61,9 +61,19 @@ test('admin assigns a viewer to one project and the viewer cannot write or acces
     ).toHaveCount(0)
     await expect(
       viewer.getByRole('link', { name: 'Proyectos', exact: true }),
+    ).toHaveCount(1)
+    await viewer.getByRole('link', { name: 'Proyectos', exact: true }).click()
+    await expect(viewer.getByRole('row')).toHaveCount(2)
+    await expect(
+      viewer.getByRole('button', { name, exact: true }),
+    ).toBeVisible()
+    await expect(
+      viewer.getByRole('button', { name: `Acciones de ${name}` }),
     ).toHaveCount(0)
     await viewer.getByRole('combobox', { name: 'Proyecto activo' }).click()
-    await expect(viewer.getByRole('option')).toHaveCount(1)
+    await expect(
+      viewer.locator('#tenant-options').getByRole('option'),
+    ).toHaveCount(1)
     await viewer.keyboard.press('Escape')
     await viewer.getByRole('link', { name: 'Customers', exact: true }).click()
     await expect(

@@ -28,6 +28,7 @@ import { TenantEditor } from '../components/tenant-editor'
 import { TenantActions } from '../components/tenant-actions'
 import { dateLabel } from '../lib/message-format'
 import { useI18n } from '../app/i18n'
+import { permissions } from '../app/permissions'
 
 export function TenantsPage() {
   const { t } = useI18n()
@@ -154,15 +155,26 @@ export function TenantsPage() {
                   {dateLabel(tenant.created_at)}
                 </TableCell>
                 <TableCell>
-                  <TenantActions
-                    tenant={tenant}
-                    onOpen={() => openTenant(tenant)}
-                    onRename={() => setEditor(tenant)}
-                    onConfigure={() => {
-                      selectTenant(tenant.id, tenant.name)
-                      navigate('/settings')
-                    }}
-                  />
+                  {permissions(session).canManagePlatform ? (
+                    <TenantActions
+                      tenant={tenant}
+                      onOpen={() => openTenant(tenant)}
+                      onRename={() => setEditor(tenant)}
+                      onConfigure={() => {
+                        selectTenant(tenant.id, tenant.name)
+                        navigate('/settings')
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={tenant.status !== 'active'}
+                      onClick={() => openTenant(tenant)}
+                    >
+                      Abrir
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

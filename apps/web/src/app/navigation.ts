@@ -31,6 +31,13 @@ export type NavigationItem = {
 
 export const navigation = [
   {
+    to: '/account-security',
+    labelKey: 'auth.security',
+    icon: KeyRound,
+    group: 'project',
+    operator: false,
+  },
+  {
     to: '/templates',
     labelKey: 'templates',
     icon: FileText,
@@ -98,7 +105,7 @@ export const navigation = [
     labelKey: 'projects',
     icon: Building2,
     group: 'multitenant',
-    operator: true,
+    operator: false,
   },
   {
     to: '/users',
@@ -106,6 +113,13 @@ export const navigation = [
     icon: UsersRound,
     group: 'multitenant',
     operator: true,
+  },
+  {
+    to: '/members',
+    labelKey: 'team.title',
+    icon: UsersRound,
+    group: 'project',
+    operator: false,
   },
   {
     to: '/settings',

@@ -54,6 +54,11 @@ func (s *Server) updateConsoleProfile(w http.ResponseWriter, r *http.Request) {
 			fail(w, http.StatusUnprocessableEntity, "validation_error", e.Error())
 			return
 		}
+
+		if email != current.Email && !current.AllProjects {
+			fail(w, 422, "email_change_unavailable", "Contact an administrator to change your sign-in email")
+			return
+		}
 	}
 
 	if value, ok := input["language"]; ok {
@@ -79,7 +84,7 @@ func (s *Server) updateConsoleProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, e = s.Store.Pool.Exec(r.Context(), "UPDATE console_users SET name=$2,email=$3,language=$4,avatar_variant=$5 WHERE id=$1", current.ID, name, email, language, avatar)
+	_, e = s.Store.Pool.Exec(r.Context(), "UPDATE console_users SET name=$2,email=$3,language=$4,avatar_variant=$5,recover_selector=CASE WHEN email<>$3 THEN '' ELSE recover_selector END,recover_verifier=CASE WHEN email<>$3 THEN '' ELSE recover_verifier END WHERE id=$1", current.ID, name, email, language, avatar)
 	if e != nil {
 		var pgError *pgconn.PgError
 

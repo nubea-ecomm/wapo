@@ -12,6 +12,11 @@ import { useSession } from './session-context'
 import { AppShell } from '../components/app-shell'
 import { LoginPage } from '../pages/login-page'
 import { AcceptInvitationPage } from '../pages/accept-invitation-page'
+import { AuthFlowPage } from '../pages/auth-flow-page'
+import { CreateProjectPage } from '../pages/create-project-page'
+import { JoinProjectPage } from '../pages/join-project-page'
+import { MembersPage } from '../pages/members-page'
+import { AccountSecurityPage } from '../pages/account-security-page'
 
 const TemplatesPage = lazy(() =>
   import('../pages/templates-page').then((m) => ({ default: m.TemplatesPage })),
@@ -58,87 +63,122 @@ const SettingsPage = lazy(() =>
 )
 
 export function App() {
-  const { session } = useSession()
+  return (
+    <HashRouter>
+      <AppRoutes />
+    </HashRouter>
+  )
+}
 
-  if (location.hash.startsWith('#/accept-invitation'))
+function AppRoutes() {
+  const { session } = useSession()
+  const location = useLocation()
+
+  if (location.pathname === '/accept-invitation')
     return <AcceptInvitationPage />
+
+  if (
+    [
+      '/register',
+      '/confirm',
+      '/confirm/resend',
+      '/recover',
+      '/recover/end',
+    ].includes(location.pathname)
+  )
+    return (
+      <AuthFlowPage
+        key={location.pathname}
+        flow={location.pathname}
+      />
+    )
+
+  if (location.pathname === '/join-project') return <JoinProjectPage />
 
   if (!session) return <LoginPage />
 
+  if (session.user && !session.tenantId) return <CreateProjectPage />
+
   return (
-    <HashRouter>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route element={<PermissionGuard />}>
-            <Route
-              index
-              element={<OverviewPage />}
-            />
-            <Route
-              path="users"
-              element={<UsersPage />}
-            />
-            <Route
-              path="tenants"
-              element={<TenantsPage />}
-            />
-            <Route
-              path="templates"
-              element={<TemplatesPage />}
-            />
-            <Route
-              path="customers/:id"
-              element={<EntityDetailPage kind="customers" />}
-            />
-            <Route
-              path="connections/:id"
-              element={<EntityDetailPage kind="connections" />}
-            />
-            <Route
-              path="customers"
-              element={<CustomersPage />}
-            />
-            <Route
-              path="contacts"
-              element={<ContactsPage />}
-            />
-            <Route
-              path="connections"
-              element={<ConnectionsPage />}
-            />
-            <Route
-              path="api-keys"
-              element={<ApiKeysPage />}
-            />
-            <Route
-              path="inbox"
-              element={<InboxPage />}
-            />
-            <Route
-              path="webhooks"
-              element={<WebhooksPage />}
-            />
-            <Route
-              path="events"
-              element={<EventsPage />}
-            />
-            <Route
-              path="settings"
-              element={<SettingsPage />}
-            />
-            <Route
-              path="*"
-              element={
-                <Navigate
-                  to="/"
-                  replace
-                />
-              }
-            />
-          </Route>
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route element={<PermissionGuard />}>
+          <Route
+            path="account-security"
+            element={<AccountSecurityPage />}
+          />
+          <Route
+            path="members"
+            element={<MembersPage />}
+          />
+          <Route
+            index
+            element={<OverviewPage />}
+          />
+          <Route
+            path="users"
+            element={<UsersPage />}
+          />
+          <Route
+            path="tenants"
+            element={<TenantsPage />}
+          />
+          <Route
+            path="templates"
+            element={<TemplatesPage />}
+          />
+          <Route
+            path="customers/:id"
+            element={<EntityDetailPage kind="customers" />}
+          />
+          <Route
+            path="connections/:id"
+            element={<EntityDetailPage kind="connections" />}
+          />
+          <Route
+            path="customers"
+            element={<CustomersPage />}
+          />
+          <Route
+            path="contacts"
+            element={<ContactsPage />}
+          />
+          <Route
+            path="connections"
+            element={<ConnectionsPage />}
+          />
+          <Route
+            path="api-keys"
+            element={<ApiKeysPage />}
+          />
+          <Route
+            path="inbox"
+            element={<InboxPage />}
+          />
+          <Route
+            path="webhooks"
+            element={<WebhooksPage />}
+          />
+          <Route
+            path="events"
+            element={<EventsPage />}
+          />
+          <Route
+            path="settings"
+            element={<SettingsPage />}
+          />
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/"
+                replace
+              />
+            }
+          />
         </Route>
-      </Routes>
-    </HashRouter>
+      </Route>
+    </Routes>
   )
 }
 

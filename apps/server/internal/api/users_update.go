@@ -31,15 +31,48 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 
+	if value, changed := input["email"]; changed {
+		raw, valid := value.(string)
+		email, emailErr := store.NormalizeEmail(raw)
+
+		if !valid || emailErr != nil {
+			fail(w, 422, "validation_error", "A valid email is required")
+			return
+		}
+
+		if current.InvitationPending {
+			fail(w, 409, "invitation_pending", "Complete or replace the pending invitation before changing email")
+			return
+		}
+
+		if email != current.Email {
+			if _, e = tx.Exec(r.Context(), "UPDATE console_users SET email=$2,email_verified=true,confirm_selector='',confirm_verifier='',recover_selector='',recover_verifier='' WHERE id=$1", id, email); e != nil {
+				dbError(w, e)
+				return
+			}
+
+			if _, e = tx.Exec(r.Context(), "DELETE FROM console_sessions WHERE user_id=$1", id); e != nil {
+				dbError(w, e)
+				return
+			}
+		}
+	}
+
 	access, e := parseUserAccess(input, userAccess{Role: current.Role, All: current.AllProjects, Projects: current.ProjectIDs})
 	if e != nil {
 		fail(w, 422, "validation_error", e.Error())
 		return
 	}
 
-	if e = saveUserAccess(r.Context(), tx, id, access); e != nil {
-		fail(w, 422, "validation_error", e.Error())
-		return
+	_, roleChanged := input["role"]
+	_, scopeChanged := input["all_projects"]
+	_, projectsChanged := input["project_ids"]
+
+	if roleChanged || scopeChanged || projectsChanged {
+		if e = saveUserAccess(r.Context(), tx, id, access); e != nil {
+			fail(w, 422, "validation_error", e.Error())
+			return
+		}
 	}
 
 	if active, ok := input["active"].(bool); ok {
@@ -70,7 +103,7 @@ func (s *Server) updateUser(w http.ResponseWriter, r *http.Request, id string) {
 			return
 		}
 
-		if _, e = tx.Exec(r.Context(), "UPDATE console_users SET password_hash=$2 WHERE id=$1", id, hash); e != nil {
+		if _, e = tx.Exec(r.Context(), "UPDATE console_users SET password_hash=$2,recover_selector='',recover_verifier='' WHERE id=$1", id, hash); e != nil {
 			dbError(w, e)
 			return
 		}

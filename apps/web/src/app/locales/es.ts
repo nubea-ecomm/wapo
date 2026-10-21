@@ -1,4 +1,7 @@
+import { authEs } from './auth'
+
 export const productEs = {
+  ...authEs,
   'common.cancel': 'Cancelar',
   'common.confirm': 'Confirmar',
   'common.actions': 'Acciones',

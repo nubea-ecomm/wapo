@@ -30,15 +30,23 @@ describe('console permissions', () => {
   it('reserves platform administration for global administrators', () => {
     expect(permissions(session('admin', true)).canVisit('/users')).toBe(true)
     expect(permissions(session('admin')).canVisit('/users')).toBe(false)
-    expect(permissions(session('member', true)).canVisit('/tenants')).toBe(
-      false,
-    )
+    expect(permissions(session('member', true)).canManagePlatform).toBe(false)
+    expect(permissions(session('member')).canVisit('/tenants')).toBe(true)
   })
 
   it('keeps API key management restricted to project administrators', () => {
     expect(permissions(session('admin')).canVisit('/api-keys')).toBe(true)
     expect(permissions(session('member')).canVisit('/api-keys')).toBe(false)
     expect(permissions(session('viewer')).canVisit('/api-keys')).toBe(false)
+  })
+
+  it('uses independent project roles without granting global administration', () => {
+    const scoped = session('member')
+
+    scoped.user!.project_roles = { project: 'admin', other: 'viewer' }
+    expect(permissions(scoped).canManageProject).toBe(true)
+    expect(permissions(scoped).canManagePlatform).toBe(false)
+    expect(permissions({ ...scoped, tenantId: 'other' }).canWrite).toBe(false)
   })
 
   it('allows members to write and viewers only to read', () => {

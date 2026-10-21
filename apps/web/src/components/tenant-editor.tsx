@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { Project } from '@nubea-ecomm/wapo-sdk'
+import { WapoAuthClient, type Project } from '@nubea-ecomm/wapo-sdk'
+import { permissions } from '../app/permissions'
 import { useSession } from '../app/session-context'
 import { useAction } from '../hooks/use-api'
 import { FormDialog } from './form-dialog'
@@ -21,7 +22,17 @@ export function TenantEditor({
       await admin.updateTenant(tenant.id, { name })
 
       if (session?.tenantId === tenant.id) selectTenant(tenant.id, name)
-    } else await admin.createTenant(name)
+    } else if (permissions(session).canManagePlatform)
+      await admin.createTenant(name)
+    else if (session) {
+      const result = await new WapoAuthClient({
+        baseUrl: session.url,
+        apiKey: session.key,
+      }).createProject(name)
+
+      selectTenant(result.data.id, result.data.name)
+      window.dispatchEvent(new Event('focus'))
+    }
 
     onClose()
   })
