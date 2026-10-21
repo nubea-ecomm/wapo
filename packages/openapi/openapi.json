@@ -123,7 +123,7 @@
         "tags": ["Console authentication"],
         "summary": "Complete password recovery",
         "security": [],
-        "description": "Consumes a single-use Authboss recovery token and sets a 12–72 byte password. Revokes all existing sessions atomically. Does not sign the user in.",
+        "description": "Consumes a single-use Authboss recovery token and sets a 12–72 byte password. Revokes all existing sessions atomically. Does not sign the user in. Issued tokens can be consumed even when SMTP is disabled.",
         "requestBody": {
           "required": true,
           "content": {
@@ -208,7 +208,7 @@
         "operationId": "accept_project_invitation",
         "tags": ["Console authentication"],
         "summary": "Accept a project invitation",
-        "description": "Requires a verified console session with the invited email. Seven-day tokens are single-use. Existing memberships are preserved. Expired, used, suspended-project, wrong-email and unknown invitations return 410. Invitations do not change global user roles.",
+        "description": "Requires a verified console session with the invited email, revalidated within the transaction. Seven-day tokens are single-use. Existing memberships are preserved. Expired, replaced, revoked, used, suspended-project, wrong-email and unknown invitations return 410. Invitations do not change global user roles.",
         "responses": {
           "200": {
             "description": "Membership granted",
@@ -393,7 +393,7 @@
         "operationId": "invite_project_member",
         "tags": ["Project members"],
         "summary": "Invite a project member",
-        "description": "Requires a project administrator console session and SMTP. Sends a seven-day invitation through the durable encrypted email outbox. New recipients register and verify their email before accepting. Existing accounts keep their credentials and other memberships.",
+        "description": "Requires a project administrator console session and SMTP. Sends a seven-day invitation through the durable encrypted email outbox, invalidating older pending invitations for this project and email. New recipients register and verify their email before accepting. Existing accounts keep their credentials and other memberships.",
         "requestBody": {
           "required": true,
           "content": {
@@ -461,7 +461,7 @@
         "operationId": "update_project_member",
         "tags": ["Project members"],
         "summary": "Change a project membership role",
-        "description": "Requires a project administrator console session. Affects only the selected project and applies to existing sessions immediately. The final active administrator cannot be demoted.",
+        "description": "Requires a project administrator console session. Affects only the selected project and applies to existing sessions immediately. Invalidates pending invitations for this member in the project. The final active administrator cannot be demoted.",
         "requestBody": {
           "required": true,
           "content": {
@@ -488,7 +488,7 @@
         "operationId": "remove_project_member",
         "tags": ["Project members"],
         "summary": "Remove access to this project",
-        "description": "Requires a project administrator console session. Removes only the membership; preserves the account and other projects. The final active administrator cannot be removed.",
+        "description": "Requires a project administrator console session. Removes the membership and invalidates pending invitations for this member in the project; preserves the account and other projects. The final active administrator cannot be removed.",
         "responses": {
           "200": { "$ref": "#/components/responses/MembershipUpdated" },
           "default": { "$ref": "#/components/responses/AuthError" }
@@ -4914,7 +4914,7 @@
         "operationId": "update_console_profile",
         "summary": "Update signed-in user profile",
         "tags": ["Console authentication"],
-        "description": "Updates the current console user's name, language or generated avatar variation. All-project accounts retain legacy email editing; scoped accounts must ask an operator to change their sign-in email. Preferences are stored in PostgreSQL and apply to all active sessions.",
+        "description": "Updates the current console user's name, language or generated avatar variation. Only global administrators (admin with all_projects=true) retain legacy email editing; all other accounts must ask an operator to change their sign-in email. Preferences are stored in PostgreSQL and apply to all active sessions.",
         "requestBody": {
           "required": true,
           "content": {

@@ -9,7 +9,8 @@ import { useI18n } from '../app/i18n'
 
 export function CreateProjectPage() {
   const { t } = useI18n()
-  const { session, selectTenant, disconnect } = useSession()
+  const { session, refreshAccess, disconnect } = useSession()
+  const [createdProject, setCreatedProject] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
@@ -21,13 +22,19 @@ export function CreateProjectPage() {
     setError(null)
 
     try {
-      const result = await new WapoAuthClient({
-        baseUrl: session.url,
-        apiKey: session.key,
-      }).createProject(name)
+      let project = createdProject
 
-      selectTenant(result.data.id, result.data.name)
-      window.dispatchEvent(new Event('focus'))
+      if (!project) {
+        const result = await new WapoAuthClient({
+          baseUrl: session.url,
+          apiKey: session.key,
+        }).createProject(name)
+
+        project = result.data.id
+        setCreatedProject(project)
+      }
+
+      await refreshAccess(project)
     } catch (error) {
       setError(error)
     } finally {
@@ -63,6 +70,12 @@ export function CreateProjectPage() {
               {busy ? t('auth.creating') : t('auth.createProject')}
             </Button>
           </form>
+          <a
+            className="mt-4 block underline"
+            href="#/account-security"
+          >
+            {t('auth.security')}
+          </a>
           <Button
             className="mt-4"
             variant="ghost"

@@ -38,6 +38,15 @@ test('public registration, verification and recovery forms use the authenticatio
     path: '/auth/v1/confirm',
     body: { token: 'fake-confirm-token' },
   })
+  await page.evaluate(() => {
+    location.hash = '#/confirm?cnf=another-confirm-token'
+  })
+  await page.getByRole('button', { name: 'Verificar correo' }).click()
+  await expect(page.getByText(/Correo verificado/)).toBeVisible()
+  expect(calls.at(-1)).toEqual({
+    path: '/auth/v1/confirm',
+    body: { token: 'another-confirm-token' },
+  })
   await page.goto('/#/recover')
   await page.getByLabel('Email', { exact: true }).fill('owner@example.com')
   await page.getByRole('button', { name: 'Recuperar contraseña' }).click()
@@ -88,6 +97,16 @@ test('verified scoped account creates its first project and manages its own team
     await expect(
       page.getByRole('heading', { name: 'Crea tu primer proyecto' }),
     ).toBeVisible()
+    await page
+      .getByRole('link', { name: 'Seguridad de la cuenta', exact: true })
+      .click()
+    await expect(
+      page.getByRole('heading', {
+        name: 'Seguridad de la cuenta',
+        exact: true,
+      }),
+    ).toBeVisible()
+    await page.goto('/#/')
     await page.getByLabel('Nombre del proyecto').fill('My new workspace')
     const response = page.waitForResponse(
       (response) =>

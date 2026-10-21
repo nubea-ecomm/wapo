@@ -118,9 +118,11 @@ Replicas reserve small token blocks so the fallback does not write its hot count
 on every request, while PostgreSQL still prevents the configured global total from
 being exceeded. Public onboarding and webhook ingress should also use an edge
 abuse-control layer.
-CORS permits the comma-separated WEB_ORIGIN allowlist. HTTP localhost, 127.0.0.1
+CORS permits the comma-separated WEB_ORIGIN allowlist plus CORS_ORIGINS, which
+defaults to HTTPS getwapo.dev and its subdomains. CORS_ORIGINS supports leftmost
+subdomain wildcards with matching schemes and ports. HTTP localhost, 127.0.0.1
 and ::1 are aliases only on the same configured local port; production origins
-require exact matches. hosted onboarding
+use the configured allowlists. Hosted onboarding
 completion additionally checks the exact PUBLIC_URL origin when Origin is present.
 Local Compose ports bind to loopback; public hosting needs HTTPS termination,
 network configuration, backups and an actual domain. No cloud deployment is

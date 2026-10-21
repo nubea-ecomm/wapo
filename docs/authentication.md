@@ -18,7 +18,8 @@ required.
    membership commit together. Users can create additional projects in Projects.
 
 Public registration is available when SMTP is configured. Without SMTP, the
-authentication email routes return `503 email_unavailable`; bootstrap and existing
+email-sending routes return `503 email_unavailable`; already-issued verification
+and recovery links still work. Bootstrap and existing
 account login continue to work. No test sends real email: tests inspect the encrypted
 outbox or use a fake sender.
 
@@ -40,7 +41,8 @@ tokens are hashed in PostgreSQL, expire after 12 hours, and are stored in browse
 sessionStorage (or localStorage with Remember me). Cookie sessions, social login,
 passkeys and MFA are not enabled by this integration.
 
-Profile name, language and avatar remain editable. Scoped users cannot change their
+Profile name, language and avatar remain editable. Non-administrators, including
+those with all-project access, and scoped administrators cannot change their
 sign-in email via profile PATCH; an operator must manage email changes. Global
 operators can use `PATCH /admin/v1/users/{id}` with `email` after verifying the new
 address themselves; this revokes existing sessions and verification/recovery links.
@@ -66,6 +68,14 @@ the invitation after verification. Existing accounts retain their password and
 other memberships. Accepting an invitation cannot replace an existing membership's
 role. The final active project administrator cannot be removed or demoted through
 the team API. Global operators can still deactivate accounts administratively.
+
+Sending a replacement invitation invalidates older pending invitations for the
+same project and email. Removing or changing a membership invalidates outstanding
+invitations for that member, preventing old links from restoring removed access.
+Acceptance serializes with these changes and revalidates the current verified
+session and email inside the transaction. Account security remains accessible
+without an active project. Creation and invitation acceptance refresh access and
+select the target project before navigation; stale responses cannot undo selection.
 
 ## Transactions and limits
 

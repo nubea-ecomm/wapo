@@ -47,7 +47,7 @@ func (s *Server) inviteProjectMember(w http.ResponseWriter, r *http.Request, pro
 
 	var locked string
 
-	if err = tx.QueryRow(r.Context(), "SELECT id FROM projects WHERE id=$1 FOR UPDATE", project).Scan(&locked); err != nil {
+	if err = tx.QueryRow(r.Context(), "SELECT id FROM projects WHERE id=$1 FOR NO KEY UPDATE", project).Scan(&locked); err != nil {
 		dbError(w, err)
 		return
 	}
@@ -58,6 +58,11 @@ func (s *Server) inviteProjectMember(w http.ResponseWriter, r *http.Request, pro
 
 	id, token := store.ID("invitation"), store.ID("invite")
 	expires := time.Now().UTC().Add(7 * 24 * time.Hour)
+
+	if _, err = tx.Exec(r.Context(), "UPDATE project_invitations SET expires_at=LEAST(expires_at,now()) WHERE project_id=$1 AND email=$2 AND accepted_at IS NULL", project, email); err != nil {
+		dbError(w, err)
+		return
+	}
 
 	_, err = tx.Exec(r.Context(), `INSERT INTO project_invitations(id,project_id,email,role,token_hash,expires_at) VALUES($1,$2,$3,$4,$5,$6)`, id, project, email, role, store.Hash(token), expires)
 	if err != nil {

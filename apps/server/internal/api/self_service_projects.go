@@ -33,6 +33,10 @@ func (s *Server) createOwnProject(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(r.Context())
 
+	if _, ok := lockAccountSession(w, r, tx, user.ID); !ok {
+		return
+	}
+
 	id := store.ID("tenant")
 
 	_, err = tx.Exec(r.Context(), "INSERT INTO projects(id,name) VALUES($1,$2)", id, name)
@@ -68,7 +72,19 @@ func (s *Server) acceptProjectInvitation(w http.ResponseWriter, r *http.Request)
 
 	var id, project, role string
 
-	err = tx.QueryRow(r.Context(), `SELECT i.id,i.project_id,i.role FROM project_invitations i JOIN projects p ON p.id=i.project_id WHERE i.token_hash=$1 AND i.email=$2 AND i.accepted_at IS NULL AND i.expires_at>now() AND p.status='active' FOR UPDATE OF i`, store.Hash(r.PathValue("token")), user.Email).Scan(&id, &project, &role)
+	// Use the same project-first lock order as invitation creation and membership edits.
+	err = tx.QueryRow(r.Context(), `SELECT p.id FROM projects p JOIN project_invitations i ON i.project_id=p.id WHERE i.token_hash=$1 AND p.status='active' FOR NO KEY UPDATE OF p`, store.Hash(r.PathValue("token"))).Scan(&project)
+	if err != nil {
+		invitationError(w, err)
+		return
+	}
+
+	email, ok := lockAccountSession(w, r, tx, user.ID)
+	if !ok {
+		return
+	}
+
+	err = tx.QueryRow(r.Context(), `SELECT i.id,i.project_id,i.role FROM project_invitations i WHERE i.token_hash=$1 AND i.email=$2 AND i.accepted_at IS NULL AND i.expires_at>clock_timestamp() FOR UPDATE OF i`, store.Hash(r.PathValue("token")), email).Scan(&id, &project, &role)
 	if err != nil {
 		invitationError(w, err)
 		return

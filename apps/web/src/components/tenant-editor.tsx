@@ -15,7 +15,8 @@ export function TenantEditor({
   tenant?: Project
   onClose: () => void
 }) {
-  const { admin, session, selectTenant } = useSession()
+  const { admin, session, selectTenant, refreshAccess } = useSession()
+  const [createdProject, setCreatedProject] = useState<string | null>(null)
   const [name, setName] = useState(tenant?.name || '')
   const save = useAction(async () => {
     if (tenant) {
@@ -25,13 +26,19 @@ export function TenantEditor({
     } else if (permissions(session).canManagePlatform)
       await admin.createTenant(name)
     else if (session) {
-      const result = await new WapoAuthClient({
-        baseUrl: session.url,
-        apiKey: session.key,
-      }).createProject(name)
+      let project = createdProject
 
-      selectTenant(result.data.id, result.data.name)
-      window.dispatchEvent(new Event('focus'))
+      if (!project) {
+        const result = await new WapoAuthClient({
+          baseUrl: session.url,
+          apiKey: session.key,
+        }).createProject(name)
+
+        project = result.data.id
+        setCreatedProject(project)
+      }
+
+      await refreshAccess(project)
     }
 
     onClose()

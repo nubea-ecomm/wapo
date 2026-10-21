@@ -87,7 +87,7 @@ func (s *Server) changeProjectMember(w http.ResponseWriter, r *http.Request, pro
 	// Serialize membership edits per project to preserve its last administrator.
 	var locked string
 
-	if err = tx.QueryRow(r.Context(), "SELECT id FROM projects WHERE id=$1 FOR UPDATE", project).Scan(&locked); err != nil {
+	if err = tx.QueryRow(r.Context(), "SELECT id FROM projects WHERE id=$1 FOR NO KEY UPDATE", project).Scan(&locked); err != nil {
 		dbError(w, err)
 		return
 	}
@@ -121,6 +121,10 @@ func (s *Server) changeProjectMember(w http.ResponseWriter, r *http.Request, pro
 		_, err = tx.Exec(r.Context(), "DELETE FROM console_user_projects WHERE project_id=$1 AND user_id=$2", project, id)
 	} else {
 		_, err = tx.Exec(r.Context(), "UPDATE console_user_projects SET role=$3 WHERE project_id=$1 AND user_id=$2", project, id, role)
+	}
+
+	if err == nil {
+		_, err = tx.Exec(r.Context(), `UPDATE project_invitations SET expires_at=LEAST(expires_at,now()) WHERE project_id=$1 AND email=(SELECT email FROM console_users WHERE id=$2) AND accepted_at IS NULL`, project, id)
 	}
 
 	if err == nil {

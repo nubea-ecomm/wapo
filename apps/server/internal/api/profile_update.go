@@ -55,7 +55,7 @@ func (s *Server) updateConsoleProfile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if email != current.Email && !current.AllProjects {
+		if email != current.Email && !(current.AllProjects && current.Role == "admin") {
 			fail(w, 422, "email_change_unavailable", "Contact an administrator to change your sign-in email")
 			return
 		}

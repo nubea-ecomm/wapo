@@ -1,5 +1,27 @@
 # Operations
 
+## Console origins and CORS
+
+For the hosted console, configure the API with:
+
+```env
+WEB_ORIGIN=https://console.getwapo.dev
+CORS_ORIGINS=https://getwapo.dev,https://*.getwapo.dev
+```
+
+`WEB_ORIGIN` is also the canonical console address used in authentication emails
+(the first entry when multiple exact origins are listed). `CORS_ORIGINS` adds
+cross-origin access and defaults to the apex and HTTPS subdomains of `getwapo.dev`.
+Override it with a comma-separated allowlist for other deployments. A wildcard
+matches complete subdomain labels, including nested subdomains, on the specified
+scheme and port; list an apex domain separately. Exact `WEB_ORIGIN` entries and
+same-port local HTTP loopback aliases remain supported.
+
+Deploy the updated API and restart after environment changes. An `OPTIONS`
+request to `/auth/v1/login` with `Origin: https://console.getwapo.dev` must return
+204 and `Access-Control-Allow-Origin: https://console.getwapo.dev`. CORS headers
+come from the API, so changing only the frontend build does not apply this fix.
+
 Wapo stores durable application state in PostgreSQL. Production deployments must
 provide encrypted backups, monitoring, HTTPS termination and an edge rate limiter.
 The Compose commands below are local reference procedures; adapt them to the

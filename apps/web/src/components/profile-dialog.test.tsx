@@ -13,6 +13,7 @@ it('submits editable profile fields and the selected language', async () => {
   const updateProfile = vi.fn().mockResolvedValue(undefined)
   const onClose = vi.fn()
   const value: SessionContextValue = {
+    refreshAccess: vi.fn(),
     session: {
       id: 'session',
       url: 'https://api.example',

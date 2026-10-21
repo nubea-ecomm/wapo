@@ -38,6 +38,10 @@ func (s *Server) changeOwnPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(r.Context())
 
+	if _, ok := lockAccountSession(w, r, tx, current.ID); !ok {
+		return
+	}
+
 	storage := authStorage{tx: tx}
 
 	user, err := storage.load(r.Context(), "id=$1", current.ID)

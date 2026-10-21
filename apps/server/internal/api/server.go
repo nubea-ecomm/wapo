@@ -122,10 +122,10 @@ func (s *Server) Handler() http.Handler {
 		w.Header().Set("X-Request-ID", store.ID("req"))
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Add("Vary", "Origin")
 
 		if origin := r.Header.Get("Origin"); s.Config.AllowsOrigin(origin) || s.setupRequestOrigin(r, origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-API-Key, Authorization, Idempotency-Key, X-Tenant-ID")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID, Retry-After")

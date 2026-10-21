@@ -28,7 +28,7 @@ func (s *Server) authFlow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	flow := strings.TrimPrefix(r.URL.Path, "/auth/v1/")
-	if flow != "login" && s.Config.SMTPHost == "" {
+	if (flow == "register" || flow == "recover" || flow == "confirm/resend") && s.Config.SMTPHost == "" {
 		fail(w, 503, "email_unavailable", "Email delivery is not configured")
 		return
 	}

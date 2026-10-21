@@ -88,16 +88,22 @@ function AppRoutes() {
   )
     return (
       <AuthFlowPage
-        key={location.pathname}
+        key={location.pathname + location.search}
         flow={location.pathname}
       />
     )
 
-  if (location.pathname === '/join-project') return <JoinProjectPage />
+  if (location.pathname === '/join-project')
+    return <JoinProjectPage key={location.search} />
 
   if (!session) return <LoginPage />
 
-  if (session.user && !session.tenantId) return <CreateProjectPage />
+  if (
+    session.user &&
+    !session.tenantId &&
+    !['/account-security', '/tenants'].includes(location.pathname)
+  )
+    return <CreateProjectPage />
 
   return (
     <Routes>

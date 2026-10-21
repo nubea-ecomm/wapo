@@ -8,7 +8,8 @@ import { useI18n } from '../app/i18n'
 
 export function JoinProjectPage() {
   const { t } = useI18n()
-  const { session } = useSession()
+  const { session, refreshAccess, disconnect } = useSession()
+  const [acceptedProject, setAcceptedProject] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
 
@@ -30,12 +31,19 @@ export function JoinProjectPage() {
       const token =
         new URLSearchParams(location.hash.split('?')[1] || '').get('token') ||
         ''
+      let project = acceptedProject
 
-      await new WapoAuthClient({
-        baseUrl: session.url,
-        apiKey: session.key,
-      }).acceptProjectInvitation(token)
-      window.dispatchEvent(new Event('focus'))
+      if (!project) {
+        const result = await new WapoAuthClient({
+          baseUrl: session.url,
+          apiKey: session.key,
+        }).acceptProjectInvitation(token)
+
+        project = result.data.project_id
+        setAcceptedProject(project)
+      }
+
+      await refreshAccess(project)
       location.hash = '#/'
     } catch (error) {
       setError(error)
@@ -59,6 +67,12 @@ export function JoinProjectPage() {
           onClick={() => void accept()}
         >
           {busy ? t('auth.accepting') : t('auth.accept')}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={disconnect}
+        >
+          {t('signOut')}
         </Button>
         <a
           className="mt-4 block underline"
