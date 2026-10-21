@@ -45,7 +45,9 @@ export function CreateProjectPage() {
   return (
     <main className="login">
       <div className="login-content">
-        <WapoLogo />
+        <div className="login-brand">
+          <WapoLogo />
+        </div>
         <section className="login-panel">
           <header>
             <h1>{t('auth.firstProject')}</h1>
