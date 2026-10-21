@@ -7,6 +7,7 @@ import {
   CardHeader,
 } from './ui/card'
 import { WapoLogo } from './wapo-logo'
+import { AuthPreferences } from './auth-preferences'
 
 export function AuthLayout({
   title,
@@ -25,6 +26,7 @@ export function AuthLayout({
 
   return (
     <main className="login">
+      <AuthPreferences />
       <div className="login-content">
         <a
           className="login-brand"

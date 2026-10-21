@@ -1,11 +1,19 @@
 import { useState } from 'react'
+import { Plus, Search, UsersRound } from 'lucide-react'
 import { useSession } from '../app/session-context'
-import { useAction, useApi } from '../hooks/use-api'
-import { PageHeader, ErrorNotice, Field, Loading } from '../components/ui'
+import { useI18n } from '../app/i18n'
+import { useApi } from '../hooks/use-api'
+import {
+  PageHeader,
+  ErrorNotice,
+  Empty,
+  Loading,
+  Status,
+} from '../components/ui'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
-import { NativeSelect } from '../components/ui/native-select'
-import { useI18n } from '../app/i18n'
+import { Badge } from '../components/ui/badge'
+import { SelectField } from '../components/ui/select-field'
 import {
   Table,
   TableHeader,
@@ -14,157 +22,217 @@ import {
   TableHead,
   TableCell,
 } from '../components/ui/table'
-
-type Member = { id: string; name: string; email: string; role: string }
-const roles = [
-  ['admin', 'team.admin'],
-  ['member', 'team.member'],
-  ['viewer', 'team.viewer'],
-  ['billing', 'team.billing'],
-] as const
+import { UserAvatar } from '../components/user-avatar'
+import { InviteMemberDialog } from '../components/invite-member-dialog'
+import { MemberRoleDialog } from '../components/member-role-dialog'
+import { MemberActions } from '../components/member-actions'
+import { dateLabel } from '../lib/message-format'
+import { teamRoles, type TeamMember } from '../lib/team'
 
 export function MembersPage() {
   const { t } = useI18n()
-  const { client } = useSession()
-  const members = useApi<{ data: Member[] }>('/v1/members')
-  const [email, setEmail] = useState('')
-  const [role, setRole] = useState('member')
+  const { session } = useSession()
+  const members = useApi<{ data: TeamMember[] }>('/v1/members')
+  const [inviting, setInviting] = useState(false)
+  const [editing, setEditing] = useState<TeamMember | null>(null)
   const [sent, setSent] = useState(false)
-  const invite = useAction(async () => {
-    await client.request('POST', '/v1/members', { email, role })
-    setEmail('')
-    setSent(true)
-  })
-  const update = useAction(async ({ id, role }: { id: string; role: string }) =>
-    client.request('PATCH', `/v1/members/${id}`, { role }),
+  const [search, setSearch] = useState('')
+  const [status, setStatus] = useState('all')
+  const all = members.data?.data || []
+  const filtered = all.filter(
+    (member) =>
+      `${member.name} ${member.email}`
+        .toLowerCase()
+        .includes(search.toLowerCase()) &&
+      (status === 'all' || member.active === (status === 'active')),
   )
-  const remove = useAction(async (id: string) =>
-    client.request('DELETE', `/v1/members/${id}`),
-  )
-  const [removing, setRemoving] = useState<string | null>(null)
+  const activeCount = all.filter((member) => member.active).length
+  const adminCount = all.filter(
+    (member) => member.active && member.role === 'admin',
+  ).length
+
+  function invite() {
+    setSent(false)
+    setInviting(true)
+  }
 
   return (
     <>
       <PageHeader
         title={t('team.title')}
         description={t('team.description')}
+        action={
+          <Button onClick={invite}>
+            <Plus />
+            {t('team.invite')}
+          </Button>
+        }
       />
-      <form
-        className="mb-6 flex flex-wrap items-end gap-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          setSent(false)
-          invite.mutate()
-        }}
-      >
-        <Field label={t('team.email')}>
-          <Input
-            type="email"
-            value={email}
-            required
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </Field>
-        <Field label={t('team.role')}>
-          <NativeSelect
-            value={role}
-            onChange={(event) => setRole(event.target.value)}
-          >
-            {roles.map(([value, label]) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {t(label)}
-              </option>
-            ))}
-          </NativeSelect>
-        </Field>
-        <Button disabled={invite.isPending}>
-          {invite.isPending ? t('team.sending') : t('team.send')}
-        </Button>
-      </form>
+      <ErrorNotice error={members.error} />
       {sent && (
         <p
           role="status"
-          className="mb-4 text-sm"
+          className="mb-4 text-sm text-muted-foreground"
         >
           {t('team.sent')}
         </p>
       )}
-      <ErrorNotice
-        error={members.error || invite.error || update.error || remove.error}
-      />
-      {members.isLoading ? (
-        <Loading variant="table" />
-      ) : (
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
+          <Input
+            aria-label={t('users.search')}
+            placeholder={t('users.searchPlaceholder')}
+            className="pl-9"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+        <div className="w-36">
+          <SelectField
+            aria-label={t('users.filterStatus')}
+            value={status}
+            onValueChange={setStatus}
+          >
+            <option value="all">{t('common.all')}</option>
+            <option value="active">{t('status.active')}</option>
+            <option value="inactive">{t('status.inactive')}</option>
+          </SelectField>
+        </div>
+        <span className="ml-auto text-xs text-muted-foreground">
+          {all.length} {t('team.members')} / {activeCount} {t('users.active')}
+        </span>
+      </div>
+      <div className="overflow-hidden rounded-lg border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40">
             <TableRow>
-              <TableHead>{t('name')}</TableHead>
-              <TableHead>Email</TableHead>
+              <TableHead className="pl-4">{t('users.user')}</TableHead>
               <TableHead>{t('team.memberRole')}</TableHead>
-              <TableHead>{t('common.actions')}</TableHead>
+              <TableHead>{t('project')}</TableHead>
+              <TableHead>{t('common.status')}</TableHead>
+              <TableHead>{t('common.created')}</TableHead>
+              <TableHead className="w-12">
+                <span className="sr-only">{t('common.actions')}</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {members.data?.data.map((member) => (
+            {filtered.map((member) => (
               <TableRow key={member.id}>
-                <TableCell>{member.name}</TableCell>
-                <TableCell>{member.email}</TableCell>
-                <TableCell>
-                  <NativeSelect
-                    aria-label={`${t('team.memberRole')} ${member.email}`}
-                    value={member.role}
-                    disabled={update.isPending}
-                    onChange={(event) =>
-                      update.mutate({ id: member.id, role: event.target.value })
-                    }
-                  >
-                    {roles.map(([value, label]) => (
-                      <option
-                        key={value}
-                        value={value}
-                      >
-                        {t(label)}
-                      </option>
-                    ))}
-                  </NativeSelect>
+                <TableCell className="py-3 pl-4">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar
+                      id={member.id}
+                      name={member.name}
+                      variant={member.avatar_variant}
+                    />
+                    <div>
+                      <div className="flex items-center gap-2 font-medium text-foreground">
+                        {member.name}
+                        {member.id === session?.user?.id && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px]"
+                          >
+                            {t('team.you')}
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {member.email}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {t(
+                    teamRoles.find(([role]) => role === member.role)?.[1] ||
+                      'team.member',
+                  )}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {session?.tenantName}
                 </TableCell>
                 <TableCell>
-                  {removing === member.id ? (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="destructive"
-                        disabled={remove.isPending}
-                        onClick={() =>
-                          remove.mutate(member.id, {
-                            onSuccess: () => setRemoving(null),
-                          })
-                        }
-                      >
-                        {t('team.confirmRemove')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={() => setRemoving(null)}
-                      >
-                        {t('common.cancel')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      onClick={() => setRemoving(member.id)}
-                    >
-                      {t('team.remove')}
-                    </Button>
-                  )}
+                  <Status value={member.active ? 'active' : 'inactive'} />
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {member.created_at ? dateLabel(member.created_at) : '—'}
+                </TableCell>
+                <TableCell>
+                  <MemberActions
+                    member={member}
+                    lastAdmin={
+                      member.role === 'admin' &&
+                      member.active &&
+                      adminCount === 1
+                    }
+                    onEdit={() => setEditing(member)}
+                  />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        {members.isLoading ? (
+          <Loading variant="table" />
+        ) : (
+          !members.error &&
+          !filtered.length && (
+            <Empty
+              title={all.length ? t('noResults') : t('team.empty')}
+              icon={<UsersRound size={24} />}
+            >
+              <span>
+                {t(
+                  all.length
+                    ? 'team.noResultsDescription'
+                    : 'team.emptyDescription',
+                )}
+              </span>
+              <br />
+              {all.length ? (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => {
+                    setSearch('')
+                    setStatus('all')
+                  }}
+                >
+                  {t('team.clearFilters')}
+                </Button>
+              ) : (
+                <Button
+                  className="mt-4"
+                  onClick={invite}
+                >
+                  <Plus />
+                  {t('team.invite')}
+                </Button>
+              )}
+            </Empty>
+          )
+        )}
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {t('team.scopeHint')}
+      </p>
+      {inviting && (
+        <InviteMemberDialog
+          onClose={() => setInviting(false)}
+          onSent={() => {
+            setInviting(false)
+            setSent(true)
+          }}
+        />
+      )}
+      {editing && (
+        <MemberRoleDialog
+          member={editing}
+          onClose={() => setEditing(null)}
+        />
       )}
     </>
   )

@@ -180,8 +180,13 @@ export type MessageKey = keyof typeof messages.es
 
 export const I18nContext = createContext<{
   language: Language
+  setLanguage: (language: Language) => Promise<void>
   t: (key: MessageKey) => string
-}>({ language: 'es', t: (key) => messages.es[key] })
+}>({
+  language: 'es',
+  setLanguage: async () => {},
+  t: (key) => messages.es[key],
+})
 
 export function useI18n() {
   return useContext(I18nContext)

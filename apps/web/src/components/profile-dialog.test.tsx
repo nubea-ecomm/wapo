@@ -49,7 +49,11 @@ it('submits editable profile fields and the selected language', async () => {
   render(
     <SessionContext.Provider value={value}>
       <I18nContext.Provider
-        value={{ language: 'es', t: (key) => messages.es[key] }}
+        value={{
+          language: 'es',
+          setLanguage: async () => {},
+          t: (key) => messages.es[key],
+        }}
       >
         <ProfileDialog onClose={onClose} />
       </I18nContext.Provider>
@@ -59,7 +63,8 @@ it('submits editable profile fields and the selected language', async () => {
 
   await user.clear(screen.getByLabelText('Nombre'))
   await user.type(screen.getByLabelText('Nombre'), 'Updated')
-  await user.selectOptions(screen.getByLabelText('Idioma'), 'pt')
+  await user.click(screen.getByLabelText('Idioma'))
+  await user.click(await screen.findByRole('option', { name: 'Português' }))
   await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
   expect(updateProfile).toHaveBeenCalledWith({
     name: 'Updated',

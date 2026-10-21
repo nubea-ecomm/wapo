@@ -140,7 +140,8 @@ test('customer and connection details list and create templates using a fake pro
     response.url().includes(`/customers/${customerId}/metrics?days=7`),
   )
 
-  await page.getByLabel('Período de métricas').selectOption('7')
+  await page.getByLabel('Período de métricas').click()
+  await page.getByRole('option', { name: 'Últimos 7 días' }).click()
   expect((await (await metricResponse).json()).data.series).toHaveLength(7)
   await page.screenshot({
     path: 'artifacts/customer-metrics-desktop.png',

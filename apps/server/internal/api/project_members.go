@@ -30,7 +30,7 @@ func (s *Server) projectMembers(w http.ResponseWriter, r *http.Request, project,
 		return
 	}
 
-	rows, err := s.Store.Pool.Query(r.Context(), `SELECT u.id,u.name,u.email,m.role,u.active FROM console_user_projects m JOIN console_users u ON u.id=m.user_id WHERE m.project_id=$1 ORDER BY u.name,u.id`, project)
+	rows, err := s.Store.Pool.Query(r.Context(), `SELECT u.id,u.name,u.email,m.role,u.active,u.created_at,u.avatar_variant FROM console_user_projects m JOIN console_users u ON u.id=m.user_id WHERE m.project_id=$1 ORDER BY u.name,u.id`, project)
 	if err != nil {
 		dbError(w, err)
 		return
@@ -43,14 +43,16 @@ func (s *Server) projectMembers(w http.ResponseWriter, r *http.Request, project,
 		var (
 			id, name, email, role string
 			active                bool
+			created               time.Time
+			avatar                int
 		)
 
-		if err = rows.Scan(&id, &name, &email, &role, &active); err != nil {
+		if err = rows.Scan(&id, &name, &email, &role, &active, &created, &avatar); err != nil {
 			dbError(w, err)
 			return
 		}
 
-		members = append(members, store.Object{"id": id, "name": name, "email": email, "role": role, "active": active})
+		members = append(members, store.Object{"id": id, "name": name, "email": email, "role": role, "active": active, "created_at": created, "avatar_variant": avatar})
 	}
 
 	if rows.Err() != nil {

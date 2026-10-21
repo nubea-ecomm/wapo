@@ -9,13 +9,20 @@ import (
 	"wapo.local/server/internal/store"
 )
 
-type authValues struct{ page, email, password, token, name string }
+type authValues struct{ page, email, password, token, name, language string }
 
-func (v authValues) GetPID() string               { return v.email }
-func (v authValues) GetPassword() string          { return v.password }
-func (v authValues) GetToken() string             { return v.token }
-func (v authValues) GetValues() map[string]string { return map[string]string{"name": v.name} }
+func (v authValues) GetPID() string      { return v.email }
+func (v authValues) GetPassword() string { return v.password }
+func (v authValues) GetToken() string    { return v.token }
+func (v authValues) GetValues() map[string]string {
+	return map[string]string{"name": v.name, "language": v.language}
+}
+
 func (v authValues) Validate() []error {
+	if v.page == "register" && v.language != "" && v.language != "es" && v.language != "en" && v.language != "pt" {
+		return []error{fmt.Errorf("language must be es, en or pt")}
+	}
+
 	if v.page == "register" || v.page == "recover_start" {
 		if _, err := store.NormalizeEmail(v.email); err != nil {
 			return []error{err}
@@ -41,5 +48,5 @@ type authParsedBody struct{ input store.Object }
 
 func (b authParsedBody) Read(page string, _ *http.Request) (authboss.Validator, error) {
 	input := b.input
-	return authValues{page: page, email: strings.ToLower(strings.TrimSpace(str(input, "email"))), password: str(input, "password"), token: str(input, "token"), name: strings.TrimSpace(str(input, "name"))}, nil
+	return authValues{page: page, email: strings.ToLower(strings.TrimSpace(str(input, "email"))), password: str(input, "password"), token: str(input, "token"), name: strings.TrimSpace(str(input, "name")), language: str(input, "language")}, nil
 }

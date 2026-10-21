@@ -9,6 +9,7 @@ import { ExternalLink } from 'lucide-react'
 import { useSession } from '../app/session-context'
 import { PageHeader, Panel } from '../components/ui'
 import { useI18n } from '../app/i18n'
+import { PreferenceControls } from '../components/preference-controls'
 
 export function SettingsPage() {
   const { t } = useI18n()
@@ -24,13 +25,14 @@ export function SettingsPage() {
       <div
         role="tablist"
         aria-label={t('settings')}
-        className="mb-6 flex gap-1 border-b pb-2"
+        className="mb-6 flex flex-wrap gap-1 border-b pb-2"
       >
         {[
           ['project', t('project')],
           ['whatsapp', t('settings.whatsapp')],
           ['notifications', t('notifications.title')],
           ['api', t('settings.api')],
+          ['preferences', t('preferences.title')],
         ].map(([value, label]) => (
           <Button
             type="button"
@@ -54,6 +56,16 @@ export function SettingsPage() {
         {tab === 'project' && <ProjectSettings />}
         {tab === 'whatsapp' && <WhatsAppSettings />}
         {tab === 'notifications' && <NotificationSettingsPanel />}
+        {tab === 'preferences' && (
+          <Panel title={t('preferences.title')}>
+            <p className="mb-5 text-sm text-muted-foreground">
+              {t('preferences.description')}
+            </p>
+            <div className="max-w-md">
+              <PreferenceControls />
+            </div>
+          </Panel>
+        )}
         {tab === 'api' && (
           <>
             <div className="overview-grid">

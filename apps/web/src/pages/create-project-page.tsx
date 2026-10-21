@@ -46,7 +46,7 @@ export function CreateProjectPage() {
     <AuthLayout
       title={t('auth.firstProject')}
       description={t('auth.projectDescription')}
-      footer={<a href="#/account-security">{t('auth.security')}</a>}
+      footer={<a href="#/?profile=security">{t('auth.security')}</a>}
       secondary={
         <Button
           variant="ghost"

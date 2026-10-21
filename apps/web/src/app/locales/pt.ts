@@ -1,8 +1,10 @@
 import type { productEs } from './es'
 import { authPt } from './auth'
+import { controlsPt } from './account-controls'
 
 export const productPt = {
   ...authPt,
+  ...controlsPt,
   'common.cancel': 'Cancelar',
   'common.confirm': 'Confirmar',
   'common.actions': 'Ações',

@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -17,6 +18,8 @@ import (
 	"wapo.local/server/internal/delivery"
 	"wapo.local/server/internal/store"
 )
+
+var fixtureSequence atomic.Uint32
 
 func fixture(t *testing.T) (*Server, *httptest.Server, string, string) {
 	t.Helper()
@@ -58,7 +61,12 @@ func fixture(t *testing.T) (*Server, *httptest.Server, string, string) {
 
 	server := New(s, config.Config{Channels: []string{"whatsapp", "webchat"}, WebOrigin: "http://localhost:5173", MetaAppSecret: "meta-test-secret", MetaVerifyToken: "verify-token", AllowPrivateWebhooks: true, LoginRateLimit: 100, RequestLogSampleRate: 1})
 	t.Cleanup(server.Close)
-	httpServer := httptest.NewServer(server.Handler())
+	// Give each fixture its own source IP so authentication quotas do not leak
+	// between otherwise independent tests sharing the integration schema.
+	sequence := fixtureSequence.Add(1)
+	remote := fmt.Sprintf("127.%d.%d.%d:1234", sequence>>16&255, sequence>>8&255, sequence&255)
+	handler := server.Handler()
+	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { r.RemoteAddr = remote; handler.ServeHTTP(w, r) }))
 	t.Cleanup(httpServer.Close)
 
 	return server, httpServer, p, key

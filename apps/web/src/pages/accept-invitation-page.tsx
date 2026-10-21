@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AuthLayout } from '../components/auth-layout'
 import { ErrorNotice, Field } from '../components/ui'
-import { Input } from '../components/ui/input'
+import { PasswordInput } from '../components/password-input'
 import { Button } from '../components/ui/button'
 import { useI18n } from '../app/i18n'
 
@@ -90,8 +90,8 @@ export function AcceptInvitationPage() {
               label={t('invitation.createPassword')}
               hint={t('invitation.passwordHint')}
             >
-              <Input
-                type="password"
+              <PasswordInput
+                strength
                 autoComplete="new-password"
                 minLength={12}
                 maxLength={72}

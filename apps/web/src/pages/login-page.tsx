@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
 import { Label } from '../components/ui/label'
 import { AuthLayout } from '../components/auth-layout'
+import { PasswordInput } from '../components/password-input'
 
 export function LoginPage({ description }: { description?: string } = {}) {
   const { connectUser } = useSession()
@@ -71,9 +72,8 @@ export function LoginPage({ description }: { description?: string } = {}) {
               {t('auth.forgot')}
             </a>
           </div>
-          <Input
+          <PasswordInput
             id="login-password"
-            type="password"
             autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}

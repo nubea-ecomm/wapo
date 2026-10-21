@@ -23,7 +23,11 @@ describe('status badges', () => {
   it('translates every known status instead of falling back to Spanish', () => {
     render(
       <I18nContext.Provider
-        value={{ language: 'en', t: (key) => messages.en[key] }}
+        value={{
+          language: 'en',
+          setLanguage: async () => {},
+          t: (key) => messages.en[key],
+        }}
       >
         <Status value="credential_expired" />
       </I18nContext.Provider>,

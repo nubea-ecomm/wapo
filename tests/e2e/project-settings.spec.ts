@@ -31,7 +31,8 @@ test('project identity saves the name, logo and hosted-link appearance', async (
     ),
   })
   await page.getByLabel('Color de acento', { exact: true }).fill('#2563eb')
-  await page.getByLabel('Tema del enlace', { exact: true }).selectOption('dark')
+  await page.getByLabel('Tema del enlace', { exact: true }).click()
+  await page.getByRole('option', { name: 'Oscuro', exact: true }).click()
   await expect(page.getByAltText('Logo del proyecto')).toBeVisible()
   const updated = page.waitForResponse(
     (response) =>

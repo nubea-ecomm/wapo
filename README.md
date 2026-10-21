@@ -300,6 +300,16 @@ Each console user can edit their name and email, choose Spanish, Portuguese or
 English, and regenerate their avatar from the account menu. These profile
 preferences are stored in PostgreSQL and follow the user across browsers.
 
+Login and signup initially follow the system theme and the first supported browser
+language. Compact menus let visitors override either; Configuration → Preferences
+exposes these controls after sign-in. New accounts retain their selected language.
+Password fields include show/hide controls and local strength feedback for new
+passwords, with validation matching the backend's 12–72 UTF-8 byte limit.
+Account security lives in the Edit profile modal's Security tab. Project teams
+use a searchable member table with invitation and role-editing dialogs. Console
+select fields use the shared shadcn-style Base UI Select, including keyboard
+navigation, scrollable options, selected indicators and reduced-motion transitions.
+
 ## Interface motion and documentation theme
 
 The console uses Motion for page entry, table rows, cards, login and the active

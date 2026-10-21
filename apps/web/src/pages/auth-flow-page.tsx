@@ -5,9 +5,10 @@ import { ErrorNotice, Field } from '../components/ui'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { useI18n } from '../app/i18n'
+import { PasswordInput } from '../components/password-input'
 
 export function AuthFlowPage({ flow }: { flow: string }) {
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
@@ -37,7 +38,8 @@ export function AuthFlowPage({ flow }: { flow: string }) {
     const query = new URLSearchParams(location.hash.split('?')[1] || '')
 
     try {
-      if (registration) await client.register({ name, email, password })
+      if (registration)
+        await client.register({ name, email, password, language })
       else if (confirmation) await client.confirm(query.get('cnf') || '')
       else if (reset)
         await client.resetPassword(query.get('token') || '', password)
@@ -117,8 +119,8 @@ export function AuthFlowPage({ flow }: { flow: string }) {
               label={t('password')}
               hint={t('auth.passwordHint')}
             >
-              <Input
-                type="password"
+              <PasswordInput
+                strength
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="new-password"

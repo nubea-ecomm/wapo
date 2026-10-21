@@ -17,7 +17,7 @@ func (s authStorage) New(context.Context) authboss.User {
 
 func (s authStorage) Create(ctx context.Context, user authboss.User) error {
 	u := user.(*authUser)
-	result, err := s.tx.Exec(ctx, `INSERT INTO console_users(id,email,name,password_hash,role,all_projects,email_verified) VALUES($1,$2,$3,$4,'member',false,false) ON CONFLICT(email) DO NOTHING`, u.ID, u.Email, u.Name, u.Password)
+	result, err := s.tx.Exec(ctx, `INSERT INTO console_users(id,email,name,password_hash,role,all_projects,email_verified,language) VALUES($1,$2,$3,$4,'member',false,false,$5) ON CONFLICT(email) DO NOTHING`, u.ID, u.Email, u.Name, u.Password, u.Language)
 
 	if err == nil && result.RowsAffected() == 0 {
 		return authboss.ErrUserFound
