@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { WapoLogo } from '../components/wapo-logo'
+import { AuthLayout } from '../components/auth-layout'
 import { ErrorNotice, Field } from '../components/ui'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
@@ -37,95 +37,82 @@ export function AcceptInvitationPage() {
   }, [baseURL, token, t])
 
   return (
-    <main className="login">
-      <div className="login-content">
-        <a
-          className="login-brand"
-          href="/"
+    <AuthLayout
+      title={accepted ? t('invitation.acceptedTitle') : t('invitation.title')}
+      description={
+        accepted
+          ? t('invitation.acceptedDescription')
+          : invitation
+            ? `${invitation.name}, ${t('invitation.createPasswordFor')} ${invitation.email}.`
+            : t('invitation.verifying')
+      }
+    >
+      {accepted ? (
+        <Button
+          className="w-full"
+          asChild
         >
-          <WapoLogo />
-        </a>
-        <section className="login-panel">
-          <header>
-            <h1>
-              {accepted ? t('invitation.acceptedTitle') : t('invitation.title')}
-            </h1>
-            <p>
-              {accepted
-                ? t('invitation.acceptedDescription')
-                : invitation
-                  ? `${invitation.name}, ${t('invitation.createPasswordFor')} ${invitation.email}.`
-                  : t('invitation.verifying')}
-            </p>
-          </header>
-          {accepted ? (
+          <a href="/">{t('signInAction')}</a>
+        </Button>
+      ) : (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+
+            if (!token) return
+
+            setBusy(true)
+            setError(null)
+            void fetch(
+              `${baseURL}/auth/v1/invitations/${encodeURIComponent(token)}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password }),
+              },
+            )
+              .then((response) => {
+                if (!response.ok)
+                  throw new Error(
+                    response.status === 422
+                      ? t('invitation.passwordLength')
+                      : t('invitation.unavailable'),
+                  )
+
+                setAccepted(true)
+              })
+              .catch(setError)
+              .finally(() => setBusy(false))
+          }}
+        >
+          {invitation && (
+            <Field
+              label={t('invitation.createPassword')}
+              hint={t('invitation.passwordHint')}
+            >
+              <Input
+                type="password"
+                autoComplete="new-password"
+                minLength={12}
+                maxLength={72}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                autoFocus
+              />
+            </Field>
+          )}
+          <ErrorNotice error={error} />
+          {invitation && (
             <Button
               className="w-full"
-              asChild
+              disabled={busy}
             >
-              <a href="/">{t('signInAction')}</a>
+              {busy ? t('invitation.accepting') : t('invitation.accept')}
             </Button>
-          ) : (
-            <form
-              onSubmit={(event) => {
-                event.preventDefault()
-
-                if (!token) return
-
-                setBusy(true)
-                setError(null)
-                void fetch(
-                  `${baseURL}/auth/v1/invitations/${encodeURIComponent(token)}`,
-                  {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password }),
-                  },
-                )
-                  .then((response) => {
-                    if (!response.ok)
-                      throw new Error(
-                        response.status === 422
-                          ? t('invitation.passwordLength')
-                          : t('invitation.unavailable'),
-                      )
-
-                    setAccepted(true)
-                  })
-                  .catch(setError)
-                  .finally(() => setBusy(false))
-              }}
-            >
-              {invitation && (
-                <Field
-                  label={t('invitation.createPassword')}
-                  hint={t('invitation.passwordHint')}
-                >
-                  <Input
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={12}
-                    maxLength={72}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    required
-                    autoFocus
-                  />
-                </Field>
-              )}
-              <ErrorNotice error={error} />
-              {invitation && (
-                <Button
-                  className="w-full"
-                  disabled={busy}
-                >
-                  {busy ? t('invitation.accepting') : t('invitation.accept')}
-                </Button>
-              )}
-            </form>
           )}
-        </section>
-      </div>
-    </main>
+        </form>
+      )}
+    </AuthLayout>
   )
 }
