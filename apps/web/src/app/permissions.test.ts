@@ -47,6 +47,9 @@ describe('console permissions', () => {
     expect(permissions(scoped).canManageProject).toBe(true)
     expect(permissions(scoped).canManagePlatform).toBe(false)
     expect(permissions({ ...scoped, tenantId: 'other' }).canWrite).toBe(false)
+    scoped.user!.all_projects = true
+    expect(permissions(scoped).canManageProject).toBe(true)
+    expect(permissions(scoped).canManagePlatform).toBe(false)
   })
 
   it('allows members to write and viewers only to read', () => {

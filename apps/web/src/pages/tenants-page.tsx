@@ -63,6 +63,7 @@ export function TenantsPage() {
       <PageHeader
         title={t('projects')}
         description={t('projects.description')}
+        readOnlyAction
         action={
           <Button onClick={() => setEditor('new')}>
             <Plus />

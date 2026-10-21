@@ -51,4 +51,14 @@ func TestSelfServiceProjectIsolationAndInvitations(t *testing.T) {
 	expect(t, status, 200, body)
 	status, body = scopedRequest(t, h.URL, member, p, "GET", "/v1/customers", nil)
 	expect(t, status, 403, body)
+	// A global member can still administer a project they explicitly own, without
+	// gaining administrative access to other projects.
+	if _, err := s.Store.Pool.Exec(ctx, "UPDATE console_users SET all_projects=true WHERE id=$1", ownerID); err != nil {
+		t.Fatal(err)
+	}
+
+	status, body = scopedRequest(t, h.URL, owner, p, "GET", "/v1/members", nil)
+	expect(t, status, 200, body)
+	status, body = scopedRequest(t, h.URL, owner, other, "GET", "/v1/members", nil)
+	expect(t, status, 403, body)
 }

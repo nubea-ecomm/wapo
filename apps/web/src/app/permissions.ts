@@ -1,9 +1,10 @@
 import type { Session } from './session-context'
 
 export function permissions(session: Session | null) {
+  const globalAdmin =
+    session?.user?.all_projects && session?.user?.role === 'admin'
   const role =
-    (!session?.user?.all_projects &&
-      session?.user?.project_roles?.[session.tenantId]) ||
+    (!globalAdmin && session?.user?.project_roles?.[session.tenantId]) ||
     session?.user?.role ||
     'admin'
   const canManagePlatform =
