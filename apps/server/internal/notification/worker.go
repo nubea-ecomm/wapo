@@ -109,7 +109,7 @@ func claim(ctx context.Context, s *store.Store) (queuedDelivery, bool, error) {
 
 func finish(ctx context.Context, s *store.Store, delivery queuedDelivery, sendErr error) error {
 	if sendErr == nil {
-		_, err := s.Pool.Exec(ctx, "UPDATE notification_deliveries SET state='sent',lease_until=NULL,last_error='',payload=CASE WHEN notification_type='user_invitation' THEN payload-'invitation_token' ELSE payload END,updated_at=now() WHERE id=$1", delivery.ID)
+		_, err := s.Pool.Exec(ctx, "UPDATE notification_deliveries SET state='sent',lease_until=NULL,last_error='',payload=payload-'invitation_token',updated_at=now() WHERE id=$1", delivery.ID)
 		return err
 	}
 
@@ -119,7 +119,7 @@ func finish(ctx context.Context, s *store.Store, delivery queuedDelivery, sendEr
 	}
 
 	if delivery.Attempts >= 8 || errors.Is(sendErr, errInvitationUnavailable) {
-		_, err := s.Pool.Exec(ctx, "UPDATE notification_deliveries SET state='failed',lease_until=NULL,last_error=$2,payload=CASE WHEN notification_type='user_invitation' THEN payload-'invitation_token' ELSE payload END,updated_at=now() WHERE id=$1", delivery.ID, message)
+		_, err := s.Pool.Exec(ctx, "UPDATE notification_deliveries SET state='failed',lease_until=NULL,last_error=$2,payload=payload-'invitation_token',updated_at=now() WHERE id=$1", delivery.ID, message)
 		return err
 	}
 

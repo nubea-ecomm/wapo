@@ -77,12 +77,17 @@ func saveUserAccess(ctx context.Context, tx pgx.Tx, id string, access userAccess
 		return e
 	}
 
+	// Explicit operator assignments supersede previously offered access as well.
+	if _, e := tx.Exec(ctx, `UPDATE project_invitations SET expires_at=LEAST(expires_at,now()) WHERE email=(SELECT email FROM console_users WHERE id=$1) AND accepted_at IS NULL`, id); e != nil {
+		return e
+	}
+
 	if _, e := tx.Exec(ctx, "DELETE FROM console_user_projects WHERE user_id=$1", id); e != nil {
 		return e
 	}
 
 	for _, project := range access.Projects {
-		if _, e := tx.Exec(ctx, "INSERT INTO console_user_projects(user_id,project_id) VALUES($1,$2)", id, project); e != nil {
+		if _, e := tx.Exec(ctx, "INSERT INTO console_user_projects(user_id,project_id,role) VALUES($1,$2,$3)", id, project, access.Role); e != nil {
 			return e
 		}
 	}

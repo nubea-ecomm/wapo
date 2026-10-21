@@ -1,6 +1,8 @@
 import type { productEs } from './es'
+import { authEn } from './auth'
 
 export const productEn = {
+  ...authEn,
   'common.cancel': 'Cancel',
   'common.confirm': 'Confirm',
   'common.actions': 'Actions',

@@ -101,7 +101,11 @@ X-Tenant-ID; project keys ignore this header and cannot switch tenants. Console 
 12); opaque session tokens are stored as hashes, expire in 12 hours and can be
 revoked. Logout and password reset revoke sessions; inactive users cannot
 authenticate. Administrators create/disable other console administrators from the
-Users screen. No public signup or per-tenant team membership system is implemented. The bridge is explicitly restricted to one project per process
+Users screen. Authboss handles public signup, password login, email verification,
+recovery and password changes through adapters to the existing PostgreSQL user
+tables and durable mail outbox. Project memberships carry independent roles;
+public registrations never grant global access. See [account management](authentication.md).
+The bridge is explicitly restricted to one project per process
 and has separate credentials. Bridge resources remain upstream and are not mirrored
 into native collections or the native dashboard. Never mix native customer IDs
 with bridged customer IDs.
@@ -114,9 +118,11 @@ Replicas reserve small token blocks so the fallback does not write its hot count
 on every request, while PostgreSQL still prevents the configured global total from
 being exceeded. Public onboarding and webhook ingress should also use an edge
 abuse-control layer.
-CORS permits the comma-separated WEB_ORIGIN allowlist. HTTP localhost, 127.0.0.1
+CORS permits the comma-separated WEB_ORIGIN allowlist plus CORS_ORIGINS, which
+defaults to HTTPS getwapo.dev and its subdomains. CORS_ORIGINS supports leftmost
+subdomain wildcards with matching schemes and ports. HTTP localhost, 127.0.0.1
 and ::1 are aliases only on the same configured local port; production origins
-require exact matches. hosted onboarding
+use the configured allowlists. Hosted onboarding
 completion additionally checks the exact PUBLIC_URL origin when Origin is present.
 Local Compose ports bind to loopback; public hosting needs HTTPS termination,
 network configuration, backups and an actual domain. No cloud deployment is

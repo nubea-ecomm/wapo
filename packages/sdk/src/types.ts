@@ -211,6 +211,7 @@ export interface CustomerInput {
 }
 
 export interface ConsoleUser {
+  project_roles?: Record<string, 'admin' | 'member' | 'viewer' | 'billing'>
   role: UserRole
   all_projects: boolean
   project_ids: string[]

@@ -108,6 +108,11 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if kind == "members" && len(parts) <= 2 {
+		s.projectMembers(w, r, project(r), id)
+		return
+	}
+
 	if kind == "customers" && len(parts) == 3 && parts[2] == "setup_links" {
 		s.setupLinks(w, r, id, false)
 		return

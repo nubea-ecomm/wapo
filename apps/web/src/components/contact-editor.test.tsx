@@ -36,6 +36,7 @@ describe('contact editor', () => {
           connectUser: vi.fn(),
           disconnect: vi.fn(),
           updateProfile: vi.fn(),
+          refreshAccess: vi.fn(),
           selectTenant: vi.fn(),
         }}
       >

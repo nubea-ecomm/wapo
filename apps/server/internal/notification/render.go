@@ -26,6 +26,8 @@ func render(ctx context.Context, s *store.Store, delivery queuedDelivery, public
 	subject, intro, details := "", "", ""
 
 	switch delivery.Type {
+	case "auth_mail", "project_invitation":
+		return renderAuthMail(s, delivery)
 	case "user_invitation":
 		invitationID := text(delivery.Payload, "invitation_id", "")
 

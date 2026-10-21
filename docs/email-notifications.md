@@ -88,6 +88,11 @@ repeated alert noise. An empty resolved audience creates no delivery.
 
 ## Member invitations
 
+Public signup verification, password recovery and project-team invitations also use
+this outbox. Configure SMTP in both API and worker and put the canonical console
+origin first in `WEB_ORIGIN`. Authboss email bodies are encrypted at rest until
+delivery finishes. See [account management](authentication.md) for the public flow.
+
 When SMTP is configured, **Console → Users → Invite user** creates an inactive
 account and queues an invitation email instead of asking an administrator to choose
 someone else's password. The email contains a single-use **Accept invitation** link

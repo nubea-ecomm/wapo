@@ -66,7 +66,16 @@ func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /auth/v1/me", s.consoleProfile)
 	mux.HandleFunc("PATCH /auth/v1/me", s.updateConsoleProfile)
-	mux.HandleFunc("POST /auth/v1/login", s.login)
+
+	for _, path := range []string{"login", "register", "confirm", "confirm/resend", "recover", "recover/end"} {
+		mux.HandleFunc("POST /auth/v1/"+path, s.authFlow)
+	}
+
+	mux.HandleFunc("POST /auth/v1/projects", s.createOwnProject)
+	mux.HandleFunc("POST /auth/v1/password", s.changeOwnPassword)
+	mux.HandleFunc("GET /auth/v1/sessions", s.ownSessions)
+	mux.HandleFunc("DELETE /auth/v1/sessions/{id}", s.ownSessions)
+	mux.HandleFunc("POST /auth/v1/project-invitations/{token}", s.acceptProjectInvitation)
 	mux.HandleFunc("POST /auth/v1/logout", s.logout)
 	mux.HandleFunc("GET /auth/v1/invitations/{token}", s.userInvitation)
 	mux.HandleFunc("POST /auth/v1/invitations/{token}", s.userInvitation)
@@ -113,10 +122,10 @@ func (s *Server) Handler() http.Handler {
 		w.Header().Set("X-Request-ID", store.ID("req"))
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Add("Vary", "Origin")
 
 		if origin := r.Header.Get("Origin"); s.Config.AllowsOrigin(origin) || s.setupRequestOrigin(r, origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-API-Key, Authorization, Idempotency-Key, X-Tenant-ID")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID, Retry-After")

@@ -2,7 +2,7 @@ import { test as base, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
 export const env = Object.fromEntries(
-  readFileSync('.env', 'utf8')
+  readFileSync(process.env.WAPO_E2E_ENV_FILE || '.env', 'utf8')
     .split('\n')
     .filter((line) => line && !line.startsWith('#'))
     .map((line) => {

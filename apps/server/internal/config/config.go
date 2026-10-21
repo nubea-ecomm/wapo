@@ -13,6 +13,7 @@ import (
 )
 
 type Config struct {
+	CORSOrigins                                                    string
 	Channels                                                       []string
 	Addr, DatabaseURL, APIKey, ProjectID, PublicURL, WebOrigin     string
 	EncryptionKey                                                  []byte
@@ -48,6 +49,7 @@ func Load() (Config, error) {
 	c.MetaAppID = os.Getenv("META_APP_ID")
 	c.MetaConfigID = os.Getenv("META_EMBEDDED_SIGNUP_CONFIG_ID")
 	c.SMTPHost = strings.TrimSpace(os.Getenv("SMTP_HOST"))
+	c.CORSOrigins = Env("CORS_ORIGINS", DefaultCORSOrigins)
 	c.SMTPUsername = os.Getenv("SMTP_USERNAME")
 	c.SMTPPassword = os.Getenv("SMTP_PASSWORD")
 	c.SMTPFromAddress = strings.TrimSpace(os.Getenv("SMTP_FROM_ADDRESS"))
@@ -145,6 +147,11 @@ func Load() (Config, error) {
 	}
 
 	c.PublicURL = strings.TrimRight(c.PublicURL, "/")
+	for _, origin := range strings.Split(c.CORSOrigins, ",") {
+		if !validCORSOrigin(strings.TrimSpace(origin)) {
+			return c, fmt.Errorf("CORS_ORIGINS must contain HTTP(S) origins or leftmost subdomain wildcards without paths")
+		}
+	}
 
 	return c, nil
 }

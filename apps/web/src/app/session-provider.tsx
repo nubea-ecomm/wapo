@@ -3,11 +3,11 @@ import {
   WapoAdminClient,
   WapoClient,
   WapoAuthClient,
-  WapoError,
 } from '@nubea-ecomm/wapo-sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { persistSession, restoreSession } from './session-storage'
 import { SessionContext, type Session } from './session-context'
+import { useAccessRefresh } from './use-access-refresh'
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(restoreSession)
@@ -37,68 +37,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     return () => window.clearTimeout(timer)
   }, [session, queryClient])
-  const sessionUserID = session?.user?.id
-
-  useEffect(() => {
-    if (!sessionUserID) return
-
-    let cancelled = false
-    const key = session?.key || '',
-      url = session?.url || ''
-
-    async function refreshAccess() {
-      try {
-        const [profile, projects] = await Promise.all([
-          new WapoAuthClient({ baseUrl: url, apiKey: key }).me(),
-          new WapoAdminClient({ baseUrl: url, apiKey: key }).listTenants(),
-        ])
-
-        if (cancelled) return
-
-        setSession((current) => {
-          if (!current || current.key !== key) return current
-
-          const active =
-            projects.data.find(
-              (project) =>
-                project.id === current.tenantId && project.status === 'active',
-            ) || projects.data.find((project) => project.status === 'active')
-          const updated =
-            JSON.stringify(profile.data.user) !==
-              JSON.stringify(current.user) ||
-            current.tenantId !== (active?.id || '') ||
-            current.tenantName !== (active?.name || '')
-
-          if (!updated) return current
-
-          return {
-            ...current,
-            id: crypto.randomUUID(),
-            user: profile.data.user,
-            tenantId: active?.id || '',
-            tenantName: active?.name || '',
-          }
-        })
-      } catch (error) {
-        if (!cancelled && error instanceof WapoError && error.status === 401) {
-          queryClient.clear()
-          setSession(null)
-        }
-      }
-    }
-
-    void refreshAccess()
-    const refresh = () => void refreshAccess()
-
-    window.addEventListener('focus', refresh)
-    const timer = window.setInterval(refresh, 60_000)
-
-    return () => {
-      cancelled = true
-      clearInterval(timer)
-      window.removeEventListener('focus', refresh)
-    }
-  }, [sessionUserID, session?.key, session?.url, queryClient])
+  const refreshAccess = useAccessRefresh(session, setSession, queryClient)
   const options = useMemo(
     () => ({
       baseUrl: session?.url || 'http://localhost:8080',
@@ -234,6 +173,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         selectTenant,
         disconnect,
         updateProfile,
+        refreshAccess,
       }}
     >
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

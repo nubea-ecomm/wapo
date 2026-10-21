@@ -56,6 +56,10 @@ provider webhooks to preserve incoming data.
 
 ## Included
 
+- Authboss-backed public signup, email verification, password recovery, account
+  security and self-service projects with independently scoped team roles. Requires
+  SMTP for authentication emails. See [account management](docs/authentication.md).
+
 - Eleven console screens: overview, tenants, users, customers, contacts, chats,
   channels, API keys, webhooks, activity and configuration.
 - Administrator email/password login, bcrypt password hashes, revocable sessions,
@@ -169,6 +173,7 @@ Playwright uses Chrome on macOS by default when available. On Linux/CI install
 Chromium with `pnpm exec playwright install --with-deps chromium`; the configuration
 then uses Playwright's bundled browser. Set CHROME_PATH to use another executable.
 Browser artifacts go in ignored `artifacts/` and `test-results/` directories.
+Set `WAPO_E2E_ENV_FILE` to use an isolated test environment file instead of `.env`.
 
 A fresh test database is recommended for integration checks. Compose exposes
 PostgreSQL only on 127.0.0.1:54329 and preserves it in a named volume. `make down`

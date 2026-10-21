@@ -18,6 +18,7 @@ export interface Session {
 }
 
 export interface SessionContextValue {
+  refreshAccess: (preferredProject?: string) => Promise<void>
   session: Session | null
   client: WapoClient
   admin: WapoAdminClient

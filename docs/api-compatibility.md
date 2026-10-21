@@ -11,6 +11,16 @@ The optional provider bridge is separate from standalone support.
 
 ## Meta adapter
 
+Native account management now exposes Authboss-backed public registration,
+verification, recovery, password changes, session management and project invitations.
+These `/auth/v1/*` and `/v1/members*` routes are Wapo extensions, not upstream parity
+claims. Existing login tokens and legacy administration routes retain their contracts.
+Profiles additionally expose project-specific `project_roles`; scoped users cannot
+change their email through profile PATCH; neither can non-admin all-project users.
+Replacement invitations and membership changes invalidate older pending invitation
+links. Issued verification/recovery tokens remain usable when SMTP is disabled.
+See [authentication](authentication.md) and [CORS configuration](operations.md).
+
 The `/meta/whatsapp/{version}` router handles the 46 documented operation shapes:
 messages, marketing messages, conversations, contacts, calls, media, templates,
 profiles, usernames, blocks, datasets, WhatsApp Flows and phone details.

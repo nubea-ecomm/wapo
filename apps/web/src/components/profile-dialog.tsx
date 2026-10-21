@@ -76,6 +76,7 @@ export function ProfileDialog({ onClose }: { onClose: () => void }) {
         <Field label={t('email')}>
           <Input
             type="email"
+            readOnly={!(user.all_projects && user.role === 'admin')}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required

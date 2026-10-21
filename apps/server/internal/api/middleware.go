@@ -39,6 +39,12 @@ func (s *Server) auth(next http.Handler) http.Handler {
 		if consoleSession {
 			sessionUser, e = s.Store.AuthenticateSession(r.Context(), key)
 			consoleSession = e == nil
+
+			if consoleSession && !(sessionUser.AllProjects && sessionUser.Role == "admin") {
+				if assigned, ok := sessionUser.ProjectRoles[r.Header.Get("X-Tenant-ID")]; ok {
+					sessionUser.Role = assigned
+				}
+			}
 		} else if !technicalOperator {
 			p, e = s.Store.AuthenticateHash(r.Context(), keyHash)
 		}
