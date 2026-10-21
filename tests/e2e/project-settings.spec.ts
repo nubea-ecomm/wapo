@@ -48,9 +48,17 @@ test('project identity saves the name, logo and hosted-link appearance', async (
   await expect(
     page.getByLabel('Nombre del proyecto', { exact: true }),
   ).toHaveValue(`${name} renamed`)
-  await expect(page.getByLabel('Tema del enlace', { exact: true })).toHaveValue(
-    'dark',
-  )
+  const theme = page.getByRole('combobox', {
+    name: 'Tema del enlace',
+    exact: true,
+  })
+
+  await expect(theme).toHaveText('Oscuro')
+  await theme.click()
+  await expect(
+    page.getByRole('option', { name: 'Oscuro', exact: true }),
+  ).toHaveAttribute('aria-selected', 'true')
+  await page.keyboard.press('Escape')
   await expect(page.getByLabel('Color de acento', { exact: true })).toHaveValue(
     '#2563eb',
   )
