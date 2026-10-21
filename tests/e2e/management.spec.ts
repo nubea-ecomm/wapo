@@ -408,7 +408,10 @@ test('administrator signs in with email and password and manages users inside th
   const icon = await page.request.get(favicon!)
 
   expect(icon.ok()).toBe(true)
-  expect(await icon.text()).toContain('<svg')
+  expect(icon.headers()['content-type']).toContain('image/png')
+  expect((await icon.body()).subarray(0, 8)).toEqual(
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+  )
   await page.getByRole('button', { name: 'Menú de usuario' }).click()
   const theme = page.getByRole('switch', { name: 'Tema oscuro' })
 
