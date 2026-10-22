@@ -102,6 +102,18 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 		return
 	}
 
+	recipientInput, recipientIdentity := str(payload, "to"), str(payload, "to")
+
+	if typ == "whatsapp" {
+		var err error
+
+		recipientInput, recipientIdentity, err = s.Store.WhatsAppRecipient(r.Context(), p, str(c, "id"), recipientInput)
+		if err != nil {
+			dbError(w, err)
+			return
+		}
+	}
+
 	marketing := false
 
 	if typ == "whatsapp" {
@@ -114,7 +126,7 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 		}
 
 		if marketing {
-			allowed, preferenceErr := s.Store.MarketingAllowed(r.Context(), p, str(c, "id"), str(payload, "to"))
+			allowed, preferenceErr := s.Store.MarketingAllowed(r.Context(), p, str(c, "id"), recipientIdentity)
 			if preferenceErr != nil {
 				dbError(w, preferenceErr)
 				return
@@ -123,6 +135,19 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 			if !allowed {
 				fail(w, 422, "marketing_preference_stopped", "Contact stopped marketing messages on this WhatsApp number")
 				return
+			}
+
+			if recipientInput != recipientIdentity {
+				allowed, preferenceErr = s.Store.MarketingAllowed(r.Context(), p, str(c, "id"), recipientInput)
+				if preferenceErr != nil {
+					dbError(w, preferenceErr)
+					return
+				}
+
+				if !allowed {
+					fail(w, 422, "marketing_preference_stopped", "Contact stopped marketing messages on this WhatsApp number")
+					return
+				}
 			}
 		}
 	}
@@ -141,7 +166,7 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 	}
 
 	if typ == "whatsapp" && str(payload, "type") != "template" {
-		open, _, err := s.Store.ServiceWindow(r.Context(), p, str(c, "id"), str(payload, "to"))
+		open, _, err := s.Store.ServiceWindow(r.Context(), p, str(c, "id"), recipientIdentity)
 		if err != nil {
 			dbError(w, err)
 			return
@@ -180,6 +205,10 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 	ctx, cancel := context.WithTimeout(context.WithoutCancel(r.Context()), 30*time.Second)
 	defer cancel()
 
+	// Keep the journal fingerprint tied to the caller's request, even when a
+	// provider-confirmed recipient mapping changes between retries.
+	payload["to"] = recipientInput
+
 	result, e := connector.Send(ctx, c, token, payload)
 	if e != nil {
 		var pe *channel.ProviderError
@@ -204,7 +233,7 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 
 				if stopped, detail := providerResponseHasError(provider, 131050); stopped {
 					sourceKey := "marketing-preference:synchronous:" + key
-					if preferenceErr := s.recordMarketingPreference(ctx, p, c, str(payload, "to"), "", "stopped", detail, "meta_synchronous_error", sourceKey, time.Now().UTC()); preferenceErr != nil {
+					if preferenceErr := s.recordMarketingPreference(ctx, p, c, recipientIdentity, "", "stopped", detail, "meta_synchronous_error", sourceKey, time.Now().UTC()); preferenceErr != nil {
 						dbError(w, preferenceErr)
 						return
 					}
@@ -239,7 +268,14 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 	}
 
 	now := time.Now().UTC()
-	msg := store.Object{"id": result.ProviderID, "connection_id": str(c, "id"), "customer_id": str(c, "customer_id"), "phone_number_id": str(c, "external_id"), "channel": typ, "direction": "outbound", "status": "sent", "to": str(payload, "to"), "timestamp": now.Format(time.RFC3339Nano), "payload": payload, "provider_response": result.Raw}
+
+	if typ == "whatsapp" {
+		if confirmed := store.ConfirmedWhatsAppIdentity(result.Raw, recipientInput); confirmed != recipientInput {
+			recipientIdentity = confirmed
+		}
+	}
+
+	msg := store.Object{"id": result.ProviderID, "connection_id": str(c, "id"), "customer_id": str(c, "customer_id"), "phone_number_id": str(c, "external_id"), "channel": typ, "direction": "outbound", "status": "sent", "to": recipientIdentity, "timestamp": now.Format(time.RFC3339Nano), "payload": payload, "provider_response": result.Raw}
 
 	if str(payload, "type") == "template" {
 		msg["display_text"] = s.renderTemplateMessage(ctx, p, c, msg)

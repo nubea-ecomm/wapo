@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -20,10 +21,25 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 		return
 	}
 
+	recipient := ""
 	c, e := s.Store.Get(r.Context(), project(r), "conversations", id)
+
+	if errors.Is(e, store.ErrNotFound) {
+		if redirect, err := s.Store.Get(r.Context(), project(r), "conversation_redirects", id); err == nil {
+			c, e = s.Store.Get(r.Context(), project(r), "conversations", str(redirect, "conversation_id"))
+			recipient = str(redirect, "recipient_input")
+		} else if !errors.Is(err, store.ErrNotFound) {
+			e = err
+		}
+	}
+
 	if e != nil {
 		dbError(w, e)
 		return
+	}
+
+	if recipient == "" {
+		recipient = str(c, "contact")
 	}
 
 	if e = s.enrichConversationContacts(r.Context(), project(r), []store.Object{c}); e != nil {
@@ -62,7 +78,7 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 			}
 
 			if template := object(o, "template"); template != nil {
-				s.send(w, r, connection, store.Object{"to": str(c, "contact"), "type": "template", "template": template}, false)
+				s.send(w, r, connection, store.Object{"to": recipient, "type": "template", "template": template}, false)
 				return
 			}
 
@@ -72,7 +88,7 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 				return
 			}
 
-			s.send(w, r, connection, store.Object{"to": str(c, "contact"), "type": "text", "text": store.Object{"body": text}}, false)
+			s.send(w, r, connection, store.Object{"to": recipient, "type": "text", "text": store.Object{"body": text}}, false)
 		default:
 			fail(w, 405, "method_not_allowed", "Use GET or POST")
 		}
@@ -115,7 +131,7 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 			patch["assigned_to"] = assignee
 		}
 
-		if c, e = s.Store.Patch(r.Context(), project(r), "conversations", id, patch); e != nil {
+		if c, e = s.Store.Patch(r.Context(), project(r), "conversations", str(c, "id"), patch); e != nil {
 			dbError(w, e)
 			return
 		}

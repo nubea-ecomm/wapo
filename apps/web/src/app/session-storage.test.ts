@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { persistSession, restoreSession } from './session-storage'
 import type { Session } from './session-context'
 
@@ -25,8 +25,22 @@ const session: Session = {
 }
 
 afterEach(() => {
+  vi.unstubAllEnvs()
   sessionStorage.clear()
   localStorage.clear()
+})
+
+it('requires login on the configured API after a domain change instead of forwarding the old token', () => {
+  vi.stubEnv('VITE_API_URL', 'https://api.getwapo.dev')
+  persistSession({
+    ...session,
+    url: 'https://old.apps.unbroker.cloud',
+    remember: true,
+  })
+  expect(restoreSession()).toBeNull()
+  expect(localStorage.length).toBe(0)
+  persistSession({ ...session, url: 'https://api.getwapo.dev/' })
+  expect(restoreSession()?.url).toBe('https://api.getwapo.dev/')
 })
 it('restores an unexpired user session and its selected tenant after reload', () => {
   persistSession(session)

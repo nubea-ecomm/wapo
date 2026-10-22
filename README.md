@@ -72,7 +72,7 @@ provider webhooks to preserve incoming data.
 - Connection details include an editable Meta-authoritative WhatsApp Business
   profile for About, description, address, email, category and websites.
 - Persistent conversations, contact identity per channel, assignment labels,
-  close/reopen, replies, history and five-second console polling.
+  close/reopen, replies, history and 1.5-second foreground inbox polling.
 - Typed WhatsApp contacts, custom properties, provider-synchronized marketing
   preferences, pre-send suppression and permanent local erasure.
 - Native `/v1`, operator `/admin/v1`, compatibility `/platform/v1` and

@@ -3,7 +3,6 @@
   flex: 1;
   overflow-y: auto;
   background: color-mix(in srgb, var(--muted) 22%, var(--background));
-  scroll-behavior: smooth;
 }
 .timeline-content {
   display: flex;
@@ -44,8 +43,16 @@
   color: var(--muted-foreground);
   font-size: 8px;
 }
-.message-bubble.outbound small svg {
+.message-delivery-status {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted-foreground);
+}
+.message-delivery-status.is-read {
   color: #38bdf8;
+}
+.message-delivery-status.is-failed {
+  color: var(--destructive);
 }
 .load-older {
   align-self: center;
@@ -115,6 +122,13 @@
 @media (max-width: 600px) {
   .thread-header {
     padding: 9px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .thread-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
   }
   .thread-actions [data-slot='popover-trigger'] {
     display: none;

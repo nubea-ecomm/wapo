@@ -2,6 +2,20 @@
 
 ## Console origins and CORS
 
+Set the canonical public API address explicitly on both API and worker:
+
+```env
+PUBLIC_URL=https://api.getwapo.dev
+```
+
+Build the hosted console with `VITE_API_URL=https://api.getwapo.dev`. On Unbroker,
+use this literal custom domain rather than `${{services.wapo-backend.url}}`, which
+resolves to the platform-generated hostname. Changing the frontend variable
+requires rebuilding the frontend; API/worker variables require redeployment.
+The custom domain must have active DNS and TLS before switching these values.
+Previously saved console sessions using a different API URL require a new login
+after the updated frontend loads. Tokens are not forwarded across API origins.
+
 For the hosted console, configure the API with:
 
 ```env

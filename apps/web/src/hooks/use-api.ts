@@ -3,7 +3,7 @@ import { useSession } from '../app/session-context'
 
 export function useApi<T>(
   path: string,
-  options: { admin?: boolean; poll?: boolean; enabled?: boolean } = {},
+  options: { admin?: boolean; poll?: boolean | number; enabled?: boolean } = {},
 ) {
   const { session, client, admin } = useSession()
 
@@ -15,7 +15,13 @@ export function useApi<T>(
       (options.admin || session.tenantId) &&
       options.enabled !== false,
     ),
-    refetchInterval: options.poll ? 5000 : false,
+    refetchInterval:
+      typeof options.poll === 'number'
+        ? options.poll
+        : options.poll
+          ? 5000
+          : false,
+    refetchOnWindowFocus: Boolean(options.poll),
   })
 }
 

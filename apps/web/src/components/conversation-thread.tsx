@@ -2,7 +2,6 @@ import { useState } from 'react'
 import type { Connection, Conversation, Message } from '@nubea-ecomm/wapo-sdk'
 import {
   ArrowLeft,
-  CheckCheck,
   CircleCheck,
   Clock,
   FileText,
@@ -18,7 +17,9 @@ import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'
 import { usePaged } from '../hooks/use-paged'
 import { ErrorNotice, Loading, Status } from './ui'
-import { dateLabel, messageText } from '../lib/message-format'
+import { dateLabel } from '../lib/message-format'
+import { MessageTimeline } from './message-timeline'
+import { useConversationReply } from '../hooks/use-conversation-reply'
 import { WhatsAppIcon } from './icons/whatsapp-icon'
 import { TemplateSendDialog } from './template-send-dialog'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
@@ -38,11 +39,11 @@ export function ConversationThread({
   const [templateOpen, setTemplateOpen] = useState(false)
   const conversation = useApi<{ data: Conversation }>(
     `/v1/conversations/${encodeURIComponent(id)}`,
-    { poll: true },
+    { poll: 1500 },
   )
   const messages = usePaged<Message>(
     `/v1/conversations/${encodeURIComponent(id)}/messages`,
-    true,
+    1500,
   )
   const c = conversation.data?.data
   const connection = useApi<{ data: Connection }>(
@@ -50,18 +51,24 @@ export function ConversationThread({
     { enabled: Boolean(c?.connection_id) },
   )
   const serviceWindowOpen = c?.service_window_open === true
-  const reply = useAction(async () => {
-    await client.reply(id, text, key)
-    setText('')
-    setKey(crypto.randomUUID())
-  })
+  const reply = useConversationReply(id)
   const update = useAction(
     (input: { status?: 'open' | 'closed'; assigned_to?: string }) =>
       client.updateConversation(id, input),
   )
-  const timeline = [
-    ...new Map(messages.items.map((message) => [message.id, message])).values(),
-  ].reverse()
+  const pending: Message | undefined =
+    reply.isPending && reply.variables && c
+      ? {
+          id: `pending-${reply.variables.key}`,
+          connection_id: c.connection_id,
+          conversation_id: id,
+          channel: c.channel,
+          direction: 'outbound',
+          status: 'pending',
+          timestamp: new Date(reply.submittedAt).toISOString(),
+          payload: { type: 'text', text: { body: reply.variables.text } },
+        }
+      : undefined
 
   if (conversation.isLoading) return <Loading variant="thread" />
 
@@ -161,48 +168,33 @@ export function ConversationThread({
             </div>
           </header>
           <ErrorNotice error={update.error} />
-          <div className="timeline">
-            <div className="timeline-content">
-              {messages.hasNextPage && (
-                <Button
-                  className="load-older"
-                  variant="outline"
-                  size="sm"
-                  disabled={messages.isFetchingNextPage}
-                  onClick={() => void messages.fetchNextPage()}
-                >
-                  {messages.isFetchingNextPage
-                    ? 'Cargando…'
-                    : 'Cargar anteriores'}
-                </Button>
-              )}
-              {messages.isLoading && <Loading />}
-              <ErrorNotice error={messages.error} />
-              {timeline.map((message) => (
-                <article
-                  className={`message-bubble ${message.direction}`}
-                  key={message.id}
-                >
-                  <p>{messageText(message)}</p>
-                  <small>
-                    {dateLabel(message.timestamp)}{' '}
-                    {message.direction === 'outbound' && (
-                      <>
-                        <CheckCheck size={12} /> {message.status}
-                      </>
-                    )}
-                  </small>
-                </article>
-              ))}
-            </div>
-          </div>
+          <MessageTimeline
+            messages={messages.items}
+            pending={pending}
+            loading={messages.isLoading}
+            error={messages.error}
+            hasMore={messages.hasNextPage}
+            loadingMore={messages.isFetchingNextPage}
+            loadMore={() => void messages.fetchNextPage()}
+          />
           {serviceWindowOpen ? (
             <form
               className="reply-form"
               onSubmit={(event) => {
                 event.preventDefault()
 
-                if (text.trim()) reply.mutate()
+                if (text.trim() && !reply.isPending)
+                  reply.mutate(
+                    { text, key },
+                    {
+                      onSuccess: (_, submitted) => {
+                        setText((current) =>
+                          current === submitted.text ? '' : current,
+                        )
+                        setKey(crypto.randomUUID())
+                      },
+                    },
+                  )
               }}
             >
               <ErrorNotice error={reply.error} />

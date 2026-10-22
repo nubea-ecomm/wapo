@@ -123,6 +123,10 @@ func SaveMessage(ctx context.Context, tx pgx.Tx, p string, msg Object) error {
 	}
 
 	_, e = tx.Exec(ctx, `INSERT INTO resources(project_id,kind,id,data) VALUES($1,'messages',$2,$3) ON CONFLICT(project_id,kind,id) DO UPDATE SET data=EXCLUDED.data||jsonb_build_object('status',resources.data->'status','statuses',resources.data->'statuses')`, p, msg["id"], b)
+	if e == nil && msg["channel"] == "whatsapp" && msg["direction"] == "outbound" {
+		input, _ := payload["to"].(string)
+		e = reconcileRecipientConversation(ctx, tx, p, connection, input, contact)
+	}
 
 	return e
 }

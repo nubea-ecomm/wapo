@@ -39,7 +39,7 @@ export function InboxPage() {
 
   const chats = usePaged<Conversation>(
     `/v1/conversations${query.size ? `?${query}` : ''}`,
-    true,
+    1500,
   )
   const connections = useApi<Page<Connection>>('/v1/connections')
   const customers = useApi<Page<Customer>>('/v1/customers')

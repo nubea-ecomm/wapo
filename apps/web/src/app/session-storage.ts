@@ -18,6 +18,9 @@ export function restoreSession(): Session | null {
       typeof value.tenantId === 'string' &&
       typeof value.tenantName === 'string' &&
       typeof value.id === 'string' &&
+      (!import.meta.env.VITE_API_URL ||
+        value.url.replace(/\/$/, '') ===
+          import.meta.env.VITE_API_URL.replace(/\/$/, '')) &&
       Date.parse(value.expiresAt) > Date.now()
     ) {
       return value as Session

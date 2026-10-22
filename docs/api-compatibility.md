@@ -44,6 +44,11 @@ cannot retrieve history that Wapo never received. List support currently covers
 `after`, `limit`, status, direction and contact/call filters; `before`, date filters,
 field projections and all provider-specific enrichments are not fully matched.
 Message sending retains Wapo's idempotency and durable event semantics.
+WhatsApp sends resolve recipient aliases only from stored Meta acceptance or
+delivery evidence scoped to the same project and connection. Native stored
+messages expose the WhatsApp identity in `to` and the actual transport input in
+`payload.to`; compatibility send responses retain the original provider body.
+See [recipient identities](contacts-and-consent.md#whatsapp-recipient-identities).
 WhatsApp Business profile GET/POST is relayed to Meta and is also available as a
 validated native connection endpoint with console editing for text, category and
 website fields. Profile-picture upload still requires an external Meta resumable

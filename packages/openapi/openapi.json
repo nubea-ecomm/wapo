@@ -7743,7 +7743,8 @@
             "type": "string"
           },
           "to": {
-            "type": "string"
+            "type": "string",
+            "description": "Recipient identity. For WhatsApp, uses the provider-confirmed wa_id when available; payload.to retains the actual input sent to Meta."
           },
           "from": {
             "type": "string"
@@ -7783,7 +7784,8 @@
             "type": "object",
             "properties": {
               "to": {
-                "type": "string"
+                "type": "string",
+                "description": "WhatsApp recipient. A previously accepted input may be reused when Meta explicitly linked it to this identity on the same project and connection. Numbers are never rewritten using country-code heuristics."
               },
               "type": {
                 "type": "string"

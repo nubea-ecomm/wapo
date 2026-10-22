@@ -23,6 +23,41 @@ The list supports search, connection and marketing-status filters. Existing gene
 contact resources are migrated into the typed table and mirrored during rolling
 deployments.
 
+## WhatsApp recipient identities
+
+Meta can accept a phone input that differs from the WhatsApp identity delivered
+in incoming webhooks (including some Argentine numbers). Wapo resolves these
+only from stored provider evidence: a successful send response's matching
+`contacts[].input` / `wa_id`, or a delivered/read receipt's `recipient_id` for
+that send. It never adds or removes country-specific digits speculatively.
+
+Resolution is scoped to a project and connection. Replies reuse the accepted
+input while service windows and new inbox messages follow the WhatsApp identity.
+The message's `to` is the identity; `payload.to` preserves the actual Meta input.
+On the next successful mapped send, legacy inbox histories for that input are
+joined transactionally under the identity. Existing contact records and their
+customizations are retained. Marketing suppression checks both identifiers.
+
+Historical provider responses already stored by earlier versions can establish
+the mapping. If no provider evidence links two numbers, Wapo leaves them separate;
+a `131030` error alone does not establish identity and does not trigger retries.
+
+Legacy conversation URLs continue resolving to the canonical inbox after history
+reconciliation. Contact records and previously emitted webhook payloads are not
+rewritten by this operation.
+
+## Inbox updates and delivery indicators
+
+The active inbox polls every 1.5 seconds while visible and refreshes on window
+focus. Replies appear immediately as pending; accepted messages are inserted in
+the local query cache without waiting for the next poll. Failures retain the
+draft for inspection. Loading older history preserves scroll position, and
+updates do not pull the reader away from older messages.
+
+Delivery icons reflect recorded Meta status: clock for pending/unknown, one gray
+check for sent, two gray checks for delivered, two blue checks only for read, and
+an error icon for failed. API acceptance alone does not establish delivery or read.
+
 ## Marketing preference
 
 A preference is scoped to one contact on one business number. `stopped` blocks
