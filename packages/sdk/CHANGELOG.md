@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.4.0...sdk-v0.5.0) (2026-10-22)
+
+
+### Features
+
+* add rich chat composer and per-user unread state ([98da062](https://github.com/nubea-ecomm/wapo/commit/98da06261235eb93695ee618b9b054e17749fa5e))
+* route Meta webhooks through a shared app callback ([03b91cd](https://github.com/nubea-ecomm/wapo/commit/03b91cd2e6edf28318fd7f3ebd007757e3a0c065))
+
 ## [0.4.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.3.0...sdk-v0.4.0) (2026-10-21)
 
 
