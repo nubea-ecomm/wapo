@@ -117,6 +117,20 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 	marketing := false
 
 	if typ == "whatsapp" {
+		if err := s.validateMessageReference(r.Context(), p, str(c, "id"), recipientIdentity, payload); err != nil {
+			var invalid messageReferenceError
+
+			if errors.As(err, &invalid) {
+				fail(w, 422, "invalid_message_reference", err.Error())
+			} else {
+				dbError(w, err)
+			}
+
+			return
+		}
+	}
+
+	if typ == "whatsapp" {
 		var marketingErr error
 
 		marketing, marketingErr = s.marketingSend(r.Context(), p, c, payload, r.URL.Path)

@@ -60,6 +60,11 @@ Native conversation replies also accept validated media, contacts and interactiv
 `payload` objects. Connection-scoped multipart media upload/download and per-reader
 inbox read markers are Wapo extensions. Read markers do not relay WhatsApp read
 receipts. See [the composer contract](contacts-and-consent.md#composer-attachments-and-interactive-messages).
+Quoted replies (`payload.context.message_id`) and reactions require a stored target
+in the same conversation on native and compatibility sends. Reaction raw events
+remain available, while inbox lists exclude reaction rows and project active
+reactions and quoted-message previews onto content messages. See
+[reply and reaction semantics](contacts-and-consent.md#quoted-replies-and-reactions).
 WhatsApp Business profile GET/POST is relayed to Meta and is also available as a
 validated native connection endpoint with console editing for text, category and
 website fields. Profile-picture upload still requires an external Meta resumable

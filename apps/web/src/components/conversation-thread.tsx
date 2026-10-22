@@ -13,7 +13,8 @@ import { Button } from './ui/button'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'
 import { usePaged } from '../hooks/use-paged'
-import { ErrorNotice, Loading, Status } from './ui'
+import { ErrorNotice, Status } from './ui'
+import { ChatLoader } from './chat-loader'
 import { ChatComposer } from './chat-composer'
 import { useConversationRead } from '../hooks/use-conversation-read'
 import { MessageTimeline } from './message-timeline'
@@ -33,6 +34,7 @@ export function ConversationThread({
   const readOnly = !permissions(session).canWrite
   const [assignedTo, setAssignedTo] = useState<string | null>(null)
   const [templateOpen, setTemplateOpen] = useState(false)
+  const [replyTo, setReplyTo] = useState<Message | null>(null)
   const conversation = useApi<{ data: Conversation }>(
     `/v1/conversations/${encodeURIComponent(id)}`,
     { poll: 1500 },
@@ -50,6 +52,7 @@ export function ConversationThread({
   )
   const serviceWindowOpen = c?.service_window_open === true
   const reply = useConversationReply(id)
+  const reaction = useConversationReply(id)
   const update = useAction(
     (input: { status?: 'open' | 'closed'; assigned_to?: string }) =>
       client.updateConversation(id, input),
@@ -71,7 +74,7 @@ export function ConversationThread({
         }
       : undefined
 
-  if (conversation.isLoading) return <Loading variant="thread" />
+  if (conversation.isLoading) return <ChatLoader full />
 
   return (
     <div className="conversation-thread">
@@ -170,6 +173,19 @@ export function ConversationThread({
           </header>
           <ErrorNotice error={update.error} />
           <MessageTimeline
+            contactName={c.contact_name || c.contact}
+            conversationID={c.id}
+            canInteract={!readOnly && serviceWindowOpen && !reply.isPending}
+            onReply={setReplyTo}
+            onReact={(message, emoji, key) =>
+              reaction.mutateAsync({
+                payload: {
+                  type: 'reaction',
+                  reaction: { message_id: message.id, emoji },
+                },
+                key,
+              })
+            }
             messages={messages.items}
             pending={pending}
             loading={messages.isLoading}
@@ -183,7 +199,21 @@ export function ConversationThread({
               connection={c.connection_id}
               disabled={readOnly || reply.isPending}
               expiresAt={c.service_window_expires_at}
-              onSend={(payload, key) => reply.mutateAsync({ payload, key })}
+              replyTo={replyTo}
+              contactName={c.contact_name || c.contact}
+              onCancelReply={() => setReplyTo(null)}
+              onSend={async (payload, key) => {
+                const result = await reply.mutateAsync({
+                  payload: replyTo
+                    ? { ...payload, context: { message_id: replyTo.id } }
+                    : payload,
+                  key,
+                })
+
+                setReplyTo(null)
+
+                return result
+              }}
             />
           ) : (
             <div className="reply-form closed-window-composer">

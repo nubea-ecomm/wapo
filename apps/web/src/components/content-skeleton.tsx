@@ -1,4 +1,6 @@
 import { Skeleton } from './ui/skeleton'
+import { InboxLoading } from './inbox-loading'
+import { ChatLoader } from './chat-loader'
 
 export type SkeletonVariant =
   | 'list'
@@ -26,7 +28,9 @@ export function ContentSkeleton({
       aria-hidden={decorative || undefined}
       aria-busy={decorative ? undefined : true}
       data-skeleton={variant}
-      className="w-full"
+      className={
+        variant === 'thread' || variant === 'inbox' ? 'h-full w-full' : 'w-full'
+      }
     >
       {!decorative && <span className="sr-only">Cargando…</span>}
       {variant === 'table' ? (
@@ -36,11 +40,11 @@ export function ContentSkeleton({
       ) : variant === 'chart' ? (
         <ChartSkeleton />
       ) : variant === 'thread' ? (
-        <ThreadSkeleton />
+        <ChatLoader full />
       ) : variant === 'settings' ? (
         <SettingsSkeleton />
       ) : variant === 'inbox' ? (
-        <InboxSkeleton />
+        <InboxLoading />
       ) : variant === 'overview' ? (
         <OverviewSkeleton />
       ) : (
@@ -50,7 +54,13 @@ export function ContentSkeleton({
   )
 }
 
-export function RouteSkeleton({ path }: { path: string }) {
+export function RouteSkeleton({
+  path,
+  search = '',
+}: {
+  path: string
+  search?: string
+}) {
   const variant: SkeletonVariant =
     path === '/'
       ? 'overview'
@@ -64,7 +74,12 @@ export function RouteSkeleton({ path }: { path: string }) {
             ? 'settings'
             : 'table'
 
-  if (variant === 'inbox') return <ContentSkeleton variant="inbox" />
+  if (variant === 'inbox')
+    return (
+      <InboxLoading
+        selected={Boolean(new URLSearchParams(search).get('chat'))}
+      />
+    )
 
   return (
     <div
@@ -192,35 +207,6 @@ function ChartSkeleton() {
   )
 }
 
-function ThreadSkeleton() {
-  return (
-    <div className="flex min-h-96 flex-col p-5">
-      <div className="mb-8 flex items-center gap-3 border-b pb-4">
-        <Skeleton className="size-9 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-3 w-32" />
-          <Skeleton className="h-2.5 w-20" />
-        </div>
-      </div>
-      <div className="flex flex-col gap-5">
-        {[60, 48, 68, 42].map((width, index) => (
-          <div
-            key={index}
-            className={index % 2 ? 'self-end' : ''}
-            style={{ width: `${width}%` }}
-          >
-            <Skeleton className="h-14 w-full rounded-xl" />
-            <Skeleton
-              className={`mt-2 h-2 w-12 ${index % 2 ? 'ml-auto' : ''}`}
-            />
-          </div>
-        ))}
-      </div>
-      <Skeleton className="mt-auto h-16 w-full rounded-lg" />
-    </div>
-  )
-}
-
 function SettingsSkeleton() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.6fr)]">
@@ -246,77 +232,6 @@ function SettingsSkeleton() {
         <Skeleton className="h-3 w-full" />
         <Skeleton className="h-3 w-4/5" />
       </div>
-    </div>
-  )
-}
-
-function InboxSkeleton() {
-  return (
-    <div className="inbox inbox-skeleton overflow-hidden">
-      <section className="conversation-list">
-        <div className="inbox-list-header">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-6 w-20" />
-            <Skeleton className="size-8 rounded-md" />
-          </div>
-          <Skeleton className="h-9 w-full rounded-md" />
-          <div className="inbox-filters">
-            <Skeleton className="h-8 rounded-md" />
-            <Skeleton className="h-8 rounded-md" />
-          </div>
-          <Skeleton className="h-8 w-full rounded-md" />
-        </div>
-        <div className="conversation-results">
-          {Array.from({ length: 7 }, (_, index) => (
-            <div
-              className="conversation-preview"
-              key={index}
-            >
-              <Skeleton className="size-9 shrink-0 rounded-full" />
-              <div className="space-y-2">
-                <div>
-                  <Skeleton className="h-3 w-28" />
-                  <Skeleton className="h-2 w-8" />
-                </div>
-                <Skeleton className="h-2.5 w-4/5" />
-                <Skeleton className="h-2 w-16" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-      <section className="thread-panel">
-        <div className="conversation-thread">
-          <div className="thread-header">
-            <div className="flex items-center gap-3">
-              <Skeleton className="size-9 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-3 w-32" />
-                <Skeleton className="h-2 w-24" />
-              </div>
-            </div>
-            <Skeleton className="h-8 w-24 rounded-md" />
-          </div>
-          <div className="timeline">
-            <div className="timeline-content">
-              {[62, 42, 55, 35].map((width, index) => (
-                <Skeleton
-                  key={index}
-                  className={`h-14 rounded-xl ${index % 2 ? 'self-end' : ''}`}
-                  style={{ width: `${width}%` }}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="reply-form">
-            <Skeleton className="h-14 w-full rounded-md" />
-            <div>
-              <Skeleton className="h-2 w-28" />
-              <Skeleton className="h-8 w-20 rounded-md" />
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

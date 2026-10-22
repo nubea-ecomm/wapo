@@ -97,7 +97,14 @@ export function AppShell() {
           key={session?.id}
         >
           <PageTransition key={location.pathname}>
-            <Suspense fallback={<RouteSkeleton path={location.pathname} />}>
+            <Suspense
+              fallback={
+                <RouteSkeleton
+                  path={location.pathname}
+                  search={location.search}
+                />
+              }
+            >
               <Outlet />
             </Suspense>
           </PageTransition>

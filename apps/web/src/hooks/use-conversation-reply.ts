@@ -30,6 +30,51 @@ export function useConversationReply(id: string) {
       // A polling response started before the send must not replace the newly
       // accepted message. Insert it immediately instead of waiting for polling.
       await cache.cancelQueries({ queryKey })
+
+      if (message.payload.type === 'reaction') {
+        const reaction = message.payload.reaction as {
+          message_id: string
+          emoji: string
+        }
+
+        cache.setQueryData<InfiniteData<Page<Message>>>(
+          queryKey,
+          (old) =>
+            old && {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                data: page.data.map((target) =>
+                  target.id !== reaction.message_id
+                    ? target
+                    : {
+                        ...target,
+                        reactions: [
+                          ...(target.reactions || []).filter(
+                            (item) => item.direction !== 'outbound',
+                          ),
+                          ...(reaction.emoji
+                            ? [
+                                {
+                                  emoji: reaction.emoji,
+                                  actor: 'business',
+                                  direction: 'outbound' as const,
+                                  message_id: message.id,
+                                  status: message.status,
+                                },
+                              ]
+                            : []),
+                        ],
+                      },
+                ),
+              })),
+            },
+        )
+        void cache.invalidateQueries({ queryKey })
+
+        return
+      }
+
       cache.setQueryData<InfiniteData<Page<Message>>>(queryKey, (old) => {
         if (!old) return { pages: [{ data: [message] }], pageParams: [''] }
 

@@ -26,11 +26,23 @@ describe('content skeletons', () => {
     const { container, rerender } = render(<RouteSkeleton path="/inbox" />)
 
     expect(
-      screen.getByRole('status', { name: 'Cargando contenido' }),
+      screen.getByRole('status', { name: 'Cargando conversaciones' }),
     ).toBeInTheDocument()
     expect(
       container.querySelector('[data-skeleton="inbox"]'),
     ).toBeInTheDocument()
+
+    expect(
+      screen.getByRole('status', { name: 'Cargando conversación' }),
+    ).toBeInTheDocument()
+    expect(container.querySelector('.message-bubble')).toBeNull()
+    rerender(
+      <RouteSkeleton
+        path="/inbox"
+        search="?chat=selected"
+      />,
+    )
+    expect(container.querySelector('.inbox')).toHaveClass('has-selection')
 
     rerender(<RouteSkeleton path="/connections" />)
     expect(

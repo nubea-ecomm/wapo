@@ -63,7 +63,12 @@ func (s *Server) receiveCoexistence(r *http.Request, p string, raw []byte) error
 						msg := store.Object{"id": id, "connection_id": str(c, "id"), "channel": "whatsapp", "phone_number_id": str(c, "external_id"), "direction": "outbound", "status": "sent", "from": str(message, "from"), "to": str(message, "to"), "timestamp": str(message, "timestamp"), "payload": message, "source": "business_app"}
 						event := s.compatibilityEvent("whatsapp.message.sent", c, msg, nil)
 
-						e = delivery.Record(r.Context(), s.Store, p, "echo:"+id, "whatsapp.message.sent", event, str(c, "id"), func(tx pgx.Tx) error {
+						source := "echo:" + id
+						if str(message, "type") == "reaction" {
+							source += ":" + reactionFingerprint(message)
+						}
+
+						e = delivery.Record(r.Context(), s.Store, p, source, "whatsapp.message.sent", event, str(c, "id"), func(tx pgx.Tx) error {
 							return store.SaveMessage(r.Context(), tx, p, msg)
 						})
 						if e != nil {

@@ -41,6 +41,10 @@ func (s *Store) ServiceWindow(ctx context.Context, project, connection, contact 
 }
 
 func SaveMessage(ctx context.Context, tx pgx.Tx, p string, msg Object) error {
+	if payload, ok := msg["payload"].(map[string]any); ok && msg["channel"] == "whatsapp" && payload["type"] == "reaction" {
+		return saveReaction(ctx, tx, p, msg)
+	}
+
 	contact, _ := msg["to"].(string)
 	if msg["direction"] == "inbound" {
 		contact, _ = msg["from"].(string)

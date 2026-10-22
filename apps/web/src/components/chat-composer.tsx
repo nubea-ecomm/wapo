@@ -14,17 +14,25 @@ import { Textarea } from './ui/textarea'
 import { ErrorNotice } from './ui'
 import { InteractiveMessageDialog } from './interactive-message-dialog'
 import { ComposerTools } from './composer-tools'
+import type { Message } from '@nubea-ecomm/wapo-sdk'
+import { MessageQuote } from './message-quote'
 
 export function ChatComposer({
   connection,
   disabled,
   expiresAt,
   onSend,
+  replyTo,
+  contactName = 'Contacto',
+  onCancelReply,
 }: {
   connection: string
   disabled: boolean
   expiresAt?: string
   onSend: (payload: Record<string, unknown>, key: string) => Promise<unknown>
+  replyTo?: Message | null
+  contactName?: string
+  onCancelReply?: () => void
 }) {
   const { session } = useSession()
   const [text, setText] = useState('')
@@ -44,6 +52,12 @@ export function ChatComposer({
   const recording = voice.status !== 'idle'
   const audio = Boolean(attachment?.file.type.startsWith('audio/'))
   const blocked = disabled || busy || recording
+
+  useEffect(() => {
+    setKey(crypto.randomUUID())
+
+    if (replyTo?.id) textarea.current?.focus()
+  }, [replyTo?.id])
 
   useEffect(() => {
     if (!attachment) {
@@ -173,6 +187,30 @@ export function ChatComposer({
           void send()
         }}
       >
+        {replyTo && (
+          <div className="composer-reply">
+            <MessageQuote
+              reference={{
+                message_id: replyTo.id,
+                unavailable: false,
+                direction: replyTo.direction,
+                payload: replyTo.payload,
+                display_text: replyTo.display_text,
+              }}
+              contactName={contactName}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Cancelar respuesta"
+              disabled={busy}
+              onClick={onCancelReply}
+            >
+              <X />
+            </Button>
+          </div>
+        )}
         {attachment && (
           <div className="composer-attachment">
             {audio && preview ? (

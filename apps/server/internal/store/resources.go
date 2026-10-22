@@ -77,6 +77,11 @@ func (s *Store) List(ctx context.Context, p, k string, filter map[string]string,
 
 	args := []any{p, k}
 	q := "SELECT data,created_at,id FROM resources WHERE project_id=$1 AND kind=$2"
+
+	if k == "messages" && filter["conversation_id"] != "" {
+		q += " AND data->'payload'->>'type' IS DISTINCT FROM 'reaction'"
+	}
+
 	keys := make([]string, 0, len(filter))
 
 	for key := range filter {

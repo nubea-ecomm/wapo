@@ -129,6 +129,21 @@ func (s *Server) processMetaWebhook(r *http.Request, p string, raw []byte) error
 					continue
 				}
 
+				source := "inbound:" + id
+
+				if str(message, "type") == "reaction" {
+					fingerprint := reactionFingerprint(message)
+					if existing, err := s.Store.Get(r.Context(), p, "messages", id); err == nil {
+						if old := object(existing, "payload"); str(old, "type") == "reaction" && reactionFingerprint(old) == fingerprint {
+							continue
+						}
+					} else if !errors.Is(err, store.ErrNotFound) {
+						return err
+					}
+
+					source += ":" + fingerprint
+				}
+
 				contactName := ""
 
 				for _, contact := range v.Contacts {
@@ -140,7 +155,7 @@ func (s *Server) processMetaWebhook(r *http.Request, p string, raw []byte) error
 				msg := store.Object{"id": id, "connection_id": str(c, "id"), "channel": "whatsapp", "phone_number_id": v.Metadata.PhoneID, "direction": "inbound", "status": "received", "from": str(message, "from"), "contact_name": contactName, "timestamp": str(message, "timestamp"), "payload": message}
 				event := s.compatibilityEvent("whatsapp.message.received", c, msg, nil)
 
-				e = delivery.Record(r.Context(), s.Store, p, "inbound:"+id, "whatsapp.message.received", event, str(c, "id"), func(tx pgx.Tx) error {
+				e = delivery.Record(r.Context(), s.Store, p, source, "whatsapp.message.received", event, str(c, "id"), func(tx pgx.Tx) error {
 					return store.SaveMessage(r.Context(), tx, p, msg)
 				})
 				if e != nil {

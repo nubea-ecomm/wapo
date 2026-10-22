@@ -3118,7 +3118,7 @@
         "operationId": "list_conversation_messages",
         "summary": "List conversation messages",
         "tags": ["Conversations"],
-        "description": "Newest first. Supports limit and after. Resource pages default to 50 items; limit accepts 1–100. Follow meta.after while meta.has_more is true.",
+        "description": "Newest content messages first; reaction journal entries are excluded from pagination. Includes current reactions and same-conversation reply_to previews, including originals outside the current page. Missing/deleted/cross-conversation originals are unavailable without exposing their payload. Supports limit (1–100, default 50) and after; follow meta.after while meta.has_more is true.",
         "responses": {
           "200": {
             "description": "Success",
@@ -3176,7 +3176,7 @@
         "operationId": "reply_to_conversation",
         "summary": "Reply to a conversation",
         "tags": ["Conversations"],
-        "description": "Send through the conversation connection. Text, uploaded media, contact cards and interactive payloads require an open 24-hour customer service window; an approved template is required otherwise. Payload recipients are always taken from the conversation. Media IDs must belong to its connection and Flow IDs to its WhatsApp account. Supply a stable Idempotency-Key to identify the logical reply.",
+        "description": "Send through the conversation connection. Non-template payloads require an open 24-hour service window. Use payload.context.message_id to quote a stored message in the same conversation. Use type=reaction with reaction.message_id and reaction.emoji to react to a received message under 30 days old; an empty emoji removes the business reaction. Referenced messages must belong to the same project, connection and conversation. Reactions do not create content bubbles or update the inbox preview. Recipients come from the conversation; media IDs must belong to its connection and Flows to its WABA. Use a stable Idempotency-Key.",
         "responses": {
           "201": {
             "description": "Success",
@@ -3248,8 +3248,25 @@
                               "audio",
                               "document",
                               "interactive",
-                              "contacts"
+                              "contacts",
+                              "reaction"
                             ]
+                          },
+                          "context": {
+                            "type": "object",
+                            "required": ["message_id"],
+                            "properties": { "message_id": { "type": "string" } }
+                          },
+                          "reaction": {
+                            "type": "object",
+                            "required": ["message_id", "emoji"],
+                            "properties": {
+                              "message_id": { "type": "string" },
+                              "emoji": {
+                                "type": "string",
+                                "description": "Emoji to apply, or an empty string to remove the business reaction."
+                              }
+                            }
                           }
                         },
                         "additionalProperties": true
@@ -8072,6 +8089,37 @@
           },
           "conversation_id": {
             "type": "string"
+          },
+          "reactions": {
+            "type": "array",
+            "description": "Current non-failed reactions, one per actor. Empty-emoji removals are omitted. Present on conversation message lists.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "emoji": { "type": "string" },
+                "actor": { "type": "string" },
+                "direction": {
+                  "type": "string",
+                  "enum": ["inbound", "outbound"]
+                },
+                "message_id": { "type": "string" },
+                "status": { "type": "string" }
+              }
+            }
+          },
+          "reply_to": {
+            "type": "object",
+            "properties": {
+              "message_id": { "type": "string" },
+              "unavailable": { "type": "boolean" },
+              "direction": {
+                "type": "string",
+                "enum": ["inbound", "outbound"]
+              },
+              "payload": { "type": "object", "additionalProperties": true },
+              "display_text": { "type": "string", "nullable": true }
+            },
+            "required": ["message_id", "unavailable"]
           }
         },
         "required": [

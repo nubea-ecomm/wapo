@@ -95,4 +95,13 @@ it('keeps the reader in place on new messages and anchors prepended history', ()
     />,
   )
   expect(viewport.scrollTop).toBe(600)
+  height = 1650
+  rerender(
+    <MessageTimeline
+      {...props}
+      messages={[message('new'), message('recent'), message('older')]}
+      pending={message('my-reply', 'pending')}
+    />,
+  )
+  expect(viewport.scrollTop).toBe(1650)
 })

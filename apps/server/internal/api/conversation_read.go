@@ -26,6 +26,7 @@ func (s *Server) enrichConversationReads(r *http.Request, conversations []store.
 		FROM resources c LEFT JOIN LATERAL (
 		 SELECT id,created_at FROM resources WHERE project_id=c.project_id AND kind='messages'
 		 AND data->>'conversation_id'=c.id AND data->>'direction'='inbound'
+		 AND data->'payload'->>'type' IS DISTINCT FROM 'reaction'
 		 ORDER BY created_at DESC,id DESC LIMIT 1
 		) m ON true LEFT JOIN conversation_reads seen ON seen.project_id=c.project_id
 		AND seen.conversation_id=c.id AND seen.reader_id=$3
@@ -77,6 +78,7 @@ func (s *Server) markConversationRead(w http.ResponseWriter, r *http.Request, co
 	result, err := s.Store.Pool.Exec(r.Context(), `INSERT INTO conversation_reads(project_id,conversation_id,reader_id,last_read_at,last_read_message_id)
 	 SELECT project_id,$2,$3,created_at,id FROM resources WHERE project_id=$1 AND kind='messages'
 	 AND id=$4 AND data->>'conversation_id'=$2 AND data->>'direction'='inbound'
+	 AND data->'payload'->>'type' IS DISTINCT FROM 'reaction'
 	 ON CONFLICT(project_id,conversation_id,reader_id) DO UPDATE
 	 SET last_read_at=EXCLUDED.last_read_at,last_read_message_id=EXCLUDED.last_read_message_id
 	 WHERE (EXCLUDED.last_read_at,EXCLUDED.last_read_message_id)>(conversation_reads.last_read_at,conversation_reads.last_read_message_id)`, project(r), str(conversation, "id"), conversationReader(r), str(body, "message_id"))
@@ -87,7 +89,7 @@ func (s *Server) markConversationRead(w http.ResponseWriter, r *http.Request, co
 
 	if result.RowsAffected() == 0 {
 		message, e := s.Store.Get(r.Context(), project(r), "messages", str(body, "message_id"))
-		if e != nil || str(message, "conversation_id") != str(conversation, "id") || str(message, "direction") != "inbound" {
+		if e != nil || str(message, "conversation_id") != str(conversation, "id") || str(message, "direction") != "inbound" || str(object(message, "payload"), "type") == "reaction" {
 			fail(w, 404, "not_found", "Inbound message not found in this conversation")
 			return
 		}

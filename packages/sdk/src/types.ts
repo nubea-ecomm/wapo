@@ -121,6 +121,24 @@ export interface Message {
   timestamp: string
   payload: Record<string, unknown>
   display_text?: string
+  reactions?: MessageReaction[]
+  reply_to?: MessageReference
+}
+
+export interface MessageReaction {
+  emoji: string
+  actor: string
+  direction: 'inbound' | 'outbound'
+  message_id: string
+  status: string
+}
+
+export interface MessageReference {
+  message_id: string
+  direction?: 'inbound' | 'outbound'
+  payload?: Record<string, unknown>
+  display_text?: string
+  unavailable: boolean
 }
 
 export interface Conversation {

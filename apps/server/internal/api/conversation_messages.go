@@ -26,5 +26,10 @@ func (s *Server) listConversationMessages(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	if err = s.enrichMessageRelations(r, str(conversation, "id"), str(connection, "id"), rows); err != nil {
+		dbError(w, err)
+		return
+	}
+
 	write(w, 200, store.Object{"data": rows, "meta": store.Object{"has_more": next != "", "after": next}, "paging": store.Object{"cursors": store.Object{"after": next}}})
 }

@@ -17,6 +17,8 @@ func messageTextValid(value string, max int) bool {
 func (s *Server) validateConversationPayload(r *http.Request, c, payload store.Object) error {
 	typ := str(payload, "type")
 	switch typ {
+	case "reaction":
+		// The send path validates the target after resolving recipient aliases.
 	case "text":
 		if !messageTextValid(str(object(payload, "text"), "body"), 4096) {
 			return fmt.Errorf("text.body must contain 1–4096 characters")

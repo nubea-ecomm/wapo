@@ -17,6 +17,15 @@ export function messageText(message?: Message): string {
     return text.body
 
   const type = message.payload.type
+
+  if (type === 'reaction') {
+    const reaction = message.payload.reaction as { emoji?: string } | undefined
+
+    return reaction?.emoji
+      ? `${reaction.emoji} Reacción a un mensaje`
+      : 'Reacción eliminada'
+  }
+
   const interactive = message.payload.interactive as
     Record<string, unknown> | undefined
 

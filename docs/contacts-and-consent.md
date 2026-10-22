@@ -93,6 +93,8 @@ durable idempotency for these sends. Closed windows still require a template.
 
 ## Per-reader inbox state
 
+`has_unread` excludes reaction journal entries.
+
 `has_unread` and `last_inbound_message_id` accompany conversation reads and lists.
 The green row indicator means unread inbound content, independently of whether
 the conversation is open or closed. Opening a loaded chat in a focused, visible
@@ -104,6 +106,42 @@ confirmed conversation alias reconciliation. They are deleted with the conversat
 
 This local inbox marker does not send WhatsApp read receipts to the contact and
 does not change outbound delivered/read/played status.
+
+## Quoted replies and reactions
+
+Use the message's Reply action to select a quoted original. The composer displays
+the target until it is cancelled or successfully sent. Text and media replies
+carry `payload.context.message_id`. Incoming WhatsApp `context.id` is preserved.
+Conversation message lists hydrate `reply_to` within the same project, connection
+and conversation, even when the original is outside the loaded page. Missing or
+erased originals show an unavailable placeholder; their content is not copied
+permanently into another message. Loaded originals can be reached from the quote.
+
+Reaction actions apply to received messages within 30 days and an open service
+window. Sending `type: reaction` with `reaction: {message_id, emoji}` applies or
+changes the business reaction; `emoji: ""` removes it. The same idempotency journal
+and transactional outbox protect these sends. Failed asynchronous attempts do not
+replace an earlier non-failed reaction in the displayed state.
+
+Inbound reaction additions, changes and removals are handled, including Meta
+removals that omit `emoji`, retries and out-of-order timestamps. Reactions received
+before their original are retained and attached when that message becomes available.
+Removal tombstones win equal-timestamp ties. Reactions remain raw records in the
+message journal and existing message events; updates to a reused reaction ID are
+distinguished by their timestamp/content. Consumers should deduplicate Wapo event
+IDs rather than assuming every reaction change has a new WhatsApp message ID.
+
+The inbox projects current `reactions` onto the original bubble. Reaction records
+do not appear as separate timeline bubbles, change the last-message preview, mark
+the conversation unread or independently extend Wapo's local service window.
+General message API lists still expose the raw journal records. Migration 023
+backfills relation metadata and repairs existing reaction-only last-message previews
+when a normal message is available. Contact erasure removes the related raw records.
+
+The thread uses a centered loader instead of placeholder bubbles. Sidebar loading
+rows share the final preview's avatar size, text lines, padding and fixed row height.
+Date dividers, sender grouping, quoted previews and reaction chips retain stable
+message keys while polling; loading older history preserves the scroll position.
 
 ## Marketing preference
 

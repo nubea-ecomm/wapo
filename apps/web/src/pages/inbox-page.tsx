@@ -12,7 +12,9 @@ import { Button } from '../components/ui/button'
 import { useSession } from '../app/session-context'
 import { usePaged } from '../hooks/use-paged'
 import { useApi } from '../hooks/use-api'
-import { Empty, ErrorNotice, Loading } from '../components/ui'
+import { Empty, ErrorNotice } from '../components/ui'
+import { ConversationListSkeleton } from '../components/conversation-list-skeleton'
+import { conversationTime, contactInitials } from '../lib/chat-time'
 import { ConversationThread } from '../components/conversation-thread'
 import { NewChatDialog } from '../components/new-chat-dialog'
 import { messageText, dateLabel } from '../lib/message-format'
@@ -138,7 +140,7 @@ export function InboxPage() {
           error={chats.error || connections.error || customers.error}
         />
         <div className="conversation-results">
-          {chats.isLoading && <Loading />}
+          {chats.isLoading && <ConversationListSkeleton />}
           {filtered.map((conversation) => (
             <button
               className={`conversation-preview ${selected === conversation.id ? 'selected' : ''}`}
@@ -146,16 +148,20 @@ export function InboxPage() {
               onClick={() => select(conversation.id)}
             >
               <span className="contact-avatar">
-                {(conversation.contact_name || conversation.contact)
-                  .slice(0, 2)
-                  .toUpperCase()}
+                {contactInitials(
+                  conversation.contact_name || conversation.contact,
+                )}
               </span>
-              <div>
-                <div>
+              <div className="conversation-preview-body">
+                <div className="conversation-preview-heading">
                   <b>{conversation.contact_name || conversation.contact}</b>
-                  <small>{dateLabel(conversation.updated_at)}</small>
+                  <small title={dateLabel(conversation.updated_at)}>
+                    {conversationTime(conversation.updated_at)}
+                  </small>
                 </div>
-                <p>{messageText(conversation.last_message)}</p>
+                <p className="conversation-preview-text">
+                  {messageText(conversation.last_message)}
+                </p>
                 <span className="conversation-meta">
                   {conversation.assigned_to || t('common.unassigned')}
                   {conversation.has_unread && (
