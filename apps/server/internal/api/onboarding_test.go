@@ -67,7 +67,7 @@ func TestHostedOnboardingDedicatedAndCoexistence(t *testing.T) {
 
 			json.Unmarshal(raw, &o)
 
-			if str(o, "override_callback_uri") != h.URL+"/hooks/meta/"+p {
+			if str(o, "override_callback_uri") != h.URL+"/hooks/meta" {
 				t.Error("wrong tenant webhook override")
 			}
 

@@ -5,7 +5,7 @@ check. `POST` refreshes it, subject to a five-second per-connection cooldown. Al
 lookups use the authenticated project and the connection's encrypted Meta token.
 
 Checks cover token validity and required scopes (when instance app credentials are
-configured), phone access, account review, app subscription, project webhook
+configured), phone access, account review, app subscription, global app webhook
 verification and Meta's `health_status`. The worker checks up to five due connected
 numbers every fifteen-second tick; reports become due after ten minutes. Provider
 latency can extend that interval. A database advisory lock prevents overlapping
@@ -20,8 +20,11 @@ healthy diagnostic is not a guarantee that a future message will be accepted.
 
 The connection snapshot receives health status, issue count and last check time;
 the console lists issues and links to the detailed report. Health problems do not
-silently delete connections or replace their credentials. Project webhook
-verification records when Meta's verification-token handshake succeeded; WABA app
+silently delete connections or replace their credentials. App webhook
+verification records when the verification-token handshake succeeded and is bound
+to the configured app ID, callback URL and verification-token hash. It applies to
+new projects too. Legacy project verification is reported with `scope: project`
+when no matching global verification exists; global checks use `scope: app`. WABA app
 subscription is a separate check. These diagnostics do not send test messages or
 change billing settings.
 

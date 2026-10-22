@@ -17,6 +17,7 @@ func (s *Server) whatsappSettings(w http.ResponseWriter, r *http.Request) {
 	write(w, 200, store.Object{"data": store.Object{
 		"onboarding_ready": s.onboardingReady(),
 		"public_url":       s.Config.PublicURL,
+		"callback_url":     s.metaCallbackURL(),
 		"graph_version":    s.Config.MetaVersion,
 		"public_https":     strings.HasPrefix(s.Config.PublicURL, "https://"),
 		"credentials": store.Object{

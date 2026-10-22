@@ -255,8 +255,9 @@ without disclosing configuration secrets. Browser tests clean up the users and
 tenants they create, including on failures.
 
 Configuration → WhatsApp shows credential presence, where to obtain each value,
-a copyable server `.env` example, restart instructions and the selected tenant
-callback. `/admin/v1/settings/whatsapp` returns presence booleans, never secrets.
+a copyable server `.env` example, restart instructions and the global app callback
+at `/hooks/meta`. Wapo resolves projects internally by WABA/phone ownership.
+`/admin/v1/settings/whatsapp` returns presence booleans and the callback URL, never secrets.
 
 Documentation is served at `/docs`: server-rendered guides, a searchable sidebar,
 and a locally bundled interactive reference split into Messaging, Administration

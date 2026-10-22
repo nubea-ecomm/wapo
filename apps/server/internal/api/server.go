@@ -106,6 +106,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /public/setup/{project}/{token}/complete", s.completeSetup)
 	mux.HandleFunc("GET /hooks/meta/{project}", s.verifyMeta)
 	mux.HandleFunc("POST /hooks/meta/{project}", s.receiveMeta)
+	mux.HandleFunc("GET /hooks/meta", s.verifyMeta)
+	mux.HandleFunc("POST /hooks/meta", s.receiveMeta)
 	mux.Handle("/admin/v1/", s.adminAuth(http.HandlerFunc(s.admin)))
 	mux.Handle("/v1/", s.auth(http.HandlerFunc(s.native)))
 	mux.Handle("/platform/v1/", s.auth(http.HandlerFunc(s.compatPlatform)))

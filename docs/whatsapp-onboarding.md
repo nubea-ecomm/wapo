@@ -22,10 +22,33 @@ required for a real acceptance test. The standalone implementation is locally
 contract-tested with mocked Meta responses, not certified as production-ready.
 
 Subscribe the app to Meta's required WhatsApp fields, including `messages`,
-`account_update`, `smb_message_echoes`, `history` and `smb_app_state_sync`. Wapo uses a
-WABA callback override at `/hooks/meta/{project}` with the configured verify token,
-and verifies `X-Hub-Signature-256` against the app secret. Dedicated registration
+`account_update`, `smb_message_echoes`, `history` and `smb_app_state_sync`. Register
+the single app callback at `PUBLIC_URL/hooks/meta` with the configured verify token.
+Wapo subscribes every authorized WABA with an override pointing to that same global
+URL and verifies `X-Hub-Signature-256` against the app secret. Dedicated registration
 uses a cryptographically random PIN encrypted in the connection record.
+
+Wapo resolves the internal project from the WABA ID (`entry.id`) and/or the phone
+ID (`value.metadata.phone_number_id`). Accounts and numbers retain their exclusive
+project ownership. Batches can contain multiple projects; template/account events
+without a phone ID use WABA ownership. Unknown assets are acknowledged and ignored,
+never routed to a default project. A known phone/WABA mismatch rejects the batch
+before processing. Suspended projects continue receiving provider events.
+
+Verification is stored at app/instance scope and does not require creating or
+selecting a project. Project/connection webhooks configured inside Wapo are a
+separate outgoing delivery mechanism for your applications.
+
+### Transition from project callbacks
+
+Deploy API and worker with migration `022_global_meta_webhook.sql`, then copy the
+global callback from Configuration → WhatsApp into Meta and verify it once. Keep
+the same app credentials. Existing `/hooks/meta/{project}` URLs remain supported
+and project-scoped, including legacy WABA overrides. Changing the app default
+does not remove an existing WABA override. New onboarding and credential renewal
+replace that WABA's override with the global URL; renewal preserves connection IDs
+and does not repeat number registration or one-shot history sync. Existing numbers
+do not need to be deleted or re-created to continue receiving messages.
 
 ## Create customer and link
 

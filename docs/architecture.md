@@ -53,8 +53,8 @@ typed tables; transactional resource mirrors and database synchronization trigge
 are temporarily retained so old and new application images can coexist during a
 rolling deployment or rollback. Database unique
 indexes enforce customer external IDs and phone bindings. WhatsApp phone IDs and
-WABA ownership are exclusive to one tenant, because Meta callback overrides are
-WABA-scoped. PostgreSQL ownership triggers permit multiple numbers under the same
+WABA ownership are exclusive to one tenant so the shared Meta ingress can resolve
+account-level events unambiguously. PostgreSQL ownership triggers permit multiple numbers under the same
 WABA only within its owning tenant. Conversation and message resources remain JSONB
 while those domains mature. Customer deletion currently requires deleting
 connections first; webhook deliveries whose subscription disappears are cancelled.

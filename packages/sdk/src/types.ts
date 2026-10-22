@@ -230,6 +230,7 @@ export interface ConsoleUser {
 export interface WhatsAppSettings {
   onboarding_ready: boolean
   public_url: string
+  callback_url?: string
   graph_version: string
   public_https: boolean
   credentials: Record<

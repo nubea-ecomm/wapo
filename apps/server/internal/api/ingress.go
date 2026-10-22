@@ -3,6 +3,7 @@ package api
 import (
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,6 +27,9 @@ func (s *Server) verifyMeta(w http.ResponseWriter, r *http.Request) {
 			dbError(w, e)
 			return
 		}
+	} else if e := s.recordGlobalMetaVerification(r.Context()); e != nil {
+		dbError(w, e)
+		return
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
@@ -45,27 +49,8 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Entry []struct {
-			Changes []struct {
-				Value struct {
-					Metadata struct {
-						PhoneID string `json:"phone_number_id"`
-					} `json:"metadata"`
-					Calls           []store.Object `json:"calls"`
-					Messages        []store.Object `json:"messages"`
-					Statuses        []store.Object `json:"statuses"`
-					UserPreferences []store.Object `json:"user_preferences"`
-					Contacts        []struct {
-						Profile struct {
-							Name string `json:"name"`
-						} `json:"profile"`
-						WAID string `json:"wa_id"`
-					} `json:"contacts"`
-				} `json:"value"`
-			} `json:"changes"`
-		} `json:"entry"`
-	}
+	// Validate message shapes before resolving or processing any project in a batch.
+	var body metaMessageEnvelope
 
 	if json.Unmarshal(raw, &body) != nil {
 		fail(w, 400, "invalid_json", "Valid Meta JSON required")
@@ -73,6 +58,36 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p := r.PathValue("project")
+	if p == "" {
+		e = s.routeMetaWebhook(r, raw)
+	} else {
+		e = s.processMetaWebhook(r, p, raw)
+	}
+
+	if errors.Is(e, errMetaOwnership) {
+		fail(w, 400, "ownership_mismatch", "Meta account and phone ownership do not match")
+		return
+	}
+
+	if errors.Is(e, errMetaEnvelope) {
+		fail(w, 400, "invalid_json", "Valid Meta webhook envelope required")
+		return
+	}
+
+	if e != nil {
+		dbError(w, e)
+		return
+	}
+
+	write(w, 200, store.Object{"received": true})
+}
+
+func (s *Server) processMetaWebhook(r *http.Request, p string, raw []byte) error {
+	var body metaMessageEnvelope
+
+	if e := json.Unmarshal(raw, &body); e != nil {
+		return e
+	}
 
 	for _, entry := range body.Entry {
 		for _, change := range entry.Changes {
@@ -83,8 +98,7 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 
 			rows, _, e := s.Store.List(r.Context(), p, "connections", map[string]string{"channel": "whatsapp", "external_id": v.Metadata.PhoneID}, "", 1)
 			if e != nil {
-				dbError(w, e)
-				return
+				return e
 			}
 
 			if len(rows) == 0 {
@@ -101,14 +115,12 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 
 				sourceKey := fmt.Sprintf("marketing-preference:%s:%s:%s:%d", v.Metadata.PhoneID, waID, occurredAt.Format(time.RFC3339Nano), index)
 				if e = s.recordMarketingPreference(r.Context(), p, c, waID, "", status, detail, "meta_webhook", sourceKey, occurredAt); e != nil {
-					dbError(w, e)
-					return
+					return e
 				}
 			}
 
 			if e = s.receiveCalls(r, p, c, v.Calls); e != nil {
-				dbError(w, e)
-				return
+				return e
 			}
 
 			for _, message := range v.Messages {
@@ -132,8 +144,7 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 					return store.SaveMessage(r.Context(), tx, p, msg)
 				})
 				if e != nil {
-					dbError(w, e)
-					return
+					return e
 				}
 			}
 
@@ -187,8 +198,7 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 					return err
 				})
 				if e != nil {
-					dbError(w, e)
-					return
+					return e
 				}
 
 				if state == "failed" {
@@ -197,8 +207,7 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 						sourceKey := "marketing-preference:delivery:" + id + ":" + str(status, "timestamp")
 
 						if e = s.recordMarketingPreference(r.Context(), p, c, waID, "", "stopped", detail, "meta_delivery_error", sourceKey, parseProviderTime(str(status, "timestamp"))); e != nil {
-							dbError(w, e)
-							return
+							return e
 						}
 					}
 				}
@@ -206,17 +215,11 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if e = s.receiveTemplateChanges(r, p, raw); e != nil {
-		dbError(w, e)
-		return
+	if e := s.receiveTemplateChanges(r, p, raw); e != nil {
+		return e
 	}
 
-	if e = s.receiveCoexistence(r, p, raw); e != nil {
-		dbError(w, e)
-		return
-	}
-
-	write(w, 200, store.Object{"received": true})
+	return s.receiveCoexistence(r, p, raw)
 }
 
 func validDeliveryStatus(s string) bool {

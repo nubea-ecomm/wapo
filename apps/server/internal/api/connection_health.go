@@ -229,7 +229,12 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 
 	var verificationRaw []byte
 
-	err := lock.QueryRow(saveCtx, "SELECT data FROM resources WHERE project_id=$1 AND kind='meta_webhook_verification' AND id='current'", p).Scan(&verificationRaw)
+	err := lock.QueryRow(saveCtx, `SELECT data FROM (
+	 SELECT jsonb_build_object('verified_at',verified_at,'scope','app','callback_url',callback_url) AS data,0 AS priority
+	 FROM meta_webhook_verifications WHERE app_id=$2 AND callback_url=$3 AND token_hash=$4
+	 UNION ALL SELECT data||jsonb_build_object('scope','project'),1
+	 FROM resources WHERE project_id=$1 AND kind='meta_webhook_verification' AND id='current'
+	) verification ORDER BY priority LIMIT 1`, p, s.Config.MetaAppID, s.metaCallbackURL(), store.Hash(s.Config.MetaVerifyToken)).Scan(&verificationRaw)
 	verification := store.Object{}
 
 	if err == nil {
@@ -237,9 +242,14 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 	}
 
 	if err == nil {
-		add("webhook_verification", "Verificación del webhook", "pass", "Meta verificó el callback del proyecto.", store.Object{"verified_at": verification["verified_at"]})
+		message := "Meta verificó el callback global de la aplicación."
+		if str(verification, "scope") == "project" {
+			message = "El callback anterior del proyecto sigue verificado; podés migrar al callback global."
+		}
+
+		add("webhook_verification", "Verificación del webhook", "pass", message, store.Object{"verified_at": verification["verified_at"], "scope": verification["scope"], "callback_url": verification["callback_url"]})
 	} else if notFound(err) == store.ErrNotFound {
-		add("webhook_verification", "Verificación del webhook", "unknown", "No hay una verificación registrada para este proyecto.", nil)
+		add("webhook_verification", "Verificación del webhook", "unknown", "No hay una verificación registrada para el callback global de esta aplicación.", nil)
 	} else {
 		return nil, err
 	}

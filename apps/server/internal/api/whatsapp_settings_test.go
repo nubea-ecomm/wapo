@@ -38,9 +38,14 @@ func TestWhatsAppOnlyDeploymentAndCredentialPresence(t *testing.T) {
 	server.Config.AdminKey = store.ID("operator")
 	server.Config.MetaAppSecret = "secret-must-not-leak"
 	server.Config.MetaVerifyToken = "verify-must-not-leak"
+	server.Config.PublicURL = "https://api.example.com/"
 	status, o = request(t, h.URL, server.Config.AdminKey, "GET", "/admin/v1/settings/whatsapp", nil, "")
 	expect(t, status, 200, o)
 	raw, _ := json.Marshal(o)
+	if str(object(o, "data"), "callback_url") != "https://api.example.com/hooks/meta" {
+		t.Fatal("settings did not expose the canonical global callback")
+	}
+
 	if strings.Contains(string(raw), server.Config.MetaAppSecret) || strings.Contains(string(raw), server.Config.MetaVerifyToken) {
 		t.Fatal("configuration leaked secrets")
 	}

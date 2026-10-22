@@ -115,14 +115,14 @@ After changing the server environment, recreate the services:
 docker compose up -d --build migrate api worker
 ```
 
-In **Wapo → Configuration → WhatsApp**, verify configuration and copy the selected
-project's callback: `https://api.example.com/hooks/meta/PROJECT_ID`. In Meta's
+In **Wapo → Configuration → WhatsApp**, verify configuration and copy the app-wide
+callback: `https://api.example.com/hooks/meta`. It is the same for every project. In Meta's
 WhatsApp webhook configuration, enter this callback and the same verification
 token, then choose **Verify and save**. Subscribe to `messages`, `account_update`
 and template lifecycle fields needed by your integration. For Coexistence, also
 subscribe to `smb_message_echoes`, `history` and `smb_app_state_sync` where available.
 See [template lifecycle](template-lifecycle.md) for the implemented template events.
-Wapo subscribes the authorized WABA with a project callback override during setup.
+Wapo subscribes every authorized WABA to this same global callback during setup.
 
 Configuration presence, successful webhook verification, WABA app subscription and
 permission approval are different checks. Use [connection diagnostics](connection-health.md)

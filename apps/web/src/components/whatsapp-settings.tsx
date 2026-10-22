@@ -43,9 +43,8 @@ export function WhatsAppSettings() {
     /\/$/,
     '',
   )
-  const callback = session?.tenantId
-    ? `${publicUrl}/hooks/meta/${encodeURIComponent(session.tenantId)}`
-    : ''
+  const callback =
+    config?.callback_url || (publicUrl ? `${publicUrl}/hooks/meta` : '')
   const envExample = `META_APP_ID=<id-de-tu-app>
 META_APP_SECRET=<secreto-de-tu-app>
 META_EMBEDDED_SIGNUP_CONFIG_ID=<id-de-embedded-signup>
@@ -228,9 +227,10 @@ WEB_ORIGIN=${window.location.origin}`
             4. Configurá el webhook y el dominio en Meta
           </h3>
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            Autorizá el dominio de PUBLIC_URL en la configuración de tu app.
-            Para el proyecto seleccionado, usá esta URL de callback y el mismo
-            META_VERIFY_TOKEN como token de verificación.
+            Autorizá el dominio de PUBLIC_URL en la configuración de tu app. Usá
+            este único callback para toda la aplicación y el mismo
+            META_VERIFY_TOKEN como token de verificación. Wapo identifica
+            internamente el proyecto por la cuenta de WhatsApp o el número.
           </p>
           {callback ? (
             <CopyCode
@@ -239,7 +239,7 @@ WEB_ORIGIN=${window.location.origin}`
             />
           ) : (
             <p className="my-3 text-xs text-muted-foreground">
-              Seleccioná un proyecto para ver su callback.
+              Configurá PUBLIC_URL para ver el callback de la aplicación.
             </p>
           )}
           <p className="text-xs leading-relaxed text-muted-foreground">

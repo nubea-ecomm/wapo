@@ -11,6 +11,13 @@ The optional provider bridge is separate from standalone support.
 
 ## Meta adapter
 
+Meta ingress uses the instance-wide `GET/POST /hooks/meta` callback. It validates
+the original payload signature and routes WABA/phone ownership internally,
+including multi-project batches and account-level events. The legacy
+`/hooks/meta/{project}` endpoints remain compatible and project-scoped. Wapo's
+outgoing project and connection webhook subscriptions are unchanged. See
+[onboarding and migration](whatsapp-onboarding.md#transition-from-project-callbacks).
+
 Native account management now exposes Authboss-backed public registration,
 verification, recovery, password changes, session management and project invitations.
 These `/auth/v1/*` and `/v1/members*` routes are Wapo extensions, not upstream parity

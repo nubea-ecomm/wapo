@@ -173,12 +173,12 @@ WEB_ORIGIN=https://console.example.com</code></pre>
     is a separate endpoint.
   </p>
   <p>
-    In the WhatsApp webhook configuration, use the selected project's callback
+    In the WhatsApp webhook configuration, use the single app-wide callback
     shown in
     <strong>Console → Configuration → WhatsApp</strong>:
   </p>
   <div class="code-block">
-    <pre><code>https://api.example.com/hooks/meta/PROJECT_ID</code></pre>
+    <pre><code>https://api.example.com/hooks/meta</code></pre>
   </div>
   <p>
     Enter your <code>META_VERIFY_TOKEN</code> as the verification token and
@@ -186,18 +186,16 @@ WEB_ORIGIN=https://console.example.com</code></pre>
     <code>account_update</code>. For Coexistence, also enable
     <code>smb_message_echoes</code>, <code>history</code> and
     <code>smb_app_state_sync</code> where Meta makes them available. Wapo
-    subscribes the authorized WABA with a project callback override during
-    setup.
+    subscribes every authorized WABA to this same global callback during setup.
+    The project is resolved internally from the WABA or phone ID. Your own
+    application webhooks configured in Wapo remain project-scoped.
   </p>
   <h3>4. Verify the installation</h3>
   <p>
     Use “Verify configuration” in the console. This checks whether environment
     values are present; it does not validate App Review or account permissions.
   </p>
-  <p>
-    To test the webhook handshake, export the same values in your shell and
-    replace PROJECT_ID:
-  </p>
+  <p>To test the webhook handshake, export the same values in your shell:</p>
   <div class="code-block">
     <div class="code-heading">
       <span>Webhook handshake</span
@@ -208,7 +206,7 @@ WEB_ORIGIN=https://console.example.com</code></pre>
         Copy
       </button>
     </div>
-    <pre><code>curl -G "$PUBLIC_URL/hooks/meta/PROJECT_ID" \
+    <pre><code>curl -G "$PUBLIC_URL/hooks/meta" \
   --data-urlencode 'hub.mode=subscribe' \
   --data-urlencode "hub.verify_token=$META_VERIFY_TOKEN" \
   --data-urlencode 'hub.challenge=wapo-check'</code></pre>
@@ -307,7 +305,7 @@ WEB_ORIGIN=https://console.example.com</code></pre>
         <tr>
           <td>Webhook verification fails</td>
           <td>
-            Public HTTPS URL, correct project callback, matching verification
+            Public HTTPS URL, correct global app callback, matching verification
             token and restarted API.
           </td>
         </tr>

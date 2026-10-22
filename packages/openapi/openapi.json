@@ -24,6 +24,129 @@
     }
   ],
   "paths": {
+    "/hooks/meta": {
+      "get": {
+        "operationId": "verify_global_meta_webhook",
+        "tags": ["Meta webhooks"],
+        "summary": "Verify the shared Meta app callback",
+        "security": [],
+        "description": "Meta verification handshake. Uses the configured META_VERIFY_TOKEN, not a project API key. Successful verification is persisted for the instance app and callback URL and applies to all existing and future projects.",
+        "parameters": [
+          {
+            "name": "hub.mode",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "enum": ["subscribe"] }
+          },
+          {
+            "name": "hub.verify_token",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "hub.challenge",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The unmodified hub.challenge",
+            "content": { "text/plain": { "schema": { "type": "string" } } }
+          },
+          "default": {
+            "description": "Verification or storage error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "receive_global_meta_webhook",
+        "tags": ["Meta webhooks"],
+        "summary": "Receive WhatsApp events for all projects",
+        "security": [],
+        "description": "Validates X-Hub-Signature-256 over the original raw body using META_APP_SECRET, then resolves ownership by entry.id (WABA) and metadata.phone_number_id. Supports multi-project batches and account/template events without phone metadata. Conflicting known ownership is rejected before any batch processing; unknown assets are acknowledged without assigning a default project. Suspended projects still receive events. Each event and its outbox jobs remain transactional and retries are deduplicated. Maximum body size is 2 MiB. Legacy /hooks/meta/{project} callbacks remain project-scoped during migration.",
+        "parameters": [
+          {
+            "name": "X-Hub-Signature-256",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "sha256= followed by the hexadecimal HMAC-SHA256 of the original body."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["entry"],
+                "properties": {
+                  "object": {
+                    "type": "string",
+                    "enum": ["whatsapp_business_account"]
+                  },
+                  "entry": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "WABA ID; phone metadata can resolve ownership if omitted."
+                        },
+                        "time": { "type": "integer", "format": "int64" },
+                        "changes": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "field": { "type": "string" },
+                              "value": {
+                                "type": "object",
+                                "additionalProperties": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Events processed or unknown assets ignored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "received": { "type": "boolean" } }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Invalid signature, malformed envelope, ownership conflict or storage failure. Storage failures should be retried by Meta.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/v1/register": {
       "post": {
         "operationId": "register_console_account",
@@ -4783,6 +4906,10 @@
                         "public_url": {
                           "type": "string"
                         },
+                        "callback_url": {
+                          "type": "string",
+                          "description": "Canonical instance-wide Meta callback, independent of the selected project."
+                        },
                         "graph_version": {
                           "type": "string"
                         },
@@ -4813,7 +4940,7 @@
             }
           }
         },
-        "description": "Return readiness and credential-presence booleans for the instance Meta application, plus the public API URL and configured Graph version. Does not return application secrets, access tokens or verification token values."
+        "description": "Return readiness and credential-presence booleans for the instance Meta application, plus the public API URL, global callback URL and configured Graph version. Does not return application secrets, access tokens or verification token values."
       }
     },
     "/v1/project": {

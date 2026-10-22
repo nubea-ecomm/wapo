@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	"net/url"
 	"strings"
 
 	"wapo.local/server/internal/store"
@@ -23,7 +22,7 @@ func (s *Server) finishOnboarding(ctx context.Context, p string, c store.Object,
 
 		return nil
 	}
-	if e := post(str(c, "business_account_id")+"/subscribed_apps", store.Object{"override_callback_uri": s.Config.PublicURL + "/hooks/meta/" + url.PathEscape(p), "verify_token": s.Config.MetaVerifyToken}); e != nil {
+	if e := post(str(c, "business_account_id")+"/subscribed_apps", store.Object{"override_callback_uri": s.metaCallbackURL(), "verify_token": s.Config.MetaVerifyToken}); e != nil {
 		return e
 	}
 
