@@ -144,6 +144,7 @@ func TestWhatsAppRecipientEvidence(t *testing.T) {
 	}{
 		{"delivered", "delivered", "delivered", input},
 		{"read", "read", "read", input},
+		{"played", "played", "played", input},
 		{"failed", "failed", "failed", identity},
 		{"pending", "pending", "sent", identity},
 	} {

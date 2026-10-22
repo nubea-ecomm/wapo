@@ -36,6 +36,10 @@ func projectPermission(user store.ConsoleUser, r *http.Request) bool {
 	}
 
 	if user.Role == "viewer" {
+		if r.Method == "POST" && strings.HasPrefix(path, "/v1/conversations/") && strings.HasSuffix(path, "/read") {
+			return true
+		}
+
 		return r.Method == "GET"
 	}
 

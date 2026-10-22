@@ -3,21 +3,19 @@ import type { Connection, Conversation, Message } from '@nubea-ecomm/wapo-sdk'
 import {
   ArrowLeft,
   CircleCheck,
-  Clock,
   FileText,
   RotateCcw,
-  Send,
   UserRound,
 } from 'lucide-react'
 import { permissions } from '../app/permissions'
-import { Textarea } from './ui/textarea'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { useSession } from '../app/session-context'
 import { useApi, useAction } from '../hooks/use-api'
 import { usePaged } from '../hooks/use-paged'
 import { ErrorNotice, Loading, Status } from './ui'
-import { dateLabel } from '../lib/message-format'
+import { ChatComposer } from './chat-composer'
+import { useConversationRead } from '../hooks/use-conversation-read'
 import { MessageTimeline } from './message-timeline'
 import { useConversationReply } from '../hooks/use-conversation-reply'
 import { WhatsAppIcon } from './icons/whatsapp-icon'
@@ -33,8 +31,6 @@ export function ConversationThread({
 }) {
   const { client, session } = useSession()
   const readOnly = !permissions(session).canWrite
-  const [text, setText] = useState('')
-  const [key, setKey] = useState(() => crypto.randomUUID())
   const [assignedTo, setAssignedTo] = useState<string | null>(null)
   const [templateOpen, setTemplateOpen] = useState(false)
   const conversation = useApi<{ data: Conversation }>(
@@ -46,6 +42,8 @@ export function ConversationThread({
     1500,
   )
   const c = conversation.data?.data
+
+  useConversationRead(id, c, Boolean(messages.data), conversation.dataUpdatedAt)
   const connection = useApi<{ data: Connection }>(
     `/v1/connections/${encodeURIComponent(c?.connection_id || '')}`,
     { enabled: Boolean(c?.connection_id) },
@@ -66,7 +64,10 @@ export function ConversationThread({
           direction: 'outbound',
           status: 'pending',
           timestamp: new Date(reply.submittedAt).toISOString(),
-          payload: { type: 'text', text: { body: reply.variables.text } },
+          payload: reply.variables.payload || {
+            type: 'text',
+            text: { body: reply.variables.text },
+          },
         }
       : undefined
 
@@ -178,48 +179,12 @@ export function ConversationThread({
             loadMore={() => void messages.fetchNextPage()}
           />
           {serviceWindowOpen ? (
-            <form
-              className="reply-form"
-              onSubmit={(event) => {
-                event.preventDefault()
-
-                if (text.trim() && !reply.isPending)
-                  reply.mutate(
-                    { text, key },
-                    {
-                      onSuccess: (_, submitted) => {
-                        setText((current) =>
-                          current === submitted.text ? '' : current,
-                        )
-                        setKey(crypto.randomUUID())
-                      },
-                    },
-                  )
-              }}
-            >
-              <ErrorNotice error={reply.error} />
-              <Textarea
-                disabled={readOnly}
-                aria-label="Responder conversación"
-                placeholder="Escribí un mensaje…"
-                value={text}
-                onChange={(event) => {
-                  setText(event.target.value)
-                  setKey(crypto.randomUUID())
-                }}
-                rows={2}
-                required
-              />
-              <div>
-                <small className="flex items-center gap-1">
-                  <Clock className="size-3" /> Ventana abierta hasta{' '}
-                  {dateLabel(c.service_window_expires_at)}
-                </small>
-                <Button disabled={readOnly || reply.isPending || !text.trim()}>
-                  <Send /> {reply.isPending ? 'Enviando…' : 'Enviar'}
-                </Button>
-              </div>
-            </form>
+            <ChatComposer
+              connection={c.connection_id}
+              disabled={readOnly || reply.isPending}
+              expiresAt={c.service_window_expires_at}
+              onSend={(payload, key) => reply.mutateAsync({ payload, key })}
+            />
           ) : (
             <div className="reply-form closed-window-composer">
               <div>

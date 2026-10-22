@@ -38,6 +38,14 @@ func reconcileRecipientConversation(ctx context.Context, tx pgx.Tx, project, con
 		return err
 	}
 
+	_, err = tx.Exec(ctx, `INSERT INTO conversation_reads(project_id,conversation_id,reader_id,last_read_at,last_read_message_id)
+	 SELECT project_id,$3,reader_id,last_read_at,last_read_message_id FROM conversation_reads WHERE project_id=$1 AND conversation_id=$2
+	 ON CONFLICT(project_id,conversation_id,reader_id) DO UPDATE SET last_read_at=EXCLUDED.last_read_at,last_read_message_id=EXCLUDED.last_read_message_id
+	 WHERE (EXCLUDED.last_read_at,EXCLUDED.last_read_message_id)>(conversation_reads.last_read_at,conversation_reads.last_read_message_id)`, project, oldID, newID)
+	if err != nil {
+		return err
+	}
+
 	_, err = tx.Exec(ctx, `DELETE FROM resources WHERE project_id=$1 AND kind='conversations' AND id=$2`, project, oldID)
 
 	return err

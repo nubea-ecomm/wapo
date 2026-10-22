@@ -73,6 +73,8 @@ provider webhooks to preserve incoming data.
   profile for About, description, address, email, category and websites.
 - Persistent conversations, contact identity per channel, assignment labels,
   close/reopen, replies, history and 1.5-second foreground inbox polling.
+- Compact inbox composer with WhatsApp formatting, attachments, voice recording,
+  interactive messages and durable per-user unread indicators.
 - Typed WhatsApp contacts, custom properties, provider-synchronized marketing
   preferences, pre-send suppression and permanent local erasure.
 - Native `/v1`, operator `/admin/v1`, compatibility `/platform/v1` and

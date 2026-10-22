@@ -68,8 +68,10 @@ or key rotation UI yet. The backup, restore and rotation runbooks live in
 [operations](operations.md).
 
 Redis is not required. The optional Valkey Compose profile is reserved for future
-cache/presence; the application does not currently use it. Media URLs pass through
-to Meta. Object storage/media ingestion is not implemented in standalone mode.
+cache/presence; the application does not currently use it. Media is uploaded to and
+downloaded from Meta through connection-scoped endpoints. Wapo has no standalone
+object store; browser voice recordings are temporarily converted to OGG/Opus with
+ffmpeg and then uploaded to Meta.
 
 ## Delivery guarantees
 

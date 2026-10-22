@@ -142,7 +142,7 @@ func validEvent(v string) bool {
 	}
 
 	for _, channel := range []string{"message", "whatsapp.message"} {
-		for _, status := range []string{"received", "sent", "delivered", "read", "failed"} {
+		for _, status := range []string{"received", "sent", "delivered", "read", "played", "failed"} {
 			if v == channel+"."+status {
 				return true
 			}

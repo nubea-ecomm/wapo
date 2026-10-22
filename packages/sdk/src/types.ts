@@ -136,6 +136,8 @@ export interface Conversation {
   updated_at: string
   service_window_open?: boolean
   service_window_expires_at?: string
+  has_unread?: boolean
+  last_inbound_message_id?: string
 }
 
 export interface Webhook {

@@ -2,7 +2,8 @@ import { useLayoutEffect, useRef } from 'react'
 import type { Message } from '@nubea-ecomm/wapo-sdk'
 import { Button } from './ui/button'
 import { ErrorNotice, Loading } from './ui'
-import { dateLabel, messageText } from '../lib/message-format'
+import { dateLabel } from '../lib/message-format'
+import { MessageContent } from './message-content'
 import { MessageDeliveryStatus } from './message-delivery-status'
 
 export function MessageTimeline({
@@ -90,7 +91,7 @@ export function MessageTimeline({
             className={`message-bubble ${message.direction}`}
             key={message.id}
           >
-            <p>{messageText(message)}</p>
+            <MessageContent message={message} />
             <small>
               {dateLabel(message.timestamp)}{' '}
               {message.direction === 'outbound' && (

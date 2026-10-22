@@ -49,6 +49,10 @@ delivery evidence scoped to the same project and connection. Native stored
 messages expose the WhatsApp identity in `to` and the actual transport input in
 `payload.to`; compatibility send responses retain the original provider body.
 See [recipient identities](contacts-and-consent.md#whatsapp-recipient-identities).
+Native conversation replies also accept validated media, contacts and interactive
+`payload` objects. Connection-scoped multipart media upload/download and per-reader
+inbox read markers are Wapo extensions. Read markers do not relay WhatsApp read
+receipts. See [the composer contract](contacts-and-consent.md#composer-attachments-and-interactive-messages).
 WhatsApp Business profile GET/POST is relayed to Meta and is also available as a
 validated native connection endpoint with console editing for text, category and
 website fields. Profile-picture upload still requires an external Meta resumable

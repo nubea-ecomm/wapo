@@ -3053,7 +3053,7 @@
         "operationId": "reply_to_conversation",
         "summary": "Reply to a conversation",
         "tags": ["Conversations"],
-        "description": "Send through the conversation connection. Text is accepted only while the 24-hour customer service window is open; an approved template is required otherwise. Supply a stable Idempotency-Key to identify the logical reply.",
+        "description": "Send through the conversation connection. Text, uploaded media, contact cards and interactive payloads require an open 24-hour customer service window; an approved template is required otherwise. Payload recipients are always taken from the conversation. Media IDs must belong to its connection and Flow IDs to its WhatsApp account. Supply a stable Idempotency-Key to identify the logical reply.",
         "responses": {
           "201": {
             "description": "Success",
@@ -3108,8 +3108,190 @@
                     "type": "object",
                     "properties": { "template": { "type": "object" } },
                     "required": ["template"]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "payload": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "text",
+                              "image",
+                              "video",
+                              "audio",
+                              "document",
+                              "interactive",
+                              "contacts"
+                            ]
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    },
+                    "required": ["payload"]
                   }
                 ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{id}/read": {
+      "post": {
+        "operationId": "mark_conversation_read",
+        "summary": "Mark displayed inbound messages as read in the inbox",
+        "tags": ["Conversations"],
+        "description": "Persists a monotonic read cursor per console user (or technical API credential) and project. The supplied message must be inbound and belong to this conversation. Newer messages remain unread. Viewers may update their own read state. This is local inbox state, not a WhatsApp read receipt sent to the contact.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["message_id"],
+                "properties": { "message_id": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated conversation read state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/Conversation" }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/connections/{id}/media": {
+      "post": {
+        "operationId": "upload_connection_media",
+        "summary": "Upload an attachment or voice recording to WhatsApp",
+        "tags": ["Connections"],
+        "description": "Multipart upload scoped to a connected WhatsApp connection. Images (JPEG/PNG) max 5 MB, audio/video max 16 MB, supported documents max 100 MB. voice=true converts a recording to mono OGG/Opus, limited to 120 seconds; ffmpeg is included in the API Docker image. This uploads media only and never sends a message. Send the returned ID using the conversation reply endpoint.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": { "type": "string", "format": "binary" },
+                  "voice": { "type": "boolean", "default": false }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Media uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "type": {
+                          "type": "string",
+                          "enum": ["image", "audio", "video", "document"]
+                        },
+                        "mime_type": { "type": "string" },
+                        "filename": { "type": "string" },
+                        "voice": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/connections/{id}/media/{media_id}": {
+      "get": {
+        "operationId": "download_connection_media",
+        "summary": "Download a known connection attachment",
+        "tags": ["Connections"],
+        "description": "Authenticated download for media observed or uploaded on this project's connection. Resolves a fresh Meta URL; expired/unavailable provider media returns an error. Tokens are never placed in the browser URL. Maximum download size is 100 MB.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "media_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media bytes",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
               }
             }
           }
@@ -7989,6 +8171,14 @@
       "Conversation": {
         "type": "object",
         "properties": {
+          "has_unread": {
+            "type": "boolean",
+            "description": "Whether this reader has unread inbound messages. Independent of open/closed status and outbound delivery receipts."
+          },
+          "last_inbound_message_id": {
+            "type": "string",
+            "description": "Latest inbound message by server ingestion order; use as the read cursor when opening the conversation."
+          },
           "id": {
             "type": "string"
           },

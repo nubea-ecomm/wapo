@@ -13,8 +13,18 @@ export function useConversationReply(id: string) {
   const queryKey = [session?.id, path, 'pages']
 
   return useMutation({
-    mutationFn: ({ text, key }: { text: string; key: string }) =>
-      client.reply(id, text, key),
+    mutationFn: ({
+      text,
+      payload,
+      key,
+    }: {
+      text?: string
+      payload?: Record<string, unknown>
+      key: string
+    }) =>
+      payload
+        ? client.request<{ data: Message }>('POST', path, { payload }, key)
+        : client.reply(id, text || '', key),
     onMutate: () => cache.cancelQueries({ queryKey }),
     onSuccess: async ({ data: message }) => {
       // A polling response started before the send must not replace the newly

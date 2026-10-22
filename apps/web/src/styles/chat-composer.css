@@ -1,0 +1,265 @@
+.chat-composer-area {
+  width: min(calc(100% - 32px), 800px);
+  flex-shrink: 0;
+  margin: 12px auto 9px;
+}
+.chat-composer {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--muted) 45%, var(--background));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 3%);
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+.chat-composer:focus-within {
+  border-color: color-mix(in srgb, var(--foreground) 35%, var(--border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+.chat-composer textarea {
+  width: 100%;
+  min-height: 42px;
+  max-height: 180px;
+  resize: none;
+  field-sizing: content;
+  padding: 12px 14px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.chat-composer textarea:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+.composer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 8px;
+}
+.composer-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted-foreground);
+}
+.composer-tools button {
+  width: 29px;
+  height: 29px;
+  border-radius: 6px;
+}
+.composer-tools svg {
+  width: 15px;
+  height: 15px;
+}
+.composer-divider {
+  width: 1px;
+  height: 15px;
+  margin: 0 4px;
+  background: var(--border);
+}
+.composer-tools .composer-send,
+.chat-primary-button {
+  margin-left: 4px;
+  background: #23733e;
+  color: #fff;
+}
+.composer-tools .composer-send:hover:not(:disabled),
+.chat-primary-button:hover:not(:disabled) {
+  background: #1b5c31;
+}
+.composer-tools .composer-send:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  opacity: 0.65;
+}
+.composer-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 3px 0;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+.composer-attachment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 10px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--muted);
+}
+.composer-attachment strong {
+  display: block;
+  overflow: hidden;
+  max-width: 480px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+}
+.composer-attachment span {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+.composer-attachment > button {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.composer-attachment audio {
+  width: min(100%, 380px);
+  height: 36px;
+}
+.composer-recording {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 62px;
+  padding: 14px;
+  font-size: 12px;
+}
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: recording-pulse 1s ease-in-out infinite alternate;
+}
+.composer-audio-hint {
+  margin: 0;
+  padding: 10px 14px 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.interactive-tabs {
+  display: flex;
+  gap: 3px;
+  padding: 4px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--muted);
+}
+.interactive-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+}
+.interactive-tabs button[aria-pressed='true'] {
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+@keyframes recording-pulse {
+  to {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recording-dot {
+    animation: none;
+  }
+}
+@media (max-width: 600px) {
+  .chat-composer-area {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+  }
+  .composer-hint > span:first-child {
+    display: none;
+  }
+  .composer-hint {
+    justify-content: flex-end;
+  }
+  .composer-tools {
+    gap: 0;
+  }
+  .composer-tools button {
+    width: 27px;
+  }
+  .composer-attachment strong {
+    max-width: 220px;
+  }
+}
+.message-media audio,
+.message-media video {
+  width: min(280px, 100%);
+}
+.message-media img,
+.message-media video {
+  max-width: 280px;
+  max-height: 320px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+.message-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 280px;
+  min-height: 42px;
+  font-size: 12px;
+}
+.message-file span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.message-interactive {
+  min-width: 180px;
+}
+.message-interactive > strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+.interactive-footer {
+  margin: 5px 0;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+.interactive-choice,
+.message-interactive summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 7px 9px;
+  border-top: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 12px;
+  text-align: center;
+}
+.message-interactive summary {
+  cursor: pointer;
+}
+.message-contact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.message-bubble code {
+  border-radius: 3px;
+  padding: 1px 3px;
+  background: var(--muted);
+  font-family: monospace;
+}

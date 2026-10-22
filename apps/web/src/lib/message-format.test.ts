@@ -34,7 +34,7 @@ describe('provider message presentation', () => {
         payload: { text: { body: '<script>hello</script>' } },
       }),
     ).toBe('<script>hello</script>')
-    expect(messageText({ ...base, payload: { type: 'image' } })).toBe('[image]')
+    expect(messageText({ ...base, payload: { type: 'image' } })).toBe('Imagen')
     expect(messageText()).toBe('')
   })
   it('normalizes Meta Unix seconds and native ISO timestamps to the same display time', () => {

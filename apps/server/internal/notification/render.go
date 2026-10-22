@@ -88,7 +88,7 @@ func render(ctx context.Context, s *store.Store, delivery queuedDelivery, public
 
 		var outbound, inbound, delivered, read, failed int
 
-		err = s.Pool.QueryRow(ctx, `SELECT count(*) FILTER(WHERE data->>'direction'='outbound'),count(*) FILTER(WHERE data->>'direction'='inbound'),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status' IN ('delivered','read')),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status'='read'),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status'='failed') FROM resources WHERE project_id=$1 AND kind='messages' AND created_at >= $2 AND created_at < $3`, delivery.ProjectID, from, to).Scan(&outbound, &inbound, &delivered, &read, &failed)
+		err = s.Pool.QueryRow(ctx, `SELECT count(*) FILTER(WHERE data->>'direction'='outbound'),count(*) FILTER(WHERE data->>'direction'='inbound'),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status' IN ('delivered','read','played')),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status' IN ('read','played')),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status'='failed') FROM resources WHERE project_id=$1 AND kind='messages' AND created_at >= $2 AND created_at < $3`, delivery.ProjectID, from, to).Scan(&outbound, &inbound, &delivered, &read, &failed)
 		if err != nil {
 			return Message{}, err
 		}

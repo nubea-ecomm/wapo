@@ -27,6 +27,11 @@ func (s *Server) listConversations(w http.ResponseWriter, r *http.Request) {
 
 	connections := map[string]store.Object{}
 
+	if err = s.enrichConversationReads(r, rows); err != nil {
+		dbError(w, err)
+		return
+	}
+
 	if err = s.enrichConversationContacts(r.Context(), project(r), rows); err != nil {
 		dbError(w, err)
 		return

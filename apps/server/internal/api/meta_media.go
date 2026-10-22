@@ -76,7 +76,10 @@ func (s *Server) downloadMetaMedia(w http.ResponseWriter, r *http.Request) {
 
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	res, e := s.HTTP.Do(req)
+	client := *s.HTTP
+	client.Timeout = 60 * time.Second
+
+	res, e := client.Do(req)
 	if e != nil {
 		fail(w, 502, "provider_unavailable", "Media download failed")
 		return

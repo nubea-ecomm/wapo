@@ -8,6 +8,7 @@
 @import './inbox.css' layer(legacy);
 @import './login.css';
 @import './account-controls.css';
+@import './chat-composer.css';
 
 @import './resource-tables.css';
 

@@ -57,6 +57,53 @@ updates do not pull the reader away from older messages.
 Delivery icons reflect recorded Meta status: clock for pending/unknown, one gray
 check for sent, two gray checks for delivered, two blue checks only for read, and
 an error icon for failed. API acceptance alone does not establish delivery or read.
+Voice `played` receipts are retained as a separate status, shown as reproduced and
+included in delivered/read metric totals. Later lower-ranked receipts cannot
+downgrade this state.
+
+## Composer, attachments and interactive messages
+
+The inbox composer supports WhatsApp bold (`*text*`), italic (`_text_`), strike
+(`~text~`) and monospace (triple backticks). Enter sends; Shift+Enter inserts a
+line break. Formatting and provider text render as escaped React nodes, never HTML.
+
+Attachments are uploaded through `POST /v1/connections/{id}/media` as multipart
+`file` data. JPEG/PNG images are limited to 5 MB, audio/video to 16 MB and supported
+documents to 100 MB. Media is held by Meta, not a Wapo object store. The upload
+returns an ID without sending anything; retries of the subsequent message reuse
+the same ID and logical idempotency key. The authenticated download endpoint is
+`GET /v1/connections/{id}/media/{media_id}`. It validates project and connection
+ownership and obtains a fresh provider URL; expired provider media cannot be
+reconstructed. Credentials never appear in browser media URLs.
+
+Recording needs HTTPS (or localhost), microphone permission and MediaRecorder.
+The user can stop, preview or discard a recording before sending. Recordings stop
+at two minutes. `voice=true` uploads are converted to mono OGG/Opus by ffmpeg in
+the API image; native Go development needs ffmpeg installed on PATH. Conversion
+uses pipe-only inputs, a 30-second deadline and at most two workers per process.
+Audio cannot have a caption; an existing text draft is retained for a later send.
+
+The interactive dialog sends reply buttons (up to three), a list (up to ten
+options), a CTA URL, a published Flow belonging to the connection's WABA, or a
+contact card. The Flow must already exist in Meta; this dialog does not author
+or publish it. Native conversation replies accept a `payload` alongside the
+existing `text`/`template` request variants. The server selects the conversation
+recipient and enforces media ownership, validation, the service window and
+durable idempotency for these sends. Closed windows still require a template.
+
+## Per-reader inbox state
+
+`has_unread` and `last_inbound_message_id` accompany conversation reads and lists.
+The green row indicator means unread inbound content, independently of whether
+the conversation is open or closed. Opening a loaded chat in a focused, visible
+tab calls `POST /v1/conversations/{id}/read` with `message_id`; this cursor is
+monotonic and cannot mark a newer racing message as read. It is scoped to the
+project and console user (technical clients are scoped by credential). Viewers
+can update their own read state. Read markers survive browser reloads and follow
+confirmed conversation alias reconciliation. They are deleted with the conversation.
+
+This local inbox marker does not send WhatsApp read receipts to the contact and
+does not change outbound delivered/read/played status.
 
 ## Marketing preference
 

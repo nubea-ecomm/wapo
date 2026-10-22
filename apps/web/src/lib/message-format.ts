@@ -17,6 +17,44 @@ export function messageText(message?: Message): string {
     return text.body
 
   const type = message.payload.type
+  const interactive = message.payload.interactive as
+    Record<string, unknown> | undefined
+
+  if (type === 'interactive' && interactive) {
+    for (const key of ['body', 'button_reply', 'list_reply', 'nfm_reply']) {
+      const value = interactive[key] as Record<string, unknown> | undefined
+
+      if (typeof value?.text === 'string') return value.text
+
+      if (typeof value?.title === 'string') return value.title
+
+      if (typeof value?.body === 'string') return value.body
+    }
+
+    return 'Mensaje interactivo'
+  }
+
+  if (type === 'button') {
+    const button = message.payload.button as Record<string, unknown> | undefined
+
+    if (typeof button?.text === 'string') return button.text
+  }
+
+  const labels: Record<string, string> = {
+    audio: 'Audio',
+    image: 'Imagen',
+    video: 'Video',
+    document: 'Documento',
+    sticker: 'Sticker',
+    contacts: 'Contacto',
+  }
+
+  if (typeof type === 'string' && labels[type]) {
+    const media = message.payload[type] as Record<string, unknown> | undefined
+
+    return typeof media?.caption === 'string' ? media.caption : labels[type]
+  }
+
   const template = message.payload.template
 
   if (

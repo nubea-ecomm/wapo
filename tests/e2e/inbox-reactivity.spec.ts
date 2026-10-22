@@ -82,13 +82,19 @@ test('inbox shows pending replies immediately and only marks actual read receipt
     else if (path === '/v1/conversations/chat/messages') {
       if (route.request().method() === 'POST') {
         await sendReady
-        const body = route.request().postDataJSON() as { text: string }
+        const body = route.request().postDataJSON() as {
+          text?: string
+          payload?: { text?: { body: string } }
+        }
         const sent: Message = {
           ...messages[0],
           id: 'outgoing',
           direction: 'outbound',
           status: 'sent',
-          payload: { type: 'text', text: { body: body.text } },
+          payload: {
+            type: 'text',
+            text: { body: body.payload?.text?.body || body.text },
+          },
         }
 
         messages.unshift(sent)

@@ -13,7 +13,7 @@ RUN go mod download
 COPY apps/server/ ./
 RUN CGO_ENABLED=0 go build -trimpath -o /wapo ./cmd/wapo
 FROM alpine:3.23
-RUN apk add --no-cache ca-certificates && adduser -D -u 10001 wapo
+RUN apk add --no-cache ca-certificates ffmpeg && adduser -D -u 10001 wapo
 WORKDIR /app/apps/server
 COPY --from=build /wapo /usr/local/bin/wapo
 COPY apps/server/migrations ./migrations

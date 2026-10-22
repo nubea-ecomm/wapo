@@ -64,6 +64,17 @@ func (s *Server) native(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if (len(parts) == 3 || len(parts) == 4) && kind == "connections" && parts[2] == "media" {
+		mediaID := ""
+		if len(parts) == 4 {
+			mediaID = parts[3]
+		}
+
+		s.connectionMedia(w, r, id, mediaID)
+
+		return
+	}
+
 	if len(parts) == 3 && parts[0] == "connections" && parts[2] == "business-profile" {
 		s.businessProfile(w, r, id)
 		return

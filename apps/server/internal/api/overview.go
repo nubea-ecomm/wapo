@@ -36,7 +36,7 @@ func (s *Server) overview(w http.ResponseWriter, r *http.Request) {
 
 	var sent, received, delivered, read, failed int
 
-	e := s.Store.Pool.QueryRow(ctx, `SELECT count(*) FILTER(WHERE data->>'direction'='outbound'),count(*) FILTER(WHERE data->>'direction'='inbound'),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status' IN ('delivered','read')),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status'='read'),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status'='failed') FROM resources WHERE project_id=$1 AND kind='messages' AND ($2='' OR data->>'channel'=$2) AND created_at>=date_trunc('day',now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC'-interval '29 days'`, p, s.Config.ChannelFilter()).Scan(&sent, &received, &delivered, &read, &failed)
+	e := s.Store.Pool.QueryRow(ctx, `SELECT count(*) FILTER(WHERE data->>'direction'='outbound'),count(*) FILTER(WHERE data->>'direction'='inbound'),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status' IN ('delivered','read','played')),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status' IN ('read','played')),count(*) FILTER(WHERE data->>'direction'='outbound' AND data->>'status'='failed') FROM resources WHERE project_id=$1 AND kind='messages' AND ($2='' OR data->>'channel'=$2) AND created_at>=date_trunc('day',now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC'-interval '29 days'`, p, s.Config.ChannelFilter()).Scan(&sent, &received, &delivered, &read, &failed)
 	if e != nil {
 		dbError(w, e)
 		return

@@ -145,6 +145,10 @@ func (s *Server) Handler() http.Handler {
 			limit = 8 << 20
 		}
 
+		if strings.HasPrefix(r.URL.Path, "/v1/connections/") && strings.HasSuffix(r.URL.Path, "/media") {
+			limit = 101 << 20
+		}
+
 		r.Body = http.MaxBytesReader(w, r.Body, limit)
 		mux.ServeHTTP(w, r)
 	})

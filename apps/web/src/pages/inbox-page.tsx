@@ -158,7 +158,9 @@ export function InboxPage() {
                 <p>{messageText(conversation.last_message)}</p>
                 <span className="conversation-meta">
                   {conversation.assigned_to || t('common.unassigned')}
-                  {conversation.status === 'open' && <i aria-label="Activa" />}
+                  {conversation.has_unread && (
+                    <i aria-label="Mensajes sin leer" />
+                  )}
                 </span>
               </div>
             </button>

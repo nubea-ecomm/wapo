@@ -6,12 +6,13 @@ export function MessageDeliveryStatus({ status }: { status: string }) {
     sent: { label: 'Enviado', Icon: Check },
     delivered: { label: 'Entregado', Icon: CheckCheck },
     read: { label: 'Leído', Icon: CheckCheck },
+    played: { label: 'Reproducido', Icon: CheckCheck },
     failed: { label: 'No enviado', Icon: CircleAlert },
   }[status] || { label: 'Estado sin confirmar', Icon: Clock }
 
   return (
     <span
-      className={`message-delivery-status ${status === 'read' ? 'is-read' : status === 'failed' ? 'is-failed' : ''}`}
+      className={`message-delivery-status ${status === 'read' || status === 'played' ? 'is-read' : status === 'failed' ? 'is-failed' : ''}`}
       aria-label={state.label}
       title={state.label}
     >

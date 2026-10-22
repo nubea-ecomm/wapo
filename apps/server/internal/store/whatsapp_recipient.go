@@ -38,11 +38,11 @@ func (s *Store) WhatsAppRecipient(ctx context.Context, project, connection, reci
 			UNION
 			SELECT status->>'recipient_id' FROM jsonb_array_elements(
 			CASE WHEN jsonb_typeof(m.data->'statuses')='array' THEN m.data->'statuses' ELSE '[]'::jsonb END) status
-			WHERE status->>'status' IN ('delivered','read')
+			WHERE status->>'status' IN ('delivered','read','played')
 		) evidence
 		WHERE m.project_id=$1 AND m.kind='messages' AND m.data->>'connection_id'=$2
 		AND m.data->>'direction'='outbound' AND m.data->>'channel'='whatsapp'
-		AND m.data->>'status' IN ('sent','delivered','read')
+		AND m.data->>'status' IN ('sent','delivered','read','played')
 		AND coalesce(m.data->'payload'->>'to','')<>'' AND coalesce(evidence.identity,'')<>''
 		AND (evidence.identity=$3 OR m.data->'payload'->>'to'=$3)
 		ORDER BY (evidence.identity<>m.data->'payload'->>'to') DESC,m.created_at DESC,m.id DESC,evidence.identity LIMIT 1`, project, connection, recipient).Scan(&input, &identity)

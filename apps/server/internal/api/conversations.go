@@ -42,6 +42,16 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 		recipient = str(c, "contact")
 	}
 
+	if subresource == "read" {
+		s.markConversationRead(w, r, c)
+		return
+	}
+
+	if e = s.enrichConversationReads(r, []store.Object{c}); e != nil {
+		dbError(w, e)
+		return
+	}
+
 	if e = s.enrichConversationContacts(r.Context(), project(r), []store.Object{c}); e != nil {
 		dbError(w, e)
 		return
@@ -82,9 +92,21 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 				return
 			}
 
+			if payload := object(o, "payload"); payload != nil {
+				if e := s.validateConversationPayload(r, connection, payload); e != nil {
+					fail(w, 422, "validation_error", e.Error())
+					return
+				}
+
+				payload["to"] = recipient
+				s.send(w, r, connection, payload, false)
+
+				return
+			}
+
 			text := strings.TrimSpace(str(o, "text"))
 			if text == "" {
-				fail(w, 422, "validation_error", "text or template is required")
+				fail(w, 422, "validation_error", "text, template or payload is required")
 				return
 			}
 

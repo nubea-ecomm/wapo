@@ -220,11 +220,13 @@ func (s *Server) receiveMeta(w http.ResponseWriter, r *http.Request) {
 }
 
 func validDeliveryStatus(s string) bool {
-	return s == "sent" || s == "delivered" || s == "read" || s == "failed"
+	return s == "sent" || s == "delivered" || s == "read" || s == "played" || s == "failed"
 }
 
 func rank(s string) int {
 	switch s {
+	case "played":
+		return 5
 	case "sent":
 		return 1
 	case "failed":
