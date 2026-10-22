@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.5.0...sdk-v0.6.0) (2026-10-22)
+
+
+### Features
+
+* add quoted replies and reactions with refined chat layout ([3970a96](https://github.com/nubea-ecomm/wapo/commit/3970a968f76cd371120df8b49288abf90d14f661))
+
 ## [0.5.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.4.0...sdk-v0.5.0) (2026-10-22)
 
 
