@@ -77,7 +77,11 @@ ID, and does not repeat registration or one-shot history sync.
 ## Coexistence behavior
 
 The hosted page launches the Meta SDK with
-`extras.featureType = "whatsapp_business_app_onboarding"` for Coexistence. It
+`extras.featureType = "whatsapp_business_app_onboarding"` and
+`extras.sessionInfoVersion = "3"` for Coexistence, as Meta's Business App
+onboarding guide requires. Use a Facebook Login for Business configuration with
+the Embedded Signup variation and WhatsApp Cloud API product selected (v4); Meta
+deprecated v2 and v3 configurations on October 15, 2026. It
 accepts Meta-origin session messages and both FINISH and
 FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING events. Configured current-version Builder
 settings determine available onboarding products; this code does not force a
