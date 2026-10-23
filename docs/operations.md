@@ -133,6 +133,26 @@ a duplicate. Daily and weekly periods use UTC.
 
 ## Release and rollback
 
+### Frontend asset delivery
+
+The frontend image uses `apps/web/nginx.conf`: HTML is `no-store`, successful
+hashed `/assets/` files are immutable, and missing assets return an uncacheable
+404 rather than the SPA HTML. This prevents a transient rolling-deployment error
+from being retained by browsers or the CDN. Keep edge cache rules respecting
+origin cache headers. A mixed-version rollout may still cause a transient miss;
+the inline startup recovery screen offers a manual reload, including when the
+main JavaScript bundle failed before React could mount. It does not automatically
+reload or discard an active draft.
+
+Verify the actual production image, not only the Vite development server:
+
+```bash
+docker build -t wapo-web-check -f apps/web/Dockerfile .
+docker run --rm -d --name wapo-web-check -p 127.0.0.1:4173:8080 wapo-web-check
+pnpm exec playwright test --config playwright.production.config.ts
+docker stop wapo-web-check
+```
+
 ### Separate services on Unbroker
 
 Build both backend services from the repository root (not `apps/server`):

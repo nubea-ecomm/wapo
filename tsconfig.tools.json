@@ -11,6 +11,7 @@
   "include": [
     "playwright*.config.ts",
     "tests/e2e/**/*.ts",
+    "tests/frontend-production/**/*.ts",
     "tests/landing/**/*.ts"
   ]
 }

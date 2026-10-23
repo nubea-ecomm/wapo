@@ -12,5 +12,6 @@ COPY apps/web apps/web
 COPY packages/sdk packages/sdk
 RUN pnpm --filter @nubea-ecomm/wapo-sdk build && pnpm --filter @wapo/web build
 FROM nginxinc/nginx-unprivileged:1.28-alpine
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /src/apps/web/dist /usr/share/nginx/html
 EXPOSE 8080

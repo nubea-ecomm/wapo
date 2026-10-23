@@ -33,6 +33,86 @@
       )
     </script>
     <title>Wapo</title>
+    <script>
+      // This recovery UI must work even when the application bundle cannot load.
+      function showAssetRecovery() {
+        function show() {
+          if (document.getElementById('wapo-asset-recovery')) return
+          const dark = document.documentElement.classList.contains('dark')
+          const overlay = document.createElement('div')
+          overlay.id = 'wapo-asset-recovery'
+          overlay.setAttribute('role', 'alert')
+          Object.assign(overlay.style, {
+            position: 'fixed',
+            inset: '0',
+            zIndex: '2147483647',
+            display: 'grid',
+            placeItems: 'center',
+            padding: '24px',
+            background: dark ? '#0a0a0a' : '#ffffff',
+            color: dark ? '#fafafa' : '#171717',
+            fontFamily: 'system-ui, sans-serif',
+          })
+          const panel = document.createElement('div')
+          Object.assign(panel.style, { maxWidth: '420px', textAlign: 'center' })
+          const title = document.createElement('h1')
+          title.textContent = 'No se pudo cargar Wapo'
+          title.style.fontSize = '20px'
+          const detail = document.createElement('p')
+          detail.textContent =
+            'Algunos archivos no están disponibles. Puede haber una actualización en curso. Reintentá en unos segundos.'
+          Object.assign(detail.style, {
+            fontSize: '14px',
+            lineHeight: '1.6',
+            opacity: '0.75',
+          })
+          const retry = document.createElement('button')
+          retry.type = 'button'
+          retry.textContent = 'Volver a cargar'
+          Object.assign(retry.style, {
+            padding: '10px 18px',
+            marginTop: '12px',
+            borderRadius: '8px',
+            border: '1px solid #737373',
+            background: dark ? '#fafafa' : '#171717',
+            color: dark ? '#171717' : '#fafafa',
+            cursor: 'pointer',
+            fontSize: '14px',
+          })
+          retry.addEventListener('click', () => window.location.reload())
+          panel.append(title, detail, retry)
+          overlay.append(panel)
+          document.body.append(overlay)
+        }
+        if (document.body) show()
+        else document.addEventListener('DOMContentLoaded', show, { once: true })
+      }
+      window.addEventListener(
+        'error',
+        (event) => {
+          const element = event.target
+          const source =
+            element instanceof HTMLScriptElement
+              ? element.src
+              : element instanceof HTMLLinkElement &&
+                  ['stylesheet', 'modulepreload'].includes(element.rel)
+                ? element.href
+                : ''
+          if (!source) return
+          const url = new URL(source, window.location.href)
+          if (
+            url.origin === window.location.origin &&
+            url.pathname.startsWith('/assets/')
+          )
+            showAssetRecovery()
+        },
+        true,
+      )
+      window.addEventListener('vite:preloadError', (event) => {
+        event.preventDefault()
+        showAssetRecovery()
+      })
+    </script>
   </head>
   <body>
     <div id="root"></div>
