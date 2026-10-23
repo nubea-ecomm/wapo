@@ -237,8 +237,10 @@ button.onclick = () => {
   status.textContent = 'Completá la autorización en la ventana de Meta.'
   const extras = { setup: {} }
 
-  if (mode.value === 'coexistence')
+  if (mode.value === 'coexistence') {
     extras.featureType = 'whatsapp_business_app_onboarding'
+    extras.sessionInfoVersion = '3'
+  }
 
   window.FB.login(
     (response) => {
