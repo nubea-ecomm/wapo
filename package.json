@@ -25,7 +25,7 @@
     "@apidevtools/swagger-parser": "^13.1.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
-    "@scalar/api-reference": "1.75.0",
+    "@scalar/api-reference": "1.76.0",
     "@types/node": "^22.20.5",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
@@ -35,6 +35,6 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.71.2"
+    "typescript-eslint": "^8.72.0"
   }
 }
