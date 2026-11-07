@@ -178,6 +178,7 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 		connection = store.Object{"id": store.ID("con"), "channel": "whatsapp", "customer_id": current["customer_id"], "external_id": phoneID, "business_account_id": waba, "created_at": time.Now().UTC().Format(time.RFC3339Nano), "inbound_processing_enabled": true}
 	}
 
+	oldToken, _ := s.Store.Unseal(str(connection, "access_token"), p)
 	connection["display_phone_number"] = selected["display_phone_number"]
 	connection["quality_rating"] = selected["quality_rating"]
 	connection["connection_type"] = mode
@@ -220,6 +221,9 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	claimed = false
+
+	s.invalidateTokenInspection(p, oldToken)
+	s.invalidateTokenInspection(p, token)
 	// Credentials survive any provider failure below; the project owner can inspect/recover the binding.
 	finishMode := mode
 	if reconnectID != "" {

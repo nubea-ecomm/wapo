@@ -4252,7 +4252,7 @@
         "operationId": "public_setup_configuration",
         "summary": "Get public setup configuration",
         "tags": ["Onboarding"],
-        "description": "Returns Meta signup configuration and the current project identity for a valid, unexpired setup link. No project API key is required.",
+        "description": "Returns Meta signup configuration, the current project identity and customer business prefill for a valid, unexpired setup link. No project API key is required. The capability grants access to the linked customer's name and email only; other customer fields are not exposed.",
         "responses": {
           "200": {
             "description": "Success",
@@ -4272,6 +4272,15 @@
                         },
                         "graph_version": {
                           "type": "string"
+                        },
+                        "business": {
+                          "type": "object",
+                          "description": "Business prefill from the linked customer. Missing values are omitted; no website or country defaults are assumed.",
+                          "additionalProperties": false,
+                          "properties": {
+                            "name": { "type": "string" },
+                            "email": { "type": "string" }
+                          }
                         },
                         "allowed_connection_types": {
                           "type": "array",

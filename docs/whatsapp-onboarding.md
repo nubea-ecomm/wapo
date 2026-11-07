@@ -39,6 +39,14 @@ Verification is stored at app/instance scope and does not require creating or
 selecting a project. Project/connection webhooks configured inside Wapo are a
 separate outgoing delivery mechanism for your applications.
 
+The hosted page passes `extras.version = "v5"` for both dedicated Cloud API and
+Coexistence signup. `extras.setup.business` prefills the linked customer's saved
+`name` and `email` when present. It never substitutes the operator's identity or
+assumes a website or country. The public configuration exposes only these two
+customer fields to the holder of a valid setup-link capability, not customer
+metadata, credentials, or other customers' data. Meta determines asset eligibility;
+these parameters do not guarantee that an existing number will be selectable.
+
 ### Transition from project callbacks
 
 Deploy API and worker with migration `022_global_meta_webhook.sql`, then copy the
@@ -85,7 +93,7 @@ deprecated v2 and v3 configurations on October 15, 2026. It
 accepts Meta-origin session messages and both FINISH and
 FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING events. Configured current-version Builder
 settings determine available onboarding products; this code does not force a
-legacy Embedded Signup version.
+legacy Embedded Signup version (v2/v3); it explicitly requests v5 in `extras`.
 
 The server exchanges the authorization code, discovers phones under the shared
 WABA (including when the completion event omits a phone ID), and verifies Meta's
@@ -121,6 +129,16 @@ their final seven days and the replacement remains encrypted. Business integrati
 tokens normally do not expire. Meta does not allow an already expired token to be
 refreshed; in that case the console offers a reconnect link that preserves the
 connection ID and message history while the customer authorizes a replacement.
+
+Successful app-matching token inspections are reused for up to five minutes per
+process, never beyond the token/data-access expiry. The bounded cache is scoped by
+project, token, Meta app and endpoint using hashed keys; concurrent checks share
+one request. Diagnostics reuse the renewal inspection for permission checks.
+Provider failures and invalid tokens are not cached. Credential replacement,
+renewal and token-expiry errors invalidate the relevant cached inspection. This
+cache is independent of `AUTH_CACHE_TTL` (Wapo API-key authentication). Revocations
+can be discovered by the next provider operation or inspection; the cache does not
+replace Meta's authorization enforcement. No API response contracts change.
 
 ## Current boundaries
 

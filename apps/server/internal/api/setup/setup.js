@@ -235,7 +235,7 @@ button.onclick = () => {
   button.disabled = true
   document.getElementById('back').disabled = true
   status.textContent = 'Completá la autorización en la ventana de Meta.'
-  const extras = { setup: {} }
+  const extras = { setup: { business: config.business || {} }, version: 'v5' }
 
   if (mode.value === 'coexistence') {
     extras.featureType = 'whatsapp_business_app_onboarding'

@@ -35,6 +35,7 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
             app_id: 'test',
             config_id: 'test',
             graph_version: 'v24.0',
+            business: { name: 'Merchant', email: 'merchant@example.com' },
           },
         },
       }),
@@ -99,6 +100,34 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
     await expect(page.getByRole('status')).toHaveText('WhatsApp conectado.')
     expect(submitted.connection_type).toBe('coexistence')
     expect(submitted.code).toBe('fake-code')
+    const signupExtras = () =>
+      page.evaluate(
+        () =>
+          (window as unknown as { signupOptions: { extras: unknown } })
+            .signupOptions.extras,
+      )
+
+    expect(await signupExtras()).toEqual({
+      setup: { business: { name: 'Merchant', email: 'merchant@example.com' } },
+      version: 'v5',
+      featureType: 'whatsapp_business_app_onboarding',
+      sessionInfoVersion: '3',
+    })
+
+    if (allowed.includes('dedicated')) {
+      await page.reload()
+      await page.getByRole('button', { name: 'Usar un número' }).click()
+      await page.getByRole('button', { name: 'Continuar con Meta' }).click()
+      await expect(page.getByRole('status')).toHaveText('WhatsApp conectado.')
+      expect(submitted.connection_type).toBe('dedicated')
+      expect(await signupExtras()).toEqual({
+        setup: {
+          business: { name: 'Merchant', email: 'merchant@example.com' },
+        },
+        version: 'v5',
+      })
+    }
+
     // A login code without the Embedded Signup event must not leave the UI locked.
     await page.route('https://connect.facebook.net/**', (route) =>
       route.fulfill({

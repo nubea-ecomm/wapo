@@ -30,6 +30,7 @@ type Server struct {
 	droppedLogs  atomic.Uint64
 	logSequence  atomic.Uint64
 	logEvery     uint64
+	tokenChecks  tokenInspectionCache
 }
 
 func New(s *store.Store, c config.Config) *Server {

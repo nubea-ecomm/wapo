@@ -15,7 +15,7 @@ func TestSetupLinkThemeUpdatesAndAllowedOrigin(t *testing.T) {
 	s.Config.MetaAppID = "app"
 	s.Config.MetaConfigID = "config"
 	s.Config.PublicURL = h.URL
-	status, body := request(t, h.URL, key, "POST", "/v1/customers", store.Object{"name": "Merchant"}, "")
+	status, body := request(t, h.URL, key, "POST", "/v1/customers", store.Object{"name": "Merchant", "email": "merchant@example.com", "metadata": store.Object{"private_note": "not-for-meta"}}, "")
 	expect(t, status, 201, body)
 	customer := str(object(body, "data"), "id")
 	status, body = request(t, h.URL, key, "POST", "/v1/customers/"+customer+"/setup_links", store.Object{"theme_config": store.Object{"background_color": "#112233"}, "allowed_origins": []string{"https://signup.example"}}, "")
@@ -23,6 +23,16 @@ func TestSetupLinkThemeUpdatesAndAllowedOrigin(t *testing.T) {
 	link := object(body, "data")
 	id := str(link, "id")
 	token := str(link, "token")
+	status, body = request(t, h.URL, "", "GET", "/public/setup/"+p+"/"+token, nil, "")
+	expect(t, status, 200, body)
+	business := object(object(body, "data"), "business")
+	if len(business) != 2 || str(business, "name") != "Merchant" || str(business, "email") != "merchant@example.com" {
+		t.Fatalf("incorrect customer business prefill: %v", business)
+	}
+
+	status, body = request(t, h.URL, "", "GET", "/public/setup/another-project/"+token, nil, "")
+	expect(t, status, 410, body)
+
 	expires, e := time.Parse(time.RFC3339Nano, str(link, "expires_at"))
 
 	if e != nil || time.Until(expires) < 29*24*time.Hour {

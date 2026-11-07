@@ -104,6 +104,11 @@ func TestProjectBrandingIsScopedAndUpdatesExistingHostedLinks(t *testing.T) {
 		t.Fatal("missing public identity")
 	}
 
+	business := object(object(o, "data"), "business")
+	if len(business) != 1 || str(business, "name") != "Brand customer" {
+		t.Fatalf("prefill must omit missing email and project identity: %v", business)
+	}
+
 	status, o = request(t, h.URL, key, "PATCH", "/v1/project", store.Object{"name": "Updated brand", "branding": store.Object{"logo_data_url": ""}}, "")
 	expect(t, status, 200, o)
 

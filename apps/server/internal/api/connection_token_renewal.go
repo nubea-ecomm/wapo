@@ -11,9 +11,11 @@ import (
 )
 
 type connectionTokenState struct {
-	Expired   bool
-	ExpiresAt time.Time
-	Refreshed bool
+	Expired       bool
+	ExpiresAt     time.Time
+	Refreshed     bool
+	inspection    store.Object
+	inspectionErr error
 }
 
 // ensureConnectionToken refreshes valid expiring system-user credentials before
@@ -24,16 +26,10 @@ func (s *Server) ensureConnectionToken(ctx context.Context, project string, conn
 		return token, state, nil
 	}
 
-	query := url.Values{"input_token": {token}}
-	status, raw, err := s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/debug_token", s.Config.MetaAppID+"|"+s.Config.MetaAppSecret, nil, query.Encode())
+	response, err := s.inspectConnectionToken(ctx, project, token)
 
-	if err != nil || status != 200 {
-		return token, state, nil
-	}
-
-	var response store.Object
-
-	if json.Unmarshal(raw, &response) != nil {
+	state.inspection, state.inspectionErr = response, err
+	if err != nil {
 		return token, state, nil
 	}
 
@@ -62,7 +58,7 @@ func (s *Server) ensureConnectionToken(ctx context.Context, project string, conn
 		"set_token_expires_in_60_days": {"true"},
 		"fb_exchange_token":            {token},
 	}
-	status, raw, err = s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/oauth/access_token", "", nil, refresh.Encode())
+	status, raw, err := s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/oauth/access_token", "", nil, refresh.Encode())
 
 	if err != nil || status != 200 {
 		return token, state, nil
@@ -91,6 +87,10 @@ func (s *Server) ensureConnectionToken(ctx context.Context, project string, conn
 	}
 
 	connection["access_token"] = patch["access_token"]
+
+	s.invalidateTokenInspection(project, token)
+	s.invalidateTokenInspection(project, newToken)
+
 	connection["credential_status"] = "valid"
 	connection["access_token_expires_at"] = patch["access_token_expires_at"]
 	state.ExpiresAt = newExpiry
@@ -100,6 +100,12 @@ func (s *Server) ensureConnectionToken(ctx context.Context, project string, conn
 }
 
 func (s *Server) markConnectionCredential(ctx context.Context, project string, connection store.Object, status string, expiresAt time.Time) {
+	if status == "expired" {
+		if token, err := s.Store.Unseal(str(connection, "access_token"), project); err == nil {
+			s.invalidateTokenInspection(project, token)
+		}
+	}
+
 	formattedExpiry := ""
 	if !expiresAt.IsZero() {
 		formattedExpiry = expiresAt.UTC().Format(time.RFC3339Nano)

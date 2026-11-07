@@ -157,5 +157,13 @@ func (s *Server) updateConnection(w http.ResponseWriter, r *http.Request, id str
 		return
 	}
 
+	if credentialChanged {
+		for _, connection := range []store.Object{current, updated} {
+			if token, err := s.Store.Unseal(str(connection, "access_token"), projectID); err == nil {
+				s.invalidateTokenInspection(projectID, token)
+			}
+		}
+	}
+
 	write(w, 200, store.Object{"data": clean(updated)})
 }

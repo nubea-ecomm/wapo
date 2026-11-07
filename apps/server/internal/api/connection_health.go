@@ -112,6 +112,10 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 			return nil, 0
 		}
 
+		if metaCredentialExpired(o) {
+			s.invalidateTokenInspection(p, token)
+		}
+
 		return o, status
 	}
 	safeError := func(o store.Object) store.Object {
@@ -149,7 +153,13 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 			add("access_token_refresh", "Renovación del token", "pass", "La credencial se renovó automáticamente antes de vencer.", nil)
 		}
 
-		s.checkConnectionToken(ctx, token, add)
+		if !tokenState.Expired {
+			if tokenState.Refreshed {
+				tokenState.inspection, tokenState.inspectionErr = s.inspectConnectionToken(ctx, p, token)
+			}
+
+			s.checkConnectionToken(tokenState.inspection, tokenState.inspectionErr, add)
+		}
 
 		phone, status := call(url.PathEscape(str(c, "external_id")), "id,display_phone_number,quality_rating")
 		if status == 200 && str(phone, "id") == str(c, "external_id") {

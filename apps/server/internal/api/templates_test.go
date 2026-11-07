@@ -144,6 +144,10 @@ func TestTemplatesRefreshExpiringCredentialBeforeCallingMeta(t *testing.T) {
 	if e != nil || token != "renewed-token" || str(saved, "credential_status") != "valid" || str(saved, "access_token_expires_at") == "" {
 		t.Fatalf("renewed credential was not persisted safely: token=%q state=%#v error=%v", token, saved, e)
 	}
+
+	if len(server.tokenChecks.entries) != 0 {
+		t.Fatal("automatic renewal retained an old token inspection")
+	}
 }
 
 func TestTemplatesReturnRecoveryErrorForExpiredCredential(t *testing.T) {

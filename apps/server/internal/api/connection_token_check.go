@@ -1,25 +1,16 @@
 package api
 
 import (
-	"context"
-	"encoding/json"
-	"net/url"
-
 	"wapo.local/server/internal/store"
 )
 
-func (s *Server) checkConnectionToken(ctx context.Context, token string, add func(string, string, string, string, store.Object)) {
+func (s *Server) checkConnectionToken(body store.Object, inspectionErr error, add func(string, string, string, string, store.Object)) {
 	if s.Config.MetaAppID == "" || s.Config.MetaAppSecret == "" {
 		add("access_token", "Permisos del token", "unknown", "Configurá la app de Meta para verificar los permisos del token.", nil)
 		return
 	}
 
-	q := url.Values{"input_token": {token}}
-	status, raw, e := s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/debug_token", s.Config.MetaAppID+"|"+s.Config.MetaAppSecret, nil, q.Encode())
-
-	var body store.Object
-
-	if e != nil || status != 200 || json.Unmarshal(raw, &body) != nil {
+	if inspectionErr != nil {
 		add("access_token", "Permisos del token", "unknown", "Meta no permitió verificar el token.", nil)
 		return
 	}

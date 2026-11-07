@@ -46,6 +46,7 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 	}
 
 	calls := 0
+	inspections := 0
 
 	var failed atomic.Bool
 
@@ -58,6 +59,8 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 		}
 
 		if r.URL.Path == "/v24.0/debug_token" {
+			inspections++
+
 			if r.Header.Get("Authorization") != "Bearer app1|meta-test-secret" {
 				t.Error("wrong app token")
 			}
@@ -88,6 +91,11 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 	s.Meta.BaseURL = meta.URL
 	status, body := request(t, h.URL, key, "GET", "/v1/connections/health-con/health", nil, "")
 	expect(t, status, 200, body)
+
+	if inspections != 1 {
+		t.Fatalf("health check made %d token inspections, expected one", inspections)
+	}
+
 	d := object(body, "data")
 	if str(d, "status") != "error" || str(object(d, "billing"), "status") != "attention_required" {
 		t.Fatal(d)
