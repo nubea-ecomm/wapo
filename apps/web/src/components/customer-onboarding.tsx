@@ -8,6 +8,7 @@ import { useApi, useAction } from '../hooks/use-api'
 import { ErrorNotice, Field } from './ui'
 import { FormDialog } from './form-dialog'
 import { Input } from './ui/input'
+import { NativeSelect } from './ui/native-select'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { SetupLinkResult } from './setup-link-result'
@@ -43,6 +44,7 @@ export function CustomerOnboarding({
   const { client } = useSession()
   const [mode, setMode] = useState<(typeof choices)[number]['id']>('both')
   const [redirect, setRedirect] = useState('')
+  const [language, setLanguage] = useState<'es' | 'en'>('es')
   const [link, setLink] = useState('')
   const instance = useApi<{ data: { onboarding_ready: boolean } }>('/v1/me')
   const links = useApi<Page<SetupLink>>(
@@ -54,7 +56,7 @@ export function CustomerOnboarding({
       allowed_connection_types:
         mode === 'both' ? ['coexistence', 'dedicated'] : [mode],
       ...(redirect ? { success_redirect_url: redirect } : {}),
-      language: 'es',
+      language,
     })
 
     setLink(result.data.url || '')
@@ -157,7 +159,16 @@ export function CustomerOnboarding({
             Opciones avanzadas
             <ChevronDown className="size-3.5" />
           </summary>
-          <div className="pt-4 pb-1">
+          <div className="grid gap-4 pt-4 pb-1">
+            <Field label="Idioma del enlace">
+              <NativeSelect
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'es' | 'en')}
+              >
+                <option value="es">Español</option>
+                <option value="en">English</option>
+              </NativeSelect>
+            </Field>
             <Field
               label="Redirección al finalizar"
               hint="Opcional. El cliente vuelve a esta dirección cuando termina."

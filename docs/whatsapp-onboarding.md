@@ -147,7 +147,11 @@ replace Meta's authorization enforcement. No API response contracts change.
 - Provisioning and partner_managed billing return explicit 501 responses in
   standalone mode; the optional bridge delegates them upstream. Credential renewal
   through reconnect_phone_number is supported for existing connections.
-- language is recorded; the current hosted page is Spanish. Project branding and
+- The hosted page uses the setup link's `language`: `es` for Spanish or `en` for
+  English, including instructions, status messages and the Meta SDK locale. Omitted
+  or other accepted language values currently fall back to Spanish. The console's
+  advanced setup-link options include an explicit Spanish/English selector.
+  Project branding and
   theme_config style the hosted page. allowed_origins controls permitted browser
   origins for applicable setup requests; it does not grant Meta SDK domain access.
 - Automated provider tests use mocks. Real account access checks during manual

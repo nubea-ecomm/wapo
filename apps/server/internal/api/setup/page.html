@@ -1,6 +1,6 @@
 <!doctype html>
 <html
-  lang="es"
+  lang="{{.Language}}"
   data-theme="{{.Theme}}"
 >
   <head>
@@ -13,7 +13,7 @@
       name="referrer"
       content="no-referrer"
     />
-    <title>Conectar WhatsApp / {{.Name}}</title>
+    <title>{{.Copy.title}} / {{.Name}}</title>
     <link
       rel="stylesheet"
       href="/setup/assets/setup.css"
@@ -21,6 +21,12 @@
     <style>
       :root[data-theme] { --accent: {{.Accent}}; --accent-foreground: {{.Foreground}}; {{.Overrides}} }
     </style>
+    <script
+      id="setup-copy"
+      type="application/json"
+    >
+      {{.Copy}}
+    </script>
     <script
       defer
       src="/setup/assets/setup.js"
@@ -31,125 +37,140 @@
       <header class="project-identity">
         {{if .Logo}}<img
           src="{{.Logo}}"
-          alt="Logo de {{.Name}}"
+          alt="{{.Name}}"
           width="56"
           height="56"
         />{{end}}
         <strong>{{.Name}}</strong>
       </header>
-      <nav
-        class="steps"
-        aria-label="Progreso"
-      >
-        <span
-          id="step-one"
-          aria-current="step"
-          ><b>1</b> Tipo de conexión</span
-        >
-        <span class="step-line"></span>
-        <span id="step-two"><b>2</b> Autorización</span>
-      </nav>
       <section id="choose">
         <div class="heading">
-          <span class="eyebrow">WHATSAPP</span>
-          <h1>Conectá tu número</h1>
-          <p>Elegí cómo vas a usar WhatsApp con {{.Name}}.</p>
+          <h1>{{.Copy.title}}</h1>
+          <p>{{.Copy.subtitle}}</p>
         </div>
         <div
           id="choices"
           class="choices"
           aria-busy="true"
         >
+          <div
+            class="choices-loading"
+            role="status"
+            aria-label="{{.Copy.loading}}"
+          >
+            <div
+              class="skeleton-choice"
+              aria-hidden="true"
+            >
+              <span class="skeleton-icon"></span>
+              <span class="skeleton-copy"><span></span><span></span></span>
+            </div>
+            <div
+              class="skeleton-choice"
+              aria-hidden="true"
+            >
+              <span class="skeleton-icon"></span>
+              <span class="skeleton-copy"><span></span><span></span></span>
+            </div>
+          </div>
           <article
-            class="choice"
+            class="choice-card"
             data-mode="coexistence"
             hidden
           >
-            <span
-              class="choice-icon"
-              aria-hidden="true"
-              ><svg
-                viewBox="0 0 24 24"
-                width="23"
-                height="23"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-              >
-                <rect
-                  x="6"
-                  y="2"
-                  width="12"
-                  height="20"
-                  rx="3"
-                />
-                <path d="M10 18h4" /></svg
-            ></span>
-            <div>
-              <h2>Usar WhatsApp Business App</h2>
-              <p>Conservá la app de tu teléfono y conectá el mismo número.</p>
-              <details>
-                <summary>Qué necesitás</summary>
-                <ul>
-                  <li>Un número activo en WhatsApp Business App.</li>
-                  <li>Acceso al teléfono para autorizar la conexión.</li>
-                  <li>Una cuenta elegible para Coexistence.</li>
-                </ul>
-              </details>
-            </div>
             <button
-              class="choose-button"
+              class="choice"
               data-select="coexistence"
             >
-              Usar mi app <span aria-hidden="true">↗</span>
+              <span
+                class="choice-icon"
+                aria-hidden="true"
+                ><svg
+                  viewBox="0 0 24 24"
+                  width="23"
+                  height="23"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                >
+                  <rect
+                    x="6"
+                    y="2"
+                    width="12"
+                    height="20"
+                    rx="3"
+                  />
+                  <path d="M10 18h4" /></svg
+              ></span>
+              <span class="choice-copy">
+                <span class="choice-title">{{.Copy.appTitle}}</span>
+                <span class="choice-description">{{.Copy.appDescription}}</span>
+              </span>
+              <span
+                class="choice-arrow"
+                aria-hidden="true"
+                >→</span
+              >
             </button>
+            <details class="choice-details">
+              <summary>{{.Copy.learnMore}}</summary>
+              <ul>
+                <li>{{.Copy.appDetailOne}}</li>
+                <li>{{.Copy.appDetailTwo}}</li>
+                <li>{{.Copy.appDetailThree}}</li>
+              </ul>
+            </details>
           </article>
           <article
-            class="choice"
+            class="choice-card"
             data-mode="dedicated"
             hidden
           >
-            <span
-              class="choice-icon"
-              aria-hidden="true"
-              ><svg
-                viewBox="0 0 24 24"
-                width="23"
-                height="23"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-              >
-                <path d="M6 2h8l4 4v16H6z" />
-                <rect
-                  x="9"
-                  y="10"
-                  width="6"
-                  height="7"
-                  rx="1"
-                />
-                <path d="M12 10v7M9 13h6" /></svg
-            ></span>
-            <div>
-              <h2>Usar un número dedicado</h2>
-              <p>
-                Conectá un número para enviar y recibir mensajes por la API.
-              </p>
-              <details>
-                <summary>Qué necesitás</summary>
-                <ul>
-                  <li>Acceso de administrador a tu negocio en Meta.</li>
-                  <li>Un número disponible para registrar en la API.</li>
-                  <li>Acceso a llamadas o SMS para verificarlo.</li>
-                </ul>
-              </details>
-            </div>
             <button
-              class="choose-button"
+              class="choice"
               data-select="dedicated"
             >
-              Usar un número <span aria-hidden="true">↗</span>
+              <span
+                class="choice-icon"
+                aria-hidden="true"
+                ><svg
+                  viewBox="0 0 24 24"
+                  width="23"
+                  height="23"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                >
+                  <path d="M6 2h8l4 4v16H6z" />
+                  <rect
+                    x="9"
+                    y="10"
+                    width="6"
+                    height="7"
+                    rx="1"
+                  />
+                  <path d="M12 10v7M9 13h6" /></svg
+              ></span>
+              <span class="choice-copy">
+                <span class="choice-title">{{.Copy.dedicatedTitle}}</span>
+                <span class="choice-description"
+                  >{{.Copy.dedicatedDescription}}</span
+                >
+              </span>
+              <span
+                class="choice-arrow"
+                aria-hidden="true"
+                >→</span
+              >
             </button>
+            <details class="choice-details">
+              <summary>{{.Copy.learnMore}}</summary>
+              <ul>
+                <li>{{.Copy.dedicatedDetailOne}}</li>
+                <li>{{.Copy.dedicatedDetailTwo}}</li>
+                <li>{{.Copy.dedicatedDetailThree}}</li>
+              </ul>
+            </details>
           </article>
         </div>
       </section>
@@ -161,15 +182,14 @@
           id="back"
           class="back"
         >
-          ← Cambiar tipo de conexión
+          ← {{.Copy.back}}
         </button>
         <div class="heading">
-          <span class="eyebrow">AUTORIZACIÓN EN META</span>
-          <h1 id="authorization-title">Conectá WhatsApp</h1>
+          <h1 id="authorization-title">{{.Copy.title}}</h1>
           <p id="description"></p>
         </div>
         <div class="instructions">
-          <h2>Así sigue la conexión</h2>
+          <h2>{{.Copy.inMeta}}</h2>
           <ol id="instructions"></ol>
           <p
             id="requirement"
@@ -180,28 +200,20 @@
           id="connect"
           disabled
         >
-          Preparando Meta…
+          {{.Copy.preparing}}
         </button>
-        <p class="secure-note">
-          La autorización se completa en una ventana de Meta.
-        </p>
+        <p class="secure-note">{{.Copy.secureNote}}</p>
       </section>
       <select
         id="mode"
         hidden
-        aria-label="Tipo de conexión"
+        aria-label="{{.Copy.connectionType}}"
       ></select>
       <p
         id="status"
         role="status"
         aria-live="polite"
-      >
-        Cargando opciones…
-      </p>
-      <footer>
-        {{.Name}} recibe acceso a la cuenta que autorices. Podés administrar ese
-        acceso en Meta.
-      </footer>
+      ></p>
     </main>
   </body>
 </html>

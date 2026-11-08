@@ -88,7 +88,9 @@ project branding, per-link colors, allowed origins, redirects, expiration,
 revocation and credential renewal for the same phone and customer. Their default
 expiration is thirty days. IDs and some response fields differ. Provisioned phone
 numbers and partner-managed billing require provider integrations and are not
-implemented. Language selection is validated/stored; hosted copy is Spanish.
+implemented. The hosted page renders Spanish (`es`) or English (`en`) from the
+link's configured language, including status messages and the Meta SDK locale.
+Omitted values and other accepted languages currently fall back to Spanish.
 
 ## Remaining platform services
 

@@ -63,14 +63,18 @@ func (s *Server) setupPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	language, messages := localizedSetup(str(link, "language"), str(identity, "name"))
+
 	setupTemplate.Execute(w, struct {
+		Language   string
+		Copy       map[string]string
 		Name       string
 		Logo       template.URL
 		Accent     template.CSS
 		Foreground template.CSS
 		Theme      string
 		Overrides  template.CSS
-	}{str(identity, "name"), template.URL(logo), template.CSS(accent), template.CSS(foreground), theme, template.CSS(overrides.String())})
+	}{language, messages, str(identity, "name"), template.URL(logo), template.CSS(accent), template.CSS(foreground), theme, template.CSS(overrides.String())})
 }
 
 func (s *Server) setupAsset(w http.ResponseWriter, r *http.Request) {

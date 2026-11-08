@@ -8463,7 +8463,8 @@
             "format": "uri"
           },
           "language": {
-            "type": "string"
+            "type": "string",
+            "description": "Hosted page language: es (Spanish) or en (English). Omitted values and other accepted languages currently render in Spanish. Applies to page copy, status messages and the Meta SDK locale."
           },
           "meta_billing_mode": {
             "type": "string",

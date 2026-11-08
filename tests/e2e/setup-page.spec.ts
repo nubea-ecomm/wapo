@@ -1,12 +1,26 @@
 import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 
-for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
-  test(`hosted setup respects allowed modes and completes authorization: ${allowed.join(',')}`, async ({
+for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
+  [['coexistence', 'dedicated'], ['coexistence']].map((allowed) => ({
+    language,
+    allowed,
+  })),
+)) {
+  test(`hosted setup respects allowed modes and completes authorization: ${language} ${allowed.join(',')}`, async ({
     page,
   }) => {
     const root = 'apps/server/internal/api/setup/'
+    const copy: Record<string, string> = JSON.parse(
+      (await readFile(root + language + '.json', 'utf8')).replaceAll(
+        '{project}',
+        'Proyecto de prueba',
+      ),
+    )
     const html = (await readFile(root + 'page.html', 'utf8'))
+      .replaceAll('{{.Copy}}', JSON.stringify(copy))
+      .replace(/{{\.Copy\.(\w+)}}/g, (_, key: string) => copy[key])
+      .replaceAll('{{.Language}}', language)
       .replace(/{{if .Logo}}[\s\S]*?{{end}}/, '')
       .replaceAll('{{.Name}}', 'Proyecto de prueba')
       .replaceAll('{{.Theme}}', 'light')
@@ -27,8 +41,14 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       )
     }
 
-    await page.route('**/public/setup/test/preview', (route) =>
-      route.fulfill({
+    let releaseConfig!: () => void
+    const configReady = new Promise<void>((resolve) => {
+      releaseConfig = resolve
+    })
+
+    await page.route('**/public/setup/test/preview', async (route) => {
+      await configReady
+      await route.fulfill({
         json: {
           data: {
             allowed_connection_types: allowed,
@@ -38,8 +58,8 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
             business: { name: 'Merchant', email: 'merchant@example.com' },
           },
         },
-      }),
-    )
+      })
+    })
     await page.route('https://connect.facebook.net/**', (route) =>
       route.fulfill({
         contentType: 'text/javascript',
@@ -53,38 +73,120 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       await route.fulfill({ json: { data: {} } })
     })
     await page.goto('http://localhost:8080/setup/test/preview')
+    await expect(page.locator('html')).toHaveAttribute('lang', language)
+    await expect(page.locator('#choose h1')).toHaveText(copy.title)
+    await expect(page.locator('.choices-loading')).toBeVisible()
+    await expect(page.locator('.skeleton-choice')).toHaveCount(2)
+    await expect(page.locator('#status')).toBeEmpty()
+    releaseConfig()
+    await expect(page.locator('.choices-loading')).toBeHidden()
     await expect(
-      page.getByRole('button', { name: 'Usar mi app' }),
+      page.locator(`script[src*="connect.facebook.net"]`),
+    ).toHaveAttribute(
+      'src',
+      `https://connect.facebook.net/${copy.sdkLocale}/sdk.js`,
+    )
+    await expect(
+      page.getByRole('button', {
+        name: new RegExp(copy.appTitle),
+      }),
     ).toBeVisible()
 
     if (allowed.length === 1)
       await expect(
-        page.getByRole('button', { name: 'Usar un número' }),
+        page.getByRole('button', { name: new RegExp(copy.dedicatedTitle) }),
       ).toBeHidden()
     else {
-      await page.getByRole('button', { name: 'Usar un número' }).click()
+      await page
+        .getByRole('button', { name: new RegExp(copy.dedicatedTitle) })
+        .click()
       await expect(
-        page.getByRole('heading', { name: 'Conectá un número dedicado' }),
+        page.getByRole('heading', { name: copy.dedicatedAuthorizationTitle }),
       ).toBeVisible()
-      await page.getByRole('button', { name: 'Cambiar tipo' }).click()
+      await page.getByRole('button', { name: copy.back }).click()
     }
 
+    const appChoice = page.getByRole('button', {
+      name: new RegExp(copy.appTitle),
+    })
+
+    await expect(appChoice).toContainText(copy.appTitle)
+    await expect(appChoice).toContainText(copy.appDescription)
+    const appDetails = page.locator('[data-mode="coexistence"] details')
+
+    await expect(appDetails).not.toHaveAttribute('open', '')
+    await appDetails.getByText(copy.learnMore).click()
+    await expect(appDetails.getByRole('list')).toBeVisible()
+    await appChoice.hover()
+    expect(
+      await appChoice.evaluate(
+        (element) => getComputedStyle(element).backgroundColor,
+      ),
+    ).toBe('rgba(0, 0, 0, 0)')
+    expect(
+      await appDetails.evaluate((element) => {
+        const button = element.parentElement!.querySelector('button')!
+
+        return (
+          element.getBoundingClientRect().top >=
+          button.getBoundingClientRect().bottom
+        )
+      }),
+    ).toBe(true)
+    await expect(page.locator('#choose')).toBeVisible()
+    await appDetails.getByText(copy.learnMore).click()
+    await expect(appDetails.getByRole('list')).toBeHidden()
+    const choiceBounds = await appChoice.boundingBox()
+
+    expect(choiceBounds!.height).toBeLessThan(120)
+
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    expect(
+      await page
+        .locator('[data-mode="coexistence"]')
+        .evaluate((element) => getComputedStyle(element).animationName),
+    ).toBe('none')
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+
     await page.screenshot({
-      path: 'artifacts/setup-choice-desktop.png',
+      path: `artifacts/setup-choice-desktop-${language}-${allowed.length}.png`,
       fullPage: true,
       animations: 'disabled',
     })
     await page.setViewportSize({ width: 390, height: 844 })
     await page.screenshot({
-      path: 'artifacts/setup-choice-mobile.png',
+      path: `artifacts/setup-choice-mobile-${language}-${allowed.length}.png`,
       fullPage: true,
       animations: 'disabled',
     })
-    await page.getByRole('button', { name: 'Usar mi app' }).click()
-    await expect(page.locator('#step-two')).toHaveAttribute(
-      'aria-current',
-      'step',
-    )
+    await page.setViewportSize({ width: 320, height: 740 })
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = 'dark'
+    })
+    await appDetails.getByText(copy.learnMore).click()
+    await appChoice.hover()
+    await page.screenshot({
+      path: `artifacts/setup-choice-dark-${language}-${allowed.length}.png`,
+      fullPage: true,
+      animations: 'disabled',
+    })
+    await appDetails.getByText(copy.learnMore).click()
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = 'light'
+    })
+    await appChoice.focus()
+    await page.keyboard.press('Enter')
+    await expect(page.locator('#authorization-title')).toBeFocused()
+    await expect(
+      page.getByRole('navigation', { name: 'Progreso' }),
+    ).toHaveCount(0)
+    await expect(page.locator('#authorize')).toBeVisible()
     await expect(page.locator('#instructions li')).toHaveCount(3)
     expect(
       await page.evaluate(
@@ -96,8 +198,8 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
       fullPage: true,
       animations: 'disabled',
     })
-    await page.getByRole('button', { name: 'Continuar con Meta' }).click()
-    await expect(page.getByRole('status')).toHaveText('WhatsApp conectado.')
+    await page.getByRole('button', { name: copy.continue }).click()
+    await expect(page.getByRole('status')).toHaveText(copy.connected)
     expect(submitted.connection_type).toBe('coexistence')
     expect(submitted.code).toBe('fake-code')
     const signupExtras = () =>
@@ -116,9 +218,11 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
 
     if (allowed.includes('dedicated')) {
       await page.reload()
-      await page.getByRole('button', { name: 'Usar un número' }).click()
-      await page.getByRole('button', { name: 'Continuar con Meta' }).click()
-      await expect(page.getByRole('status')).toHaveText('WhatsApp conectado.')
+      await page
+        .getByRole('button', { name: new RegExp(copy.dedicatedTitle) })
+        .click()
+      await page.getByRole('button', { name: copy.continue }).click()
+      await expect(page.getByRole('status')).toHaveText(copy.connected)
       expect(submitted.connection_type).toBe('dedicated')
       expect(await signupExtras()).toEqual({
         setup: {
@@ -137,18 +241,45 @@ for (const allowed of [['coexistence', 'dedicated'], ['coexistence']]) {
     )
     await page.clock.install()
     await page.reload()
-    await page.getByRole('button', { name: 'Usar mi app' }).click()
-    await page.getByRole('button', { name: 'Continuar con Meta' }).click()
-    await expect(page.getByRole('status')).toContainText('Acceso autorizado')
+    await page.getByRole('button', { name: new RegExp(copy.appTitle) }).click()
+    await page.getByRole('button', { name: copy.continue }).click()
+    await expect(page.getByRole('status')).toHaveText(copy.authorized)
     await page.clock.runFor(16000)
-    await expect(page.getByRole('status')).toContainText(
-      'no confirmó una cuenta',
+    await expect(page.getByRole('status')).toHaveText(copy.accountTimeout)
+    await expect(
+      page.getByRole('button', { name: copy.continue }),
+    ).toBeEnabled()
+    await expect(page.getByRole('button', { name: copy.back })).toBeEnabled()
+
+    await page.route('**/public/setup/test/preview/complete', (route) =>
+      route.fulfill({
+        status: 422,
+        json: { error: { message: 'Provider diagnostic' } },
+      }),
     )
-    await expect(
-      page.getByRole('button', { name: 'Continuar con Meta' }),
-    ).toBeEnabled()
-    await expect(
-      page.getByRole('button', { name: 'Cambiar tipo' }),
-    ).toBeEnabled()
+    await page.getByRole('button', { name: copy.continue }).click()
+    await page.evaluate(() =>
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: 'https://www.facebook.com',
+          data: {
+            type: 'WA_EMBEDDED_SIGNUP',
+            event: 'FINISH',
+            data: { waba_id: 'waba', phone_number_id: 'phone' },
+          },
+        }),
+      ),
+    )
+    await expect(page.getByRole('status')).toHaveText(copy.completeError)
+
+    await page.route('**/public/setup/test/preview', (route) =>
+      route.fulfill({
+        status: 410,
+        json: { error: { message: 'Link unavailable' } },
+      }),
+    )
+    await page.reload()
+    await expect(page.locator('.choices-loading')).toBeHidden()
+    await expect(page.getByRole('status')).toHaveText(copy.unavailable)
   })
 }

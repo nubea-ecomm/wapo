@@ -1,4 +1,5 @@
 const endpoint = location.pathname.replace('/setup/', '/public/setup/')
+const copy = JSON.parse(document.getElementById('setup-copy').textContent)
 const button = document.getElementById('connect'),
   status = document.getElementById('status'),
   mode = document.getElementById('mode')
@@ -23,22 +24,14 @@ function describe() {
   const coexistence = mode.value === 'coexistence'
 
   document.getElementById('description').textContent = coexistence
-    ? 'Seguí usando la app de WhatsApp Business con tu número.'
-    : 'Usá este número desde la API de WhatsApp.'
+    ? copy.appAuthorizationDescription
+    : copy.dedicatedAuthorizationDescription
   document.getElementById('authorization-title').textContent = coexistence
-    ? 'Conectá tu WhatsApp Business'
-    : 'Conectá un número dedicado'
+    ? copy.appAuthorizationTitle
+    : copy.dedicatedAuthorizationTitle
   const steps = coexistence
-    ? [
-        'Iniciá sesión en Meta y elegí tu negocio.',
-        'Seleccioná la opción para conectar tu WhatsApp Business App.',
-        'Seguí las instrucciones de Meta en tu teléfono y autorizá el acceso.',
-      ]
-    : [
-        'Iniciá sesión en Meta y elegí tu negocio.',
-        'Seleccioná o registrá el número que querés conectar.',
-        'Verificá el número si Meta lo solicita y autorizá el acceso.',
-      ]
+    ? [copy.stepOne, copy.appStepTwo, copy.appStepThree]
+    : [copy.stepOne, copy.dedicatedStepTwo, copy.dedicatedStepThree]
 
   document.getElementById('instructions').replaceChildren(
     ...steps.map((text) => {
@@ -50,19 +43,13 @@ function describe() {
     }),
   )
   document.getElementById('requirement').textContent = coexistence
-    ? 'Tené a mano el teléfono donde usás WhatsApp Business App.'
-    : 'Si querés seguir usando la app del teléfono, volvé y elegí WhatsApp Business App.'
+    ? copy.appRequirement
+    : copy.dedicatedRequirement
 }
 
 function showStep(authorize) {
   document.getElementById('choose').hidden = authorize
   document.getElementById('authorize').hidden = !authorize
-  document
-    .getElementById('step-one')
-    .setAttribute('aria-current', authorize ? 'false' : 'step')
-  document
-    .getElementById('step-two')
-    .setAttribute('aria-current', authorize ? 'step' : 'false')
 
   if (authorize) describe()
 
@@ -89,7 +76,7 @@ async function complete() {
   waiting = false
   clearTimeout(authorizationTimer)
   button.disabled = true
-  status.textContent = 'Verificando el número y completando la conexión…'
+  status.textContent = copy.verifying
 
   try {
     const response = await fetch(endpoint + '/complete', {
@@ -106,23 +93,20 @@ async function complete() {
     code = ''
     const body = await response.json()
 
-    if (!response.ok)
-      throw new Error(body.error?.message || 'No se pudo completar la conexión')
+    if (!response.ok) throw new Error(copy.completeError)
 
-    status.textContent = 'WhatsApp conectado.'
+    status.textContent = copy.connected
     button.hidden = true
     document.getElementById('back').hidden = true
     document.querySelector('.instructions').hidden = true
     document.querySelector('.secure-note').hidden = true
     document.getElementById('authorization-title').textContent =
-      'Tu número está conectado'
-    document.getElementById('description').textContent =
-      'Ya podés cerrar esta página.'
+      copy.successTitle
+    document.getElementById('description').textContent = copy.successDescription
 
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
-  } catch (e) {
-    status.textContent =
-      e.message + ' Solicitá un nuevo enlace si necesitás volver a iniciar.'
+  } catch {
+    status.textContent = copy.completeError
   }
 }
 
@@ -150,9 +134,7 @@ window.addEventListener('message', (event) => {
     ['FINISH', 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'].includes(value.event)
   ) {
     if (!value.data?.waba_id) {
-      stopWaiting(
-        'Meta no devolvió la cuenta de WhatsApp. Revisá la configuración de registro integrado y volvé a intentar.',
-      )
+      stopWaiting(copy.missingAccount)
 
       return
     }
@@ -160,16 +142,12 @@ window.addEventListener('message', (event) => {
     session = value.data
     void complete()
   } else if (value.event === 'ERROR' || value.event === 'CANCEL') {
-    stopWaiting(
-      value.event === 'CANCEL'
-        ? 'Cancelaste la configuración en Meta. Podés volver a intentarlo.'
-        : 'Meta informó un error al configurar WhatsApp. Revisá los permisos y la configuración de registro integrado.',
-    )
+    stopWaiting(value.event === 'CANCEL' ? copy.cancelled : copy.providerError)
   }
 })
 fetch(endpoint, { cache: 'no-store' })
   .then((r) => {
-    if (!r.ok) throw new Error('El enlace ya no está disponible')
+    if (!r.ok) throw new Error(copy.unavailable)
 
     return r.json()
   })
@@ -184,9 +162,7 @@ fetch(endpoint, { cache: 'no-store' })
 
       option.value = value
       option.textContent =
-        value === 'coexistence'
-          ? 'WhatsApp Business App + API (Coexistence)'
-          : 'Número dedicado (Cloud API)'
+        value === 'coexistence' ? copy.appTitle : copy.dedicatedTitle
       mode.append(option)
       const choice = document.querySelector(`[data-mode="${value}"]`)
 
@@ -202,21 +178,21 @@ fetch(endpoint, { cache: 'no-store' })
         version: config.graph_version,
       })
       button.disabled = false
-      button.textContent = 'Continuar con Meta'
+      button.textContent = copy.continue
     }
     const script = document.createElement('script')
 
-    script.src = 'https://connect.facebook.net/es_LA/sdk.js'
+    script.src = `https://connect.facebook.net/${copy.sdkLocale}/sdk.js`
     script.async = true
     script.onerror = () => {
-      status.textContent =
-        'No se pudo cargar Meta. Revisá tu conexión o bloqueador.'
+      status.textContent = copy.sdkError
     }
     document.head.append(script)
   })
   .catch((e) => {
     document.getElementById('choices').setAttribute('aria-busy', 'false')
-    status.textContent = e.message
+    status.textContent =
+      e.message === copy.unavailable ? copy.unavailable : copy.loadError
   })
 button.onclick = () => {
   code = ''
@@ -226,15 +202,11 @@ button.onclick = () => {
   clearTimeout(authorizationTimer)
   authorizationTimer = setTimeout(() => {
     if (waiting && !submitting)
-      stopWaiting(
-        code
-          ? 'Meta autorizó el acceso, pero no confirmó una cuenta de WhatsApp. Revisá que el ajuste use Registro insertado de WhatsApp y los productos de WhatsApp habilitados.'
-          : 'No llegó la respuesta de Meta. Revisá si el navegador bloqueó la ventana y volvé a intentar.',
-      )
+      stopWaiting(code ? copy.accountTimeout : copy.loginTimeout)
   }, 90000)
   button.disabled = true
   document.getElementById('back').disabled = true
-  status.textContent = 'Completá la autorización en la ventana de Meta.'
+  status.textContent = copy.authorizePrompt
   const extras = { setup: { business: config.business || {} }, version: 'v5' }
 
   if (mode.value === 'coexistence') {
@@ -248,18 +220,14 @@ button.onclick = () => {
 
       if (response.authResponse?.code) {
         code = response.authResponse.code
-        status.textContent =
-          'Acceso autorizado. Esperando la confirmación de la cuenta de WhatsApp…'
+        status.textContent = copy.authorized
         clearTimeout(authorizationTimer)
         authorizationTimer = setTimeout(() => {
-          if (waiting && !submitting)
-            stopWaiting(
-              'Meta autorizó el acceso, pero no confirmó una cuenta de WhatsApp. Revisá el ajuste de Registro insertado de WhatsApp y sus productos habilitados.',
-            )
+          if (waiting && !submitting) stopWaiting(copy.accountTimeout)
         }, 15000)
         void complete()
       } else {
-        stopWaiting('No se recibió autorización. Podés volver a intentarlo.')
+        stopWaiting(copy.noAuthorization)
       }
     },
     {

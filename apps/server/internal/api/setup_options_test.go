@@ -58,6 +58,21 @@ func TestSetupLinkThemeUpdatesAndAllowedOrigin(t *testing.T) {
 		t.Fatal("per-link branding not rendered")
 	}
 
+	status, body = request(t, h.URL, key, "PATCH", "/v1/setup_links/"+id, store.Object{"language": "en"}, "")
+	expect(t, status, 200, body)
+
+	res, e = http.Get(str(link, "url"))
+	if e != nil {
+		t.Fatal(e)
+	}
+
+	raw, _ = io.ReadAll(res.Body)
+	res.Body.Close()
+
+	if !strings.Contains(string(raw), `lang="en"`) || !strings.Contains(string(raw), "Connect the WhatsApp Business app") {
+		t.Fatal("updated setup language not rendered")
+	}
+
 	path := "/public/setup/" + p + "/" + token + "/complete"
 	for _, origin := range []string{"https://signup.example", "https://foreign.example"} {
 		req, _ := http.NewRequest("OPTIONS", h.URL+path, nil)
