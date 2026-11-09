@@ -59,6 +59,7 @@ func metaBusinessName(raw string) string {
 				break
 			}
 		}
+
 		name = string(runes)
 	}
 
