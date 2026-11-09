@@ -4275,7 +4275,7 @@
                         },
                         "business": {
                           "type": "object",
-                          "description": "Business prefill from the linked customer. Missing values are omitted; no website or country defaults are assumed.",
+                          "description": "Business prefill from the linked customer. The name is cleaned of characters Meta rejects (for example underscores and symbols); missing or invalid values are omitted; no website or country defaults are assumed.",
                           "additionalProperties": false,
                           "properties": {
                             "name": { "type": "string" },

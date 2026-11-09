@@ -41,7 +41,10 @@ separate outgoing delivery mechanism for your applications.
 
 The hosted page passes `extras.version = "v5"` for both dedicated Cloud API and
 Coexistence signup. `extras.setup.business` prefills the linked customer's saved
-`name` and `email` when present. It never substitutes the operator's identity or
+`name` and `email` when present. Because Meta rejects business names with
+underscores or symbols, the name is cleaned first (unsupported characters become
+spaces, an all-lowercase name is capitalized, at most 75 characters); names without
+letters and malformed emails are omitted. It never substitutes the operator's identity or
 assumes a website or country. The public configuration exposes only these two
 customer fields to the holder of a valid setup-link capability, not customer
 metadata, credentials, or other customers' data. Meta determines asset eligibility;
