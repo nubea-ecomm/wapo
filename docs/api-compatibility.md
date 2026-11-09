@@ -12,7 +12,8 @@ The optional provider bridge is separate from standalone support.
 ## Meta adapter
 
 The Wapo-specific public setup configuration includes `business` prefill with only
-the linked customer's saved name and optional email. Hosted signup requests
+the linked customer's saved name and optional email, cleaned of characters Meta
+rejects (values Meta would refuse are omitted). Hosted signup requests
 `extras.version = "v5"` for both modes, retaining Coexistence-specific parameters.
 No website/country defaults or arbitrary customer metadata are forwarded to Meta.
 

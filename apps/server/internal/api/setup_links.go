@@ -212,13 +212,7 @@ func (s *Server) publicSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	business := store.Object{}
-
-	for _, field := range []string{"name", "email"} {
-		if value := str(customer, field); value != "" {
-			business[field] = value
-		}
-	}
+	business := setupBusiness(customer)
 
 	write(w, 200, store.Object{"data": store.Object{"project_name": identity["name"], "branding": identity["branding"], "app_id": s.Config.MetaAppID, "config_id": s.Config.MetaConfigID, "graph_version": s.Config.MetaVersion, "business": business, "allowed_connection_types": o["allowed_connection_types"], "expires_at": o["expires_at"]}})
 }
