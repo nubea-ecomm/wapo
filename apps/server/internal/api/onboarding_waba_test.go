@@ -37,6 +37,7 @@ func TestAuthorizedWABAUsesGranularScopes(t *testing.T) {
 	}
 
 	response = scopes("654321", "654321")
+
 	if got, e := s.authorizedWABA(context.Background(), "signup-token"); e != nil || got != "654321" {
 		t.Fatalf("authorizedWABA = %q, %v", got, e)
 	}
@@ -47,6 +48,7 @@ func TestAuthorizedWABAUsesGranularScopes(t *testing.T) {
 		"other app": {"data": store.Object{"app_id": "other", "granular_scopes": []any{store.Object{"scope": "whatsapp_business_management", "target_ids": []any{"654321"}}}}},
 	} {
 		response = body
+
 		if got, e := s.authorizedWABA(context.Background(), "signup-token"); e == nil {
 			t.Errorf("%s: expected an error, got %q", name, got)
 		}

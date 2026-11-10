@@ -86,6 +86,7 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 
 	token := str(auth, "access_token")
 	waba := str(input, "waba_id")
+
 	if waba == "" {
 		// Some Embedded Signup versions finish without the account in the session
 		// event; the token's granular scopes list the accounts the business shared.
