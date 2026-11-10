@@ -3,6 +3,9 @@ const copy = JSON.parse(document.getElementById('setup-copy').textContent)
 const button = document.getElementById('connect'),
   status = document.getElementById('status'),
   mode = document.getElementById('mode')
+// Business App onboarding includes phone confirmation and business details, so
+// Meta can keep its window open for several minutes before reporting back.
+const authorizationWindow = 30 * 60 * 1000
 let config,
   code = '',
   session = null,
@@ -203,7 +206,7 @@ button.onclick = () => {
   authorizationTimer = setTimeout(() => {
     if (waiting && !submitting)
       stopWaiting(code ? copy.accountTimeout : copy.loginTimeout)
-  }, 90000)
+  }, authorizationWindow)
   button.disabled = true
   document.getElementById('back').disabled = true
   status.textContent = copy.authorizePrompt
