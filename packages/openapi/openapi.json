@@ -4405,7 +4405,8 @@
                     "type": "string"
                   },
                   "waba_id": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "WhatsApp Business Account ID from the Embedded Signup session event. When omitted, the server discovers the single account granted to the authorization code from Meta token inspection."
                   },
                   "phone_number_id": {
                     "type": "string"
@@ -4415,7 +4416,7 @@
                     "enum": ["dedicated", "coexistence"]
                   }
                 },
-                "required": ["code", "waba_id", "connection_type"]
+                "required": ["code", "connection_type"]
               }
             }
           }

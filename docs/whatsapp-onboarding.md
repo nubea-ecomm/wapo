@@ -98,6 +98,12 @@ FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING events. Configured current-version Build
 settings determine available onboarding products; this code does not force a
 legacy Embedded Signup version (v2/v3); it explicitly requests v5 in `extras`.
 
+The hosted page reads the WABA and phone IDs from `waba_id`/`waba_ids` and
+`phone_number_id`/`phone_number_ids` in the session event. When the event omits
+the WABA, the server inspects the exchanged token with the app token and uses the
+single `whatsapp_business_management` target in `granular_scopes`; zero or
+several accounts fail instead of guessing.
+
 The server exchanges the authorization code, discovers phones under the shared
 WABA (including when the completion event omits a phone ID), and verifies Meta's
 `is_on_biz_app` flag matches the selected mode. Ambiguous phone selections fail
