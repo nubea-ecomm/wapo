@@ -63,7 +63,7 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     await page.route('https://connect.facebook.net/**', (route) =>
       route.fulfill({
         contentType: 'text/javascript',
-        body: `window.FB={init(){},login(callback,options){window.signupOptions=options;callback({authResponse:{code:'fake-code'}});window.dispatchEvent(new MessageEvent('message',{origin:'https://www.facebook.com',data:{type:'WA_EMBEDDED_SIGNUP',event:'FINISH',data:{waba_id:'waba',phone_number_id:'phone'}}}));}};window.fbAsyncInit();`,
+        body: `window.FB={init(){},login(callback,options){window.signupOptions=options;callback({authResponse:{code:'fake-code'}});window.dispatchEvent(new MessageEvent('message',{origin:'https://www.facebook.com',data:{type:'WA_EMBEDDED_SIGNUP',event:'FINISH',data:{waba_ids:['654321'],phone_number_id:'111111'}}}));}};window.fbAsyncInit();`,
       }),
     )
     let submitted: Record<string, string> = {}
@@ -202,6 +202,8 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     await expect(page.getByRole('status')).toHaveText(copy.connected)
     expect(submitted.connection_type).toBe('coexistence')
     expect(submitted.code).toBe('fake-code')
+    expect(submitted.waba_id).toBe('654321')
+    expect(submitted.phone_number_id).toBe('111111')
     const signupExtras = () =>
       page.evaluate(
         () =>
@@ -265,7 +267,7 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
           data: {
             type: 'WA_EMBEDDED_SIGNUP',
             event: 'FINISH',
-            data: { waba_id: 'waba', phone_number_id: 'phone' },
+            data: { waba_id: '654321', phone_number_id: '111111' },
           },
         }),
       ),

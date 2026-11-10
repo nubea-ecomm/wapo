@@ -51,6 +51,12 @@ func TestHostedOnboardingDedicatedAndCoexistence(t *testing.T) {
 			}
 
 			write(w, 200, store.Object{"access_token": "provider-token-" + r.URL.Query().Get("code")})
+		case strings.HasSuffix(r.URL.Path, "/debug_token"):
+			if r.Header.Get("Authorization") != "Bearer meta-app|meta-test-secret" {
+				t.Error("WABA discovery must use the app token")
+			}
+
+			write(w, 200, store.Object{"data": store.Object{"app_id": "meta-app", "granular_scopes": []any{store.Object{"scope": "whatsapp_business_management", "target_ids": []any{"654321"}}}}})
 		case strings.HasSuffix(r.URL.Path, "/phone_numbers"):
 			coex := strings.Contains(r.Header.Get("Authorization"), "coex")
 			id := "111111"
@@ -121,7 +127,13 @@ func TestHostedOnboardingDedicatedAndCoexistence(t *testing.T) {
 		}
 
 		// No phone ID in the browser payload: discovery must work for Coexistence's completion event.
-		status, o = request(t, h.URL, "", "POST", publicPath+"/complete", store.Object{"code": code, "waba_id": "654321", "connection_type": mode}, "")
+		// Coexistence also omits the WABA, which the server discovers from the token's granular scopes.
+		completion := store.Object{"code": code, "waba_id": "654321", "connection_type": mode}
+		if mode == "coexistence" {
+			delete(completion, "waba_id")
+		}
+
+		status, o = request(t, h.URL, "", "POST", publicPath+"/complete", completion, "")
 		expect(t, status, 200, o)
 		connection := object(object(o, "data"), "connection")
 		if str(connection, "connection_type") != mode || str(connection, "status") != "connected" {

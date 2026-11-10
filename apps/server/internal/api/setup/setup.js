@@ -13,6 +13,14 @@ let config,
   waiting = false,
   authorizationTimer
 
+function firstID(...values) {
+  for (const value of values.flat()) {
+    if (/^\d+$/.test(String(value ?? ''))) return String(value)
+  }
+
+  return ''
+}
+
 function stopWaiting(message) {
   clearTimeout(authorizationTimer)
   waiting = false
@@ -136,13 +144,19 @@ window.addEventListener('message', (event) => {
   if (
     ['FINISH', 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING'].includes(value.event)
   ) {
-    if (!value.data?.waba_id) {
-      stopWaiting(copy.missingAccount)
-
-      return
+    // Embedded Signup versions report the account in different shapes. When it
+    // is missing, the server discovers it from the authorized token instead.
+    session = {
+      waba_id: firstID(
+        value.data?.waba_id,
+        value.data?.waba_ids,
+        value.data?.whatsapp_business_account_id,
+      ),
+      phone_number_id: firstID(
+        value.data?.phone_number_id,
+        value.data?.phone_number_ids,
+      ),
     }
-
-    session = value.data
     void complete()
   } else if (value.event === 'ERROR' || value.event === 'CANCEL') {
     stopWaiting(value.event === 'CANCEL' ? copy.cancelled : copy.providerError)

@@ -44,8 +44,8 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if !allowed || str(input, "code") == "" || !numeric(str(input, "waba_id")) {
-		fail(w, 422, "validation_error", "code, waba_id and an allowed connection_type are required")
+	if waba := str(input, "waba_id"); !allowed || str(input, "code") == "" || (waba != "" && !numeric(waba)) {
+		fail(w, 422, "validation_error", "code, a numeric waba_id when provided and an allowed connection_type are required")
 		return
 	}
 
@@ -86,6 +86,15 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 
 	token := str(auth, "access_token")
 	waba := str(input, "waba_id")
+	if waba == "" {
+		// Some Embedded Signup versions finish without the account in the session
+		// event; the token's granular scopes list the accounts the business shared.
+		if waba, e = s.authorizedWABA(ctx, token); e != nil {
+			fail(w, 422, "waba_discovery_failed", e.Error())
+			return
+		}
+	}
+
 	// Discover phone ID server-side. Coexistence completion events may omit it.
 	status, b, e = s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/"+waba+"/phone_numbers", token, nil, "fields=id,display_phone_number,quality_rating,is_on_biz_app&limit=100")
 	if e != nil || status != 200 {
