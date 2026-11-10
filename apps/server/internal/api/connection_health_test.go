@@ -97,13 +97,17 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 	}
 
 	d := object(body, "data")
-	if str(d, "status") != "error" || str(object(d, "billing"), "status") != "attention_required" {
+	if str(d, "can_send_message") != "BLOCKED" {
+		t.Fatal("raw provider state must be retained independently of severity")
+	}
+
+	if str(d, "status") != "warning" || str(object(d, "billing"), "status") != "attention_required" {
 		t.Fatal(d)
 	}
 
 	var notifications int
 
-	if e := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM notification_deliveries WHERE project_id=$1", p).Scan(&notifications); e != nil || notifications != 2 {
+	if e := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM notification_deliveries WHERE project_id=$1", p).Scan(&notifications); e != nil || notifications != 1 {
 		t.Fatalf("health notifications were not queued atomically: count=%d error=%v", notifications, e)
 	}
 

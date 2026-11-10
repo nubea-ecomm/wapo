@@ -18,6 +18,22 @@ No balance, debt, funding or credit-line state is inferred from a successful pho
 lookup. Billing remains unknown when Meta does not expose a payment issue. A
 healthy diagnostic is not a guarantee that a future message will be accepted.
 
+SIP/calling-only errors are excluded: calling is not offered by the console.
+Payment and incomplete business-verification issues are `warning` checks, with
+Spanish action instructions and the original evidence in `provider_error`.
+Payment warnings concern business-initiated messages, not necessarily replies.
+Other provider restrictions remain `fail`; `LIMITED` remains `warning` and
+`UNAVAILABLE` remains `fail`.
+
+The raw `can_send_message` value is preserved, independently of check severity.
+When Meta returns aggregate `BLOCKED` with only payment/verification warnings and
+optional calling errors, the messaging check is a warning, not a claim that all
+messages are blocked. `BLOCKED` with only excluded calling errors is `unknown`,
+never a successful check. Unexplained `BLOCKED` or other messaging restrictions
+remain failures. No inference from connection status overrides provider evidence.
+The console uses amber for warnings, red for failures and neutral for unknowns.
+Existing cached reports adopt these rules on their next refresh (or manual check).
+
 The connection snapshot receives health status, issue count and last check time;
 the console lists issues and links to the detailed report. Health problems do not
 silently delete connections or replace their credentials. App webhook

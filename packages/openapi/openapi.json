@@ -7595,7 +7595,7 @@
       "get": {
         "tags": ["Connections"],
         "summary": "Read connection diagnostics",
-        "description": "Returns the last cached report; the first request runs provider checks if none exists. Unknown checks never imply healthy billing.",
+        "description": "Returns the last cached report; the first request runs provider checks if none exists. Unknown checks never imply healthy billing. SIP/calling errors are omitted. Payment and business-verification issues are warnings, not evidence of a total messaging block. The raw Meta can_send_message value is preserved independently of check severity; aggregate BLOCKED with only those warnings is warning, with only calling errors is unknown, and otherwise remains fail. No test messages are sent.",
         "parameters": [
           {
             "name": "id",
@@ -7618,7 +7618,7 @@
       "post": {
         "tags": ["Connections"],
         "summary": "Run connection diagnostics",
-        "description": "Checks credentials, phone access, account review, app subscription and Meta messaging health. Rate limited to one refresh per five seconds.",
+        "description": "Checks credentials, phone access, account review, app subscription and Meta messaging health. Omits unsupported SIP/calling diagnostics and distinguishes payment/business-verification warnings from failures. Preserves raw Meta can_send_message; aggregate BLOCKED with only warnings is warning, with only calling errors is unknown, and otherwise remains fail. Warning checks include actionable guidance and original provider_error evidence. Does not send test messages. Rate limited to one refresh per five seconds.",
         "parameters": [
           {
             "name": "id",

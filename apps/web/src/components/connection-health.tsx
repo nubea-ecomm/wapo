@@ -32,6 +32,13 @@ interface Health {
   billing: { status: string; manage_url: string }
 }
 
+const statusColors = {
+  pass: 'text-emerald-700 dark:text-emerald-400',
+  fail: 'text-red-700 dark:text-red-400',
+  warning: 'text-amber-700 dark:text-amber-400',
+  unknown: 'text-muted-foreground',
+}
+
 export function ConnectionHealth({
   id,
   customerId,
@@ -89,12 +96,17 @@ export function ConnectionHealth({
             </span>
             <span>
               {d.issues
-                ? `${d.issues} ${d.issues === 1 ? 'problema detectado' : 'problemas detectados'}`
+                ? `${d.issues} ${d.issues === 1 ? 'punto requiere atención' : 'puntos requieren atención'}`
                 : d.status === 'healthy'
                   ? 'Comprobaciones correctas'
                   : 'Hay datos sin confirmar'}
             </span>
           </div>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Estar conectado no garantiza todos los envíos. Las advertencias en
+            ámbar requieren revisión; los problemas en rojo indican
+            restricciones o fallos reportados. No se envían mensajes de prueba.
+          </p>
           <div className="divide-y">
             {d.checks.map((check) => {
               const Icon =
@@ -110,17 +122,19 @@ export function ConnectionHealth({
                   className="flex gap-3 py-4"
                 >
                   <Icon
-                    className={`mt-0.5 size-4 shrink-0 ${check.status === 'pass' ? 'text-emerald-600 dark:text-emerald-400' : check.status === 'fail' ? 'text-red-600 dark:text-red-400' : check.status === 'warning' ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`}
+                    className={`mt-0.5 size-4 shrink-0 ${statusColors[check.status]}`}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap justify-between gap-2">
                       <h3 className="text-sm font-medium">{check.label}</h3>
-                      <span className="text-xs text-muted-foreground">
+                      <span
+                        className={`rounded-md border border-current/20 px-2 py-0.5 text-xs font-medium ${statusColors[check.status]}`}
+                      >
                         {
                           {
                             pass: 'Correcto',
                             fail: 'Problema',
-                            warning: 'Revisar',
+                            warning: 'Advertencia',
                             unknown: 'Sin confirmar',
                           }[check.status]
                         }
@@ -131,6 +145,7 @@ export function ConnectionHealth({
                     </p>
                     {check.possible_solution && (
                       <p className="mt-2 text-xs text-muted-foreground">
+                        <span className="font-medium">Qué hacer: </span>
                         {check.possible_solution}
                       </p>
                     )}

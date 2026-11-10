@@ -8,6 +8,59 @@ import (
 )
 
 func addHealthChecks(health store.Object, add func(string, string, string, string, store.Object), billing store.Object) {
+	issues := []store.Object{}
+	ignoredCalling := false
+	blocking := false
+	entities, _ := health["entities"].([]any)
+
+	for entityIndex, item := range entities {
+		entity, _ := item.(map[string]any)
+		errors, _ := entity["errors"].([]any)
+
+		for i, item := range errors {
+			issue, _ := item.(map[string]any)
+			description := str(issue, "error_description")
+			text := strings.ToLower(description)
+
+			if strings.Contains(text, "sip") || strings.Contains(text, "whatsapp business calling") {
+				ignoredCalling = true
+				continue
+			}
+
+			code := fmt.Sprint(issue["error_code"])
+			check := store.Object{
+				"id":    fmt.Sprintf("meta_%s_%d_%d", code, entityIndex, i),
+				"label": "Restricción de Meta", "status": "fail", "message": description,
+				"code": issue["error_code"], "entity_type": entity["entity_type"],
+				"possible_solution": issue["possible_solution"], "manage_url": billing["manage_url"],
+				"provider_error": store.Object{"code": issue["error_code"], "message": description},
+			}
+
+			switch {
+			case code == "141006" || code == "131042" || strings.Contains(text, "payment") || strings.Contains(text, "billing"):
+				billing["status"] = "attention_required"
+				check["label"] = "Pagos en Meta"
+				check["status"] = "warning"
+				check["message"] = "Meta reporta un problema de pagos que puede impedir los mensajes iniciados por la empresa. No implica que todos los mensajes estén bloqueados."
+				check["possible_solution"] = "Abrí la cuenta de WhatsApp en Meta y revisá el método de pago, los cargos pendientes y los datos de facturación."
+			case strings.Contains(text, "business verification"):
+				check["label"] = "Verificación de la empresa"
+				check["status"] = "warning"
+				check["message"] = "Meta indica que la empresa no completó la verificación. Esto puede limitar funciones o capacidad; no confirma un bloqueo total de mensajes."
+				check["possible_solution"] = "Abrí el Centro de seguridad del negocio en Meta y revisá si debés iniciar la verificación, aportar documentos o resolver una solicitud pendiente."
+				check["manage_url"] = "https://business.facebook.com/settings/security"
+			default:
+				blocking = true
+
+				if description == "" {
+					check["message"] = "Meta reporta una restricción sin descripción. Revisá el detalle de la cuenta en Meta."
+				}
+			}
+
+			issues = append(issues, check)
+		}
+	}
+
 	state := str(health, "can_send_message")
 	status := "unknown"
 
@@ -22,29 +75,23 @@ func addHealthChecks(health store.Object, add func(string, string, string, strin
 
 	message := "Meta no informó el estado de envío."
 	if state != "" {
-		message = "Estado informado por Meta: " + state
+		message = "Estado informado por Meta: " + state + ". Este diagnóstico no realiza envíos de prueba."
+	}
+
+	if state == "BLOCKED" && !blocking {
+		switch {
+		case len(issues) > 0:
+			status = "warning"
+			message = "Meta devuelve BLOCKED en su diagnóstico general, pero las restricciones detalladas requieren revisión y no confirman que todos los mensajes estén bloqueados."
+		case ignoredCalling:
+			status = "unknown"
+			message = "El diagnóstico general de Meta incluye funciones que Wapo no ofrece. No se pudo confirmar la capacidad de envío de mensajes."
+		}
 	}
 
 	add("messaging_health", "Capacidad de envío", status, message, nil)
 
-	entities, _ := health["entities"].([]any)
-	for _, item := range entities {
-		entity, _ := item.(map[string]any)
-		errors, _ := entity["errors"].([]any)
-
-		for i, item := range errors {
-			issue, _ := item.(map[string]any)
-			description := str(issue, "error_description")
-			code := fmt.Sprint(issue["error_code"])
-			isBilling := code == "141006" || code == "131042" || strings.Contains(strings.ToLower(description), "payment") || strings.Contains(strings.ToLower(description), "billing")
-			label := "Restricción de Meta"
-
-			if isBilling {
-				billing["status"] = "attention_required"
-				label = "Pagos en Meta"
-			}
-
-			add("meta_"+code+fmt.Sprint(i), label, "fail", description, store.Object{"code": issue["error_code"], "entity_type": entity["entity_type"], "possible_solution": issue["possible_solution"], "manage_url": billing["manage_url"]})
-		}
+	for _, check := range issues {
+		add(str(check, "id"), str(check, "label"), str(check, "status"), str(check, "message"), check)
 	}
 }
