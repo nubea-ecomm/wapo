@@ -104,7 +104,8 @@ async function complete() {
     code = ''
     const body = await response.json()
 
-    if (!response.ok) throw new Error(copy.completeError)
+    // Show Meta/Wapo's error code so support can tell the failures apart.
+    if (!response.ok) throw new Error(body?.error?.code || '')
 
     status.textContent = copy.connected
     button.hidden = true
@@ -116,8 +117,10 @@ async function complete() {
     document.getElementById('description').textContent = copy.successDescription
 
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
-  } catch {
-    status.textContent = copy.completeError
+  } catch (e) {
+    status.textContent = e?.message
+      ? `${copy.completeError} (${e.message})`
+      : copy.completeError
   }
 }
 
