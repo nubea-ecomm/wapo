@@ -117,8 +117,12 @@ After subscription, dedicated numbers are registered with the Cloud API.
 Coexistence numbers are never registered/migrated by the dedicated path. Instead,
 Wapo requests the contacts and history sync operations (`smb_app_state_sync` and
 `history`) and preserves incoming snapshots. Both sync requests are attempted even
-if one fails. These are time-sensitive, one-shot operations; validate Meta's
-current rules before a production launch.
+if one fails. These are time-sensitive, one-shot operations: Meta refuses them
+for a number that already synced or onboarded more than 24 hours ago. A refused
+sync does not fail the connection, because the number is subscribed and can
+message without the snapshots; the connection records
+`contacts_sync_requested`/`history_sync_requested` and `sync_error`. A failed app
+subscription still leaves the connection `onboarding_failed`.
 
 Messages sent by Business App arrive as outbound echoes and are persisted in
 message history. Raw history/contact/account snapshots are deduplicated in the

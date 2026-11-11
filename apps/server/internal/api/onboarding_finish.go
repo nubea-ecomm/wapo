@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log/slog"
 	"math/big"
 	"strings"
 
@@ -50,9 +52,15 @@ func (s *Server) finishOnboarding(ctx context.Context, p string, c store.Object,
 	c["contacts_sync_requested"] = contacts == nil
 	c["history_sync_requested"] = history == nil
 
-	if contacts != nil {
-		return contacts
+	// The number is subscribed and can message without the snapshots. Meta
+	// refuses them for a number that already synced or onboarded more than 24 h
+	// ago, so a refusal is recorded instead of failing the connection.
+	if e := errors.Join(contacts, history); e != nil {
+		c["sync_error"] = e.Error()
+		slog.Warn("coexistence sync not started", "project", p, "connection", str(c, "id"), "contacts", contacts == nil, "history", history == nil)
+	} else {
+		delete(c, "sync_error")
 	}
 
-	return history
+	return nil
 }
