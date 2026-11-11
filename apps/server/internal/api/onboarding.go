@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
@@ -73,7 +74,9 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	status, b, e := s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/oauth/access_token", "", nil, q.Encode())
 
 	if e != nil || status != 200 {
+		slog.Warn("setup completion failed", "project", p, "setup_link", id, "code", "oauth_exchange_failed", "meta_status", status)
 		fail(w, 502, "oauth_exchange_failed", "Meta code exchange failed. Restart signup to obtain a fresh code.")
+
 		return
 	}
 
@@ -85,54 +88,27 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := str(auth, "access_token")
-	waba := str(input, "waba_id")
 
-	if waba == "" {
-		// Some Embedded Signup versions finish without the account in the session
-		// event; the token's granular scopes list the accounts the business shared.
-		if waba, e = s.authorizedWABA(ctx, token); e != nil {
-			fail(w, 422, "waba_discovery_failed", e.Error())
-			return
+	waba, selected, code, message := s.resolveSetupPhone(ctx, token, str(input, "waba_id"), str(input, "phone_number_id"), mode)
+	if code != "" {
+		status := 422
+		if code == "asset_verification_failed" {
+			status = 502
 		}
-	}
 
-	// Discover phone ID server-side. Coexistence completion events may omit it.
-	status, b, e = s.Meta.Call(ctx, "GET", s.Config.MetaVersion+"/"+waba+"/phone_numbers", token, nil, "fields=id,display_phone_number,quality_rating,is_on_biz_app&limit=100")
-	if e != nil || status != 200 {
-		fail(w, 502, "asset_verification_failed", "Cannot read the authorized WABA phone numbers")
+		slog.Warn("setup completion failed", "project", p, "setup_link", id, "code", code, "reason", message)
+		fail(w, status, code, message)
+
 		return
 	}
 
-	var listing struct {
-		Data []store.Object `json:"data"`
-	}
-
-	if json.Unmarshal(b, &listing) != nil {
-		fail(w, 502, "asset_verification_failed", "Invalid Meta phone list")
-		return
-	}
-
-	phoneID := str(input, "phone_number_id")
-
-	var selected store.Object
-
-	for _, phone := range listing.Data {
-		if (phoneID != "" && str(phone, "id") == phoneID) || (phoneID == "" && len(listing.Data) == 1) {
-			selected = phone
-			break
-		}
-	}
-
-	if selected == nil {
-		fail(w, 422, "ambiguous_phone_number", "Select a phone number belonging to the authorized WABA")
-		return
-	}
-
-	phoneID = str(selected, "id")
+	phoneID := str(selected, "id")
 	isCoex, _ := selected["is_on_biz_app"].(bool)
 
 	if (mode == "coexistence") != isCoex {
+		slog.Warn("setup completion failed", "project", p, "setup_link", id, "code", "connection_type_mismatch")
 		fail(w, 422, "connection_type_mismatch", "Meta phone status does not match the chosen connection type")
+
 		return
 	}
 

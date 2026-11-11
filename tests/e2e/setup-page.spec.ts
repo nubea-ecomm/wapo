@@ -256,7 +256,12 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     await page.route('**/public/setup/test/preview/complete', (route) =>
       route.fulfill({
         status: 422,
-        json: { error: { message: 'Provider diagnostic' } },
+        json: {
+          error: {
+            code: 'ambiguous_phone_number',
+            message: 'Provider diagnostic',
+          },
+        },
       }),
     )
     await page.getByRole('button', { name: copy.continue }).click()
@@ -272,7 +277,10 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
         }),
       ),
     )
-    await expect(page.getByRole('status')).toHaveText(copy.completeError)
+    // The error code is shown for support; the provider message is not.
+    await expect(page.getByRole('status')).toHaveText(
+      `${copy.completeError} (ambiguous_phone_number)`,
+    )
 
     await page.route('**/public/setup/test/preview', (route) =>
       route.fulfill({

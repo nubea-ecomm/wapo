@@ -101,8 +101,11 @@ legacy Embedded Signup version (v2/v3); it explicitly requests v5 in `extras`.
 The hosted page reads the WABA and phone IDs from `waba_id`/`waba_ids` and
 `phone_number_id`/`phone_number_ids` in the session event. When the event omits
 the WABA, the server inspects the exchanged token with the app token and uses the
-single `whatsapp_business_management` target in `granular_scopes`; zero or
-several accounts fail instead of guessing.
+`whatsapp_business_management` targets in `granular_scopes`. A business
+that onboarded more than once can have several WABAs: Wapo searches all of
+them and, without a phone ID, keeps the phones matching the chosen mode. Zero
+or several candidates fail with `ambiguous_phone_number` instead of guessing.
+The hosted page shows the error code, and completion failures are logged.
 
 The server exchanges the authorization code, discovers phones under the shared
 WABA (including when the completion event omits a phone ID), and verifies Meta's
