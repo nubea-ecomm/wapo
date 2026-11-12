@@ -72,6 +72,17 @@ func (s *Server) conversations(w http.ResponseWriter, r *http.Request, id, subre
 
 	if subresource == "messages" {
 		connection, connectionErr := s.Store.Get(r.Context(), project(r), "connections", str(c, "connection_id"))
+		// A disconnected number keeps its conversations: history stays readable,
+		// but nothing can be sent through a connection that no longer exists.
+		if errors.Is(connectionErr, store.ErrNotFound) {
+			if r.Method != "GET" {
+				fail(w, 409, "connection_removed", "This conversation's WhatsApp connection was removed; reconnect the number to reply")
+				return
+			}
+
+			connection, connectionErr = store.Object{"id": str(c, "connection_id")}, nil
+		}
+
 		if connectionErr != nil {
 			dbError(w, connectionErr)
 			return

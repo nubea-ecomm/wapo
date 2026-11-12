@@ -114,3 +114,30 @@ func TestInboxReadStateIsScopedMonotonicAndIndependentOfOpenState(t *testing.T) 
 		t.Fatal("console user read marker did not survive a second session")
 	}
 }
+
+func TestConversationOfRemovedConnectionStaysReadable(t *testing.T) {
+	s, h, p, key := fixture(t)
+	ctx := context.Background()
+	connection := store.ID("removed")
+	id := store.ConversationID(connection, "15550000002")
+
+	if err := s.Store.Put(ctx, p, "conversations", id, store.Object{"id": id, "connection_id": connection, "channel": "whatsapp", "contact": "15550000002", "status": "open"}, true); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := s.Store.Put(ctx, p, "messages", "kept", store.Object{"id": "kept", "connection_id": connection, "conversation_id": id, "direction": "inbound", "channel": "whatsapp", "status": "received"}, true); err != nil {
+		t.Fatal(err)
+	}
+
+	status, out := request(t, h.URL, key, "GET", "/v1/conversations/"+id+"/messages", nil, "")
+	expect(t, status, 200, out)
+
+	if rows, _ := out["data"].([]any); len(rows) != 1 {
+		t.Fatalf("history of a removed connection must stay readable: %v", out)
+	}
+
+	status, out = request(t, h.URL, key, "POST", "/v1/conversations/"+id+"/messages", store.Object{"text": "hola"}, "")
+	if status != 409 || str(object(out, "error"), "code") != "connection_removed" {
+		t.Fatalf("sending through a removed connection must be refused: %d %v", status, out)
+	}
+}
