@@ -443,7 +443,8 @@
       "group": "platform",
       "method": "GET",
       "path": "/whatsapp/phone_numbers/{phone_number_id}/health",
-      "status": "implemented_partial"
+      "status": "implemented_partial",
+      "notes": "Reference health schema derived from cached Wapo diagnostics; unconfirmed checks are omitted."
     },
     {
       "group": "platform",

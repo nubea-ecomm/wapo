@@ -146,7 +146,7 @@ func (s *Server) compatPlatform(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(parts) == 4 && parts[3] == "health" && r.Method == "GET" {
-		s.connectionHealth(w, r, str(c, "id"))
+		s.compatPhoneHealth(w, r, c)
 		return
 	}
 

@@ -132,8 +132,11 @@ values.
 Customer CRUD, setup link creation/list/update, project and phone webhooks, phone
 list/get/update/delete and message list/get have compatibility routes. Webhook
 updates support URL, active, events and secret rotation; buffering is not yet
-implemented. Health returns Wapo connection diagnostics rather than an identical upstream
-platform health schema.
+implemented. Phone health (`GET /platform/v1/whatsapp/phone_numbers/{id}/health`) answers the
+reference platform's schema — `status`, `timestamp`, `error` and the
+`phone_number_access`, `token_validity`, `webhook_subscription`,
+`webhook_verified` and `messaging_health` checks — derived from the cached
+native diagnostics. See [connection diagnostics](connection-health.md#platform-compatible-health).
 
 Setup links support customer-managed billing, dedicated/Coexistence selection,
 project branding, per-link colors, allowed origins, redirects, expiration,

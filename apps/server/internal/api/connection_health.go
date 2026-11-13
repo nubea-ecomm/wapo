@@ -26,7 +26,7 @@ func (s *Server) connectionHealth(w http.ResponseWriter, r *http.Request, id str
 
 	cached, e := s.Store.Get(r.Context(), project(r), "connection_health", id)
 	if r.Method == "GET" && e == nil {
-		write(w, 200, store.Object{"data": cached})
+		write(w, 200, store.Object{"data": nativeHealth(cached)})
 		return
 	}
 
@@ -46,7 +46,7 @@ func (s *Server) connectionHealth(w http.ResponseWriter, r *http.Request, id str
 		return
 	}
 
-	write(w, 200, store.Object{"data": result})
+	write(w, 200, store.Object{"data": nativeHealth(result)})
 }
 
 func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) (store.Object, error) {
@@ -232,6 +232,7 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 		if status == 200 && object(health, "health_status") != nil {
 			h := object(health, "health_status")
 			result["can_send_message"] = h["can_send_message"]
+			result["meta_health"] = store.Object{"entities": healthEntities(h)}
 			addHealthChecks(h, add, billing)
 		} else {
 			add("messaging_health", "Capacidad de envío", "unknown", "Meta no devolvió el diagnóstico de envío.", safeError(health))

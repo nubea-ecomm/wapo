@@ -49,4 +49,35 @@ when no matching global verification exists; global checks use `scope: app`. WAB
 subscription is a separate check. These diagnostics do not send test messages or
 change billing settings.
 
+## Platform-compatible health
+
+`GET /platform/v1/whatsapp/phone_numbers/{id}/health` answers the reference
+platform's schema from the same cached report; it runs a check only when none is
+cached and never refreshes one. Check mapping:
+
+| Platform check         | Wapo check             |
+| ---------------------- | ---------------------- |
+| `phone_number_access`  | `phone_access`         |
+| `token_validity`       | `access_token`         |
+| `webhook_subscription` | `webhook_subscription` |
+| `webhook_verified`     | `webhook_verification` |
+| `messaging_health`     | `messaging_health`     |
+
+`passed` is true only for `pass`; `warning` and `fail` are `passed: false` with an
+English `error`, and `details` carries Wapo's status, message and provider
+evidence. An `unknown` check is omitted: Wapo never reports an unconfirmed check
+as passed, and a missing webhook verification must not make every number look
+degraded. `messaging_health.overall_status` and each entity's `can_send_message`
+are Meta's `AVAILABLE`, `LIMITED` or `BLOCKED` (`UNAVAILABLE` is reported as
+`BLOCKED`). Entities come from Meta's `health_status`; `additional_info` joins
+Meta's notes and error descriptions, excluding calling-only errors. Reports
+cached before this mapping existed have no entities until their next refresh.
+The entity snapshot is stored as `meta_health` in the cached report and is not
+part of the native response.
+
+The top-level `status` is `unhealthy` when the native report is `error`, `error`
+when Meta did not confirm access to the number (or no check could complete),
+`degraded` for a native `warning` or a non-`AVAILABLE` messaging state, and
+`healthy` otherwise.
+
 Provider reference: [Meta's health-status response example](https://www.postman.com/meta/whatsapp-business-platform/documentation/y5swede/moved-whatsapp-flows-api?entity=request-24926895-857346e5-b0b0-484f-a501-ab27d30cf0dc).

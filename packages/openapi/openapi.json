@@ -2442,15 +2442,212 @@
       "get": {
         "operationId": "compat_get_platform_v1_whatsapp_phone_numbers_id_health",
         "tags": ["Phone numbers"],
-        "summary": "Read health",
+        "summary": "Read phone health (platform schema)",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Phone health",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "required": ["status", "timestamp"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["healthy", "degraded", "unhealthy", "error"]
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the diagnostics were collected."
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "phone_number_access": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "token_validity": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "webhook_subscription": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "webhook_verified": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "messaging_health": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "overall_status": {
+                              "type": "string",
+                              "enum": ["AVAILABLE", "LIMITED", "BLOCKED"]
+                            },
+                            "details": {
+                              "type": "object",
+                              "properties": {
+                                "can_send_message": {
+                                  "type": "string"
+                                },
+                                "entities": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "entity_type",
+                                      "id",
+                                      "can_send_message"
+                                    ],
+                                    "properties": {
+                                      "entity_type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PHONE_NUMBER",
+                                          "WABA",
+                                          "BUSINESS",
+                                          "APP"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "can_send_message": {
+                                        "type": "string",
+                                        "enum": [
+                                          "AVAILABLE",
+                                          "LIMITED",
+                                          "BLOCKED"
+                                        ]
+                                      },
+                                      "additional_info": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "status": "degraded",
+                    "timestamp": "2026-11-13T00:00:00Z",
+                    "checks": {
+                      "phone_number_access": {
+                        "passed": true,
+                        "details": {
+                          "status": "pass"
+                        }
+                      },
+                      "token_validity": {
+                        "passed": true,
+                        "details": {
+                          "status": "pass"
+                        }
+                      },
+                      "webhook_subscription": {
+                        "passed": true,
+                        "details": {
+                          "status": "pass"
+                        }
+                      },
+                      "messaging_health": {
+                        "passed": false,
+                        "overall_status": "BLOCKED",
+                        "error": "Meta reports messaging restrictions for this phone number",
+                        "details": {
+                          "can_send_message": "BLOCKED",
+                          "entities": [
+                            {
+                              "entity_type": "PHONE_NUMBER",
+                              "id": "106540352242922",
+                              "can_send_message": "AVAILABLE"
+                            },
+                            {
+                              "entity_type": "WABA",
+                              "id": "102290129340398",
+                              "can_send_message": "BLOCKED",
+                              "additional_info": [
+                                "Payment method needs attention"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2476,7 +2673,7 @@
             }
           }
         ],
-        "description": "Bridge only. Standalone returns 501 rather than invented health. Standalone support is limited: rich health and URL-based media ingestion return 501. An optional upstream bridge may provide these operations."
+        "description": "Reference-platform health schema derived from Wapo's cached connection diagnostics (the native report at /v1/connections/{id}/health). Runs a check only when none is cached; it never refreshes. status is unhealthy when any diagnostic failed, error when Meta did not confirm access to the number (or no check could be completed), degraded for warnings or when Meta does not report messaging as AVAILABLE, and healthy otherwise. Checks Wapo could not confirm are omitted rather than reported as passed or failed. messaging_health.details.entities lists Meta's per-entity health_status verdicts; additional_info joins Meta's notes and error descriptions, excluding calling-only errors. Meta's UNAVAILABLE is reported as BLOCKED. With the optional upstream bridge enabled for the project, the request is relayed upstream instead."
       }
     },
     "/platform/v1/whatsapp/messages": {
