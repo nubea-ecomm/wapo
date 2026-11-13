@@ -4642,6 +4642,62 @@
               }
             }
           },
+          "422": {
+            "description": "Validation error, or connection_type_mismatch when the phone Meta returned does not match the chosen connection type. A mismatch carries details naming what Meta returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "details": {
+                          "type": "object",
+                          "properties": {
+                            "requested_connection_type": {
+                              "type": "string",
+                              "enum": ["dedicated", "coexistence"]
+                            },
+                            "meta_connection_type": {
+                              "type": "string",
+                              "enum": ["dedicated", "coexistence"],
+                              "description": "coexistence when Meta reports is_on_biz_app; otherwise dedicated."
+                            },
+                            "phone_number_id": {
+                              "type": "string"
+                            },
+                            "display_phone_number": {
+                              "type": "string"
+                            },
+                            "waba_id": {
+                              "type": "string"
+                            },
+                            "waba_name": {
+                              "type": "string",
+                              "description": "Best effort; empty when Meta does not return it."
+                            },
+                            "signup_event": {
+                              "type": "string",
+                              "description": "Completion event the hosted page reported; empty when unknown."
+                            }
+                          }
+                        }
+                      },
+                      "required": ["code", "message"]
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          },
           "default": {
             "description": "Error",
             "content": {
@@ -4691,6 +4747,14 @@
                   "connection_type": {
                     "type": "string",
                     "enum": ["dedicated", "coexistence"]
+                  },
+                  "signup_event": {
+                    "type": "string",
+                    "enum": [
+                      "FINISH",
+                      "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING"
+                    ],
+                    "description": "Embedded Signup completion event the hosted page received. FINISH is Meta's regular signup; the Business App flow reports FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING. Used only to explain a connection_type_mismatch."
                   }
                 },
                 "required": ["code", "connection_type"]
