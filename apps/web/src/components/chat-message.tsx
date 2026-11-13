@@ -1,6 +1,7 @@
 import type { Message, MessageReference } from '@nubea-ecomm/wapo-sdk'
 import { contactInitials, messageTime } from '../lib/chat-time'
 import { dateLabel } from '../lib/message-format'
+import { failureReason } from '../lib/message-failure'
 import { MessageContent } from './message-content'
 import { MessageDeliveryStatus } from './message-delivery-status'
 import { MessageActions } from './message-actions'
@@ -73,7 +74,12 @@ export function ChatMessage({
               {messageTime(message.timestamp)}
             </time>
             {message.direction === 'outbound' && (
-              <MessageDeliveryStatus status={message.status} />
+              <MessageDeliveryStatus
+                status={message.status}
+                reason={failureReason(
+                  (message as { statuses?: unknown }).statuses,
+                )}
+              />
             )}
           </small>
         </div>
