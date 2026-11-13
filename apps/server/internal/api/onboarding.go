@@ -255,7 +255,9 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event := store.Object{"event": "whatsapp.phone_number.created", "phone_number_id": phoneID, "customer": store.Object{"id": o["customer_id"]}, "data": store.Object{"phone_number_id": phoneID, "customer": store.Object{"id": o["customer_id"]}}}
+	// The account and display number ride along, at both levels like the
+	// reference API, so a consumer learns the WABA without a follow-up GET.
+	event := store.Object{"event": "whatsapp.phone_number.created", "phone_number_id": phoneID, "business_account_id": waba, "display_phone_number": connection["display_phone_number"], "customer": store.Object{"id": o["customer_id"]}, "data": store.Object{"phone_number_id": phoneID, "business_account_id": waba, "display_phone_number": connection["display_phone_number"], "customer": store.Object{"id": o["customer_id"]}}}
 	if e = delivery.Record(saveCtx, s.Store, p, "connected:"+str(connection, "id"), "whatsapp.phone_number.created", event, str(connection, "id"), nil); e != nil {
 		fail(w, 503, "event_pending", "Number connected but lifecycle event could not be queued; inspect the connection")
 		return

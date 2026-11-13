@@ -117,6 +117,10 @@ separate payment/business-verification warnings from messaging failures. The raw
 Meta `can_send_message` value is retained; it is not a live-send result. See
 [connection diagnostics](connection-health.md) for severity and cache semantics.
 
+Hosted onboarding emits `whatsapp.phone_number.created` with `phone_number_id`,
+`business_account_id`, `display_phone_number` and `customer.id`, at the top level
+and inside `data`, like the reference event.
+
 Customer CRUD, setup link creation/list/update, project and phone webhooks, phone
 list/get/update/delete and message list/get have compatibility routes. Webhook
 updates support URL, active, events and secret rotation; buffering is not yet
