@@ -95,7 +95,7 @@ jobs:
         run: |
           docker build -t wapo-web-check -f apps/web/Dockerfile .
           docker run --rm -d --name wapo-web-check -p 127.0.0.1:4173:8080 wapo-web-check
-          curl --fail --silent --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:4173/ -o /dev/null
+          curl --fail --silent --retry 10 --retry-all-errors --retry-delay 1 http://127.0.0.1:4173/ -o /dev/null
           pnpm exec playwright test --config playwright.production.config.ts
       - name: Browser artifacts
         if: failure()
