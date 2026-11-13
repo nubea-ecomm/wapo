@@ -611,7 +611,8 @@
       "group": "platform",
       "method": "POST",
       "path": "/whatsapp/media",
-      "status": "pending"
+      "status": "implemented_partial",
+      "notes": "delivery meta_resumable_asset only: SSRF-guarded HTTPS download, Meta Resumable Upload on META_APP_ID, returns data.target.handle. meta_media answers 501."
     },
     {
       "group": "platform",

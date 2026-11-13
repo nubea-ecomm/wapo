@@ -122,7 +122,8 @@ forms, recordings and real-account validation.
 See [WhatsApp onboarding](docs/whatsapp-onboarding.md) for own Meta app requirements,
 Coexistence behavior and the distinction between local contract tests and real
 Meta acceptance. Connection diagnostics and credential renewal are available.
-Carrier provisioning, shared Meta billing and resumable media ingest remain unsupported.
+Carrier provisioning and shared Meta billing remain unsupported. URL media ingest
+returns Meta resumable-upload handles for template headers.
 The optional bridge preserves these operations through an existing upstream account;
 it does not migrate its resources into Wapo.
 

@@ -56,7 +56,9 @@ func ValidateURL(raw string, allowPrivate bool) error {
 	return nil
 }
 
-func publicIP(ip net.IP) bool {
+// PublicIP reports whether ip is a globally routable destination. Server-side
+// fetches of client-supplied URLs (webhooks, media ingest) share this rule.
+func PublicIP(ip net.IP) bool {
 	a, ok := netip.AddrFromSlice(ip)
 	if !ok {
 		return false
@@ -91,7 +93,7 @@ func Client(allowPrivate bool) *http.Client {
 		}
 
 		for _, ip := range ips {
-			if !allowPrivate && !publicIP(ip) {
+			if !allowPrivate && !PublicIP(ip) {
 				return nil, fmt.Errorf("private webhook destination denied")
 			}
 		}

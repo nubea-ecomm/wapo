@@ -76,6 +76,40 @@ validated native connection endpoint with console editing for text, category and
 website fields. Profile-picture upload still requires an external Meta resumable
 upload handle.
 
+## Media ingest
+
+`POST /platform/v1/whatsapp/media` implements `delivery: "meta_resumable_asset"`.
+Wapo resolves `phone_number_id` to a connection of the authenticated project (an
+unknown or foreign number is a 404 and the source is never fetched), downloads
+`source`, and runs Meta's Resumable Upload API on the instance's `META_APP_ID`
+with that connection's stored token. The answer is
+`{"data":{"target":{"kind":"meta_resumable_asset","handle":"<h>"}}}`; the handle
+is the `header_handle` example of an IMAGE, VIDEO or DOCUMENT template header.
+
+The source is a URL chosen by the API caller, so the download is guarded against
+server-side request forgery: HTTPS on port 443 only, no URL credentials, at most
+three redirects, and every connection — each redirect included — is checked
+against the IP actually dialed, rejecting loopback, private, link-local, CGNAT,
+cloud-metadata, multicast and documentation ranges. Proxies from the environment
+are ignored. Downloads have a 5 s connect, 15 s header and 90 s total deadline.
+
+`mime_type` is required and limited to Meta's template header types: `image/jpeg`
+and `image/png` (5 MB), `video/mp4` and `video/3gpp` (16 MB), `application/pdf`
+(100 MB). The cap is enforced on the bytes read, not on a declared length, and
+the file's leading bytes must match the declared type, so an HTML error page
+served with 200 is refused (`media_type_mismatch`). `filename` defaults to the
+last path segment of the URL. The file is spooled to a temporary file and
+removed after the upload. Error codes: `invalid_source_url`, `source_not_allowed`,
+`source_redirect_limit`, `source_unavailable`, `source_empty`, `source_timeout`,
+`source_fetch_failed` (download), `unsupported_media_type`, `media_too_large`
+(413), `media_type_mismatch`, `meta_app_not_configured` (503), `meta_upload_failed`
+and `provider_unavailable` (502). Error messages never repeat the source URL,
+because signed bucket URLs carry credentials. `delivery: "meta_media"` answers
+501 `media_delivery_not_implemented`; upload send-time media through
+`/meta/whatsapp/{version}/{phone_number_id}/media` instead. A project using the
+upstream bridge keeps relaying the request upstream. `ALLOW_PRIVATE_WEBHOOKS=true`
+(local tests only) also lifts the HTTPS and public-address rules here.
+
 ## Customers and setup links
 
 Native connection health reports omit unsupported SIP/calling diagnostics and
@@ -101,7 +135,7 @@ Omitted values and other accepted languages currently fall back to Spanish.
 ## Remaining platform services
 
 Broadcasts/scheduling, full platform contact-route parity,
-conversation assignments, display name request tracking, resumable media ingest,
+conversation assignments, display name request tracking, `meta_media` ingest,
 embeddable inbox tokens, hosted dynamic Flow endpoints, funding, notifications,
 findings, workflow execution, function deployment and agent runs remain pending.
 The inventory lists each missing operation instead of exposing successful-looking

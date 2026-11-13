@@ -33,7 +33,7 @@ are not migrated automatically.
 | Template list/create/delete                               | Direct Meta, bound WABA only             | Upstream |
 | Message history                                           | Local records with opaque cursor         | Upstream |
 | Phone webhook list/create/delete                          | Persistent signed outbox                 | Upstream |
-| URL-to-resumable media ingest                             | 501; use a Meta sample handle externally | Upstream |
+| URL-to-resumable media ingest                             | Meta resumable upload; needs META_APP_ID | Upstream |
 | Managed billing and credit line                           | Not implemented                          | Upstream |
 
 Standalone history is ordered by ingestion timestamp and retains provider event

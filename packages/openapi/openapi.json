@@ -2514,15 +2514,45 @@
       "post": {
         "operationId": "compat_post_platform_v1_whatsapp_media",
         "tags": ["Phone numbers"],
-        "summary": "Create media",
+        "summary": "Ingest media as a Meta resumable upload handle",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Upload handle",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": ["target"],
+                      "properties": {
+                        "target": {
+                          "type": "object",
+                          "required": ["kind", "handle"],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": ["meta_resumable_asset"]
+                            },
+                            "handle": {
+                              "type": "string",
+                              "description": "Meta resumable upload file handle (`h`)."
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "data": {
+                      "target": {
+                        "kind": "meta_resumable_asset",
+                        "handle": "4::aW1hZ2UvanBlZw==:ARZ..."
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2544,12 +2574,62 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true
+                "required": ["media_ingest"],
+                "properties": {
+                  "media_ingest": {
+                    "type": "object",
+                    "required": [
+                      "phone_number_id",
+                      "source",
+                      "delivery",
+                      "mime_type"
+                    ],
+                    "properties": {
+                      "phone_number_id": {
+                        "type": "string",
+                        "description": "Meta phone number ID of a connection in this project."
+                      },
+                      "source": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Public HTTPS URL of the file."
+                      },
+                      "delivery": {
+                        "type": "string",
+                        "enum": ["meta_resumable_asset", "meta_media"]
+                      },
+                      "filename": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Defaults to the last path segment of source."
+                      },
+                      "mime_type": {
+                        "type": "string",
+                        "enum": [
+                          "image/jpeg",
+                          "image/png",
+                          "video/mp4",
+                          "video/3gpp",
+                          "application/pdf"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "media_ingest": {
+                    "phone_number_id": "106540352242922",
+                    "source": "https://cdn.example.com/banner.jpg",
+                    "delivery": "meta_resumable_asset",
+                    "filename": "banner.jpg",
+                    "mime_type": "image/jpeg"
+                  }
+                }
               }
             }
           }
         },
-        "description": "Bridge only. Standalone returns 501 for resumable media ingest. Standalone support is limited: rich health and URL-based media ingestion return 501. An optional upstream bridge may provide these operations. Provider permissions and resource ownership are required. Graph request/response fields follow the configured Meta version."
+        "description": "Downloads `media_ingest.source` server-side and uploads it through Meta's Resumable Upload API on the instance's META_APP_ID, using the stored token of the project's connection named by `phone_number_id`. The returned `handle` is the `header_handle` example for an IMAGE, VIDEO or DOCUMENT template header. Only `delivery: meta_resumable_asset` is implemented; `meta_media` returns 501. The source must be an HTTPS URL on port 443 that resolves to a public address; every redirect (at most three) is re-checked against the dialed IP. Accepted types and limits: image/jpeg and image/png up to 5 MB, video/mp4 and video/3gpp up to 16 MB, application/pdf up to 100 MB, verified against the file's leading bytes. An unknown phone_number_id answers 404 without fetching the source. With the optional upstream bridge enabled for the project, the request is relayed upstream instead."
       }
     },
     "/healthz": {
