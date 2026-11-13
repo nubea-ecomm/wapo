@@ -149,6 +149,18 @@ func TestHostedOnboardingDedicatedAndCoexistence(t *testing.T) {
 			t.Fatal("compatibility redirect parameters missing")
 		}
 
+		var created store.Object
+
+		if e := server.Store.Pool.QueryRow(context.Background(), "SELECT payload FROM events WHERE project_id=$1 AND source_key=$2", p, "connected:"+str(connection, "id")).Scan(&created); e != nil {
+			t.Fatal(e)
+		}
+
+		for _, level := range []store.Object{created, object(created, "data")} {
+			if str(level, "business_account_id") != "654321" || str(level, "display_phone_number") != "+123456789" || str(level, "phone_number_id") != str(connection, "external_id") {
+				t.Fatalf("phone_number.created must name the WABA and display number: %v", created)
+			}
+		}
+
 		status, o = request(t, h.URL, "", "POST", publicPath+"/complete", store.Object{"code": code, "waba_id": "654321", "connection_type": mode}, "")
 		expect(t, status, 410, o)
 		// Renewing credentials preserves IDs and never repeats registration/history sync.

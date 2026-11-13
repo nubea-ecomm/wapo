@@ -57,7 +57,9 @@
   <p>
     Offering both types lets the customer choose on the hosted page. Send just
     one type to restrict the link. After authorization, listen for
-    <code>whatsapp.phone_number.created</code> or list
+    <code>whatsapp.phone_number.created</code> (it carries
+    <code>phone_number_id</code>, <code>business_account_id</code>,
+    <code>display_phone_number</code> and <code>customer.id</code>) or list
     <code>GET /v1/connections</code>.
   </p>
   <div class="callout">

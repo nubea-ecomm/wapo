@@ -76,13 +76,17 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 
 		switch {
 		case r.URL.Query().Get("fields") == "health_status":
-			write(w, 200, store.Object{"health_status": store.Object{"can_send_message": "BLOCKED", "entities": []any{store.Object{"entity_type": "WABA", "errors": []any{store.Object{"error_code": 141006, "error_description": "Payment method needs attention", "possible_solution": "Update the payment method in Meta"}}}}}})
+			write(w, 200, store.Object{"health_status": store.Object{"can_send_message": "BLOCKED", "entities": []any{store.Object{"entity_type": "WABA", "id": "health-account", "can_send_message": "BLOCKED", "errors": []any{store.Object{"error_code": 141006, "error_description": "Payment method needs attention", "possible_solution": "Update the payment method in Meta"}}}}}})
 		case r.URL.Path == "/v24.0/health-account/subscribed_apps":
 			write(w, 200, store.Object{"data": []any{store.Object{"whatsapp_business_api_data": store.Object{"id": "app1"}}}})
 		case r.URL.Path == "/v24.0/health-account":
 			write(w, 200, store.Object{"id": "health-account", "account_review_status": "APPROVED"})
 		default:
-			write(w, 200, store.Object{"id": "123456", "quality_rating": "GREEN"})
+			if !strings.Contains(r.URL.Query().Get("fields"), "messaging_limit_tier") {
+				t.Error("phone lookup must ask for the messaging tier")
+			}
+
+			write(w, 200, store.Object{"id": "123456", "quality_rating": "GREEN", "messaging_limit_tier": "TIER_1K"})
 		}
 	}))
 
@@ -99,6 +103,20 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 	d := object(body, "data")
 	if str(d, "can_send_message") != "BLOCKED" {
 		t.Fatal("raw provider state must be retained independently of severity")
+	}
+
+	if _, leaked := d["meta_health"]; leaked {
+		t.Fatal("the native report must keep its schema")
+	}
+
+	status, compat := request(t, h.URL, key, "GET", "/platform/v1/whatsapp/phone_numbers/123456/health", nil, "")
+	expect(t, status, 200, compat)
+
+	messaging := object(object(compat, "checks"), "messaging_health")
+	entities, _ := object(messaging, "details")["entities"].([]any)
+
+	if str(compat, "status") != "degraded" || messaging["passed"] != false || str(messaging, "overall_status") != "BLOCKED" || len(entities) != 1 || str(entities[0].(map[string]any), "entity_type") != "WABA" {
+		t.Fatalf("compatibility health: %v", compat)
 	}
 
 	if str(d, "status") != "warning" || str(object(d, "billing"), "status") != "attention_required" {
@@ -139,6 +157,13 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 		t.Fatal("GET bypassed cache")
 	}
 
+	status, body = request(t, h.URL, key, "GET", "/platform/v1/whatsapp/phone_numbers/123456", nil, "")
+	expect(t, status, 200, body)
+
+	if str(object(body, "data"), "whatsapp_business_manager_messaging_limit") != "TIER_1K" || calls != before {
+		t.Fatalf("compat phone must expose the cached tier without calling Meta: %v", body)
+	}
+
 	status, body = request(t, h.URL, key, "POST", "/v1/connections/health-con/health", nil, "")
 	expect(t, status, 429, body)
 	_, _, _, foreign := fixture(t)
@@ -161,5 +186,9 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 
 	if str(d, "status") != "error" || str(object(d, "billing"), "status") != "unknown" {
 		t.Fatal("missing access should not infer a billing failure")
+	}
+
+	if stored, _ := s.Store.Get(ctx, p, "connections", "health-con"); str(stored, "messaging_limit_tier") != "TIER_1K" {
+		t.Fatal("a failed lookup must keep the last known messaging tier")
 	}
 }

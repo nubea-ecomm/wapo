@@ -26,7 +26,7 @@ func (s *Server) connectionHealth(w http.ResponseWriter, r *http.Request, id str
 
 	cached, e := s.Store.Get(r.Context(), project(r), "connection_health", id)
 	if r.Method == "GET" && e == nil {
-		write(w, 200, store.Object{"data": cached})
+		write(w, 200, store.Object{"data": nativeHealth(cached)})
 		return
 	}
 
@@ -46,7 +46,7 @@ func (s *Server) connectionHealth(w http.ResponseWriter, r *http.Request, id str
 		return
 	}
 
-	write(w, 200, store.Object{"data": result})
+	write(w, 200, store.Object{"data": nativeHealth(result)})
 }
 
 func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) (store.Object, error) {
@@ -134,6 +134,9 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 
 		return store.Object{"provider_error": store.Object{"code": provider["code"], "message": message}}
 	}
+	// The phone's messaging tier is persisted on the connection so the
+	// compatibility phone record can expose it without a Meta call per read.
+	messagingTier := ""
 	billing := store.Object{"status": "unknown", "manage_url": "https://business.facebook.com/wa/manage/accounts/?waba_id=" + url.QueryEscape(str(c, "business_account_id"))}
 	result := store.Object{"id": str(c, "id"), "connection_type": c["connection_type"], "billing": billing}
 
@@ -161,9 +164,11 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 			s.checkConnectionToken(tokenState.inspection, tokenState.inspectionErr, add)
 		}
 
-		phone, status := call(url.PathEscape(str(c, "external_id")), "id,display_phone_number,quality_rating")
+		phone, status := call(url.PathEscape(str(c, "external_id")), "id,display_phone_number,quality_rating,messaging_limit_tier")
 		if status == 200 && str(phone, "id") == str(c, "external_id") {
 			add("phone_access", "Acceso al número", "pass", "El token permite consultar este número.", nil)
+
+			messagingTier = str(phone, "messaging_limit_tier")
 
 			result["quality_rating"] = phone["quality_rating"]
 			if str(phone, "quality_rating") == "RED" {
@@ -227,6 +232,7 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 		if status == 200 && object(health, "health_status") != nil {
 			h := object(health, "health_status")
 			result["can_send_message"] = h["can_send_message"]
+			result["meta_health"] = store.Object{"entities": healthEntities(h)}
 			addHealthChecks(h, add, billing)
 		} else {
 			add("messaging_health", "Capacidad de envío", "unknown", "Meta no devolvió el diagnóstico de envío.", safeError(health))
@@ -308,7 +314,8 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 
 	_, e = saveTx.Exec(saveCtx, "INSERT INTO resources(project_id,kind,id,data) VALUES($1,'connection_health',$2,$3) ON CONFLICT(project_id,kind,id) DO UPDATE SET data=EXCLUDED.data", p, str(c, "id"), raw)
 	if e == nil {
-		_, e = saveTx.Exec(saveCtx, "UPDATE resources SET data=data||jsonb_build_object('health_status',$3::text,'health_issues',$4::int,'health_checked_at',$5::text) WHERE project_id=$1 AND kind='connections' AND id=$2", p, str(c, "id"), overall, issues, str(result, "checked_at"))
+		// An empty tier (Meta omitted it or the lookup failed) keeps the last known value.
+		_, e = saveTx.Exec(saveCtx, "UPDATE resources SET data=data||jsonb_build_object('health_status',$3::text,'health_issues',$4::int,'health_checked_at',$5::text)||CASE WHEN $6::text='' THEN '{}'::jsonb ELSE jsonb_build_object('messaging_limit_tier',$6::text) END WHERE project_id=$1 AND kind='connections' AND id=$2", p, str(c, "id"), overall, issues, str(result, "checked_at"), messagingTier)
 	}
 
 	if e == nil && overall != str(c, "health_status") && (overall == "warning" || overall == "error") {

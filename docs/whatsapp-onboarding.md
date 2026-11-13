@@ -4,6 +4,11 @@ Wapo's model follows a standard hosted flow: create a customer, create a setup l
 customer authorize Meta, receive `whatsapp.phone_number.created`, then send using
 the connected phone ID. A customer can own multiple channel connections.
 
+The `whatsapp.phone_number.created` payload carries `phone_number_id`,
+`business_account_id` (the WABA), `display_phone_number` and `customer.id`, both
+at the top level and inside `data`, matching the reference platform's event so a
+consumer can store the WABA without a follow-up phone-number read.
+
 For the dashboard paths, provider enrollment, review forms and activation checklist,
 start with [Activate WhatsApp with your own Meta app](meta-activation.md).
 

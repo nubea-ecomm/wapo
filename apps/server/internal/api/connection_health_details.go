@@ -95,3 +95,56 @@ func addHealthChecks(health store.Object, add func(string, string, string, strin
 		add(str(check, "id"), str(check, "label"), str(check, "status"), str(check, "message"), check)
 	}
 }
+
+// healthEntities keeps the per-entity verdicts of Meta's `health_status` for
+// the compatibility schema. Error descriptions join Meta's additional_info,
+// except calling-only errors, which Wapo excludes everywhere.
+func healthEntities(health store.Object) []any {
+	out := []any{}
+	entities, _ := health["entities"].([]any)
+
+	for _, item := range entities {
+		entity, _ := item.(map[string]any)
+		state := compatSendState(str(entity, "can_send_message"))
+
+		if state == "" || len(out) == 20 {
+			continue
+		}
+
+		info := []any{}
+		notes, _ := entity["additional_info"].([]any)
+		errs, _ := entity["errors"].([]any)
+
+		for _, note := range notes {
+			if text, ok := note.(string); ok && text != "" {
+				info = append(info, truncate(text, 500))
+			}
+		}
+
+		for _, item := range errs {
+			issue, _ := item.(map[string]any)
+			text := str(issue, "error_description")
+
+			if lower := strings.ToLower(text); text != "" && !strings.Contains(lower, "sip") && !strings.Contains(lower, "whatsapp business calling") {
+				info = append(info, truncate(text, 500))
+			}
+		}
+
+		o := store.Object{"entity_type": entity["entity_type"], "id": str(entity, "id"), "can_send_message": state}
+		if len(info) > 0 {
+			o["additional_info"] = info[:min(len(info), 10)]
+		}
+
+		out = append(out, o)
+	}
+
+	return out
+}
+
+func truncate(s string, n int) string {
+	if len(s) > n {
+		return s[:n]
+	}
+
+	return s
+}

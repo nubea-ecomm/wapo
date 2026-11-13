@@ -25,6 +25,8 @@ export interface Connection {
   health_status?: 'healthy' | 'error' | 'warning' | 'unknown'
   health_issues?: number
   health_checked_at?: string
+  /** Meta's messaging_limit_tier label from the latest successful health check. */
+  messaging_limit_tier?: string
   credential_status?: 'valid' | 'expired'
   access_token_expires_at?: string
 }

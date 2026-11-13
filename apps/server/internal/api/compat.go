@@ -69,8 +69,8 @@ func (s *Server) compatPlatform(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if parts[1] == "media" {
-		fail(w, 501, "media_ingest_not_implemented", "URL-to-resumable-asset ingest is not implemented in standalone mode. Upload a sample using Meta and pass its header_handle, or use the optional upstream bridge.")
+	if parts[1] == "media" && len(parts) == 2 {
+		s.compatMediaIngest(w, r)
 		return
 	}
 
@@ -146,7 +146,7 @@ func (s *Server) compatPlatform(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(parts) == 4 && parts[3] == "health" && r.Method == "GET" {
-		s.connectionHealth(w, r, str(c, "id"))
+		s.compatPhoneHealth(w, r, c)
 		return
 	}
 

@@ -2206,7 +2206,7 @@
             }
           }
         ],
-        "description": "ID is Meta phone ID. PATCH supports whatsapp_phone_number.inbound_processing_enabled only. DELETE removes local binding, not the Meta asset."
+        "description": "ID is Meta phone ID. The record includes whatsapp_business_manager_messaging_limit: Meta's messaging_limit_tier label (TIER_250, TIER_1K, TIER_10K, TIER_100K, TIER_UNLIMITED, …) cached by the connection health check, or null before the first successful check; reading it never calls Meta. status keeps Wapo's connection status. PATCH supports whatsapp_phone_number.inbound_processing_enabled only. DELETE removes local binding, not the Meta asset."
       },
       "patch": {
         "operationId": "compat_patch_platform_v1_whatsapp_phone_numbers_id",
@@ -2442,15 +2442,212 @@
       "get": {
         "operationId": "compat_get_platform_v1_whatsapp_phone_numbers_id_health",
         "tags": ["Phone numbers"],
-        "summary": "Read health",
+        "summary": "Read phone health (platform schema)",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Phone health",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "required": ["status", "timestamp"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["healthy", "degraded", "unhealthy", "error"]
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the diagnostics were collected."
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "phone_number_access": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "token_validity": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "webhook_subscription": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "webhook_verified": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "details": {
+                              "type": "object",
+                              "additionalProperties": true,
+                              "description": "Wapo status and message of the underlying check, plus provider evidence when available."
+                            }
+                          }
+                        },
+                        "messaging_health": {
+                          "type": "object",
+                          "required": ["passed"],
+                          "properties": {
+                            "passed": {
+                              "type": "boolean"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "overall_status": {
+                              "type": "string",
+                              "enum": ["AVAILABLE", "LIMITED", "BLOCKED"]
+                            },
+                            "details": {
+                              "type": "object",
+                              "properties": {
+                                "can_send_message": {
+                                  "type": "string"
+                                },
+                                "entities": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "entity_type",
+                                      "id",
+                                      "can_send_message"
+                                    ],
+                                    "properties": {
+                                      "entity_type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "PHONE_NUMBER",
+                                          "WABA",
+                                          "BUSINESS",
+                                          "APP"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "can_send_message": {
+                                        "type": "string",
+                                        "enum": [
+                                          "AVAILABLE",
+                                          "LIMITED",
+                                          "BLOCKED"
+                                        ]
+                                      },
+                                      "additional_info": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "status": "degraded",
+                    "timestamp": "2026-11-13T00:00:00Z",
+                    "checks": {
+                      "phone_number_access": {
+                        "passed": true,
+                        "details": {
+                          "status": "pass"
+                        }
+                      },
+                      "token_validity": {
+                        "passed": true,
+                        "details": {
+                          "status": "pass"
+                        }
+                      },
+                      "webhook_subscription": {
+                        "passed": true,
+                        "details": {
+                          "status": "pass"
+                        }
+                      },
+                      "messaging_health": {
+                        "passed": false,
+                        "overall_status": "BLOCKED",
+                        "error": "Meta reports messaging restrictions for this phone number",
+                        "details": {
+                          "can_send_message": "BLOCKED",
+                          "entities": [
+                            {
+                              "entity_type": "PHONE_NUMBER",
+                              "id": "106540352242922",
+                              "can_send_message": "AVAILABLE"
+                            },
+                            {
+                              "entity_type": "WABA",
+                              "id": "102290129340398",
+                              "can_send_message": "BLOCKED",
+                              "additional_info": [
+                                "Payment method needs attention"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2476,7 +2673,7 @@
             }
           }
         ],
-        "description": "Bridge only. Standalone returns 501 rather than invented health. Standalone support is limited: rich health and URL-based media ingestion return 501. An optional upstream bridge may provide these operations."
+        "description": "Reference-platform health schema derived from Wapo's cached connection diagnostics (the native report at /v1/connections/{id}/health). Runs a check only when none is cached; it never refreshes. status is unhealthy when any diagnostic failed, error when Meta did not confirm access to the number (or no check could be completed), degraded for warnings or when Meta does not report messaging as AVAILABLE, and healthy otherwise. Checks Wapo could not confirm are omitted rather than reported as passed or failed. messaging_health.details.entities lists Meta's per-entity health_status verdicts; additional_info joins Meta's notes and error descriptions, excluding calling-only errors. Meta's UNAVAILABLE is reported as BLOCKED. With the optional upstream bridge enabled for the project, the request is relayed upstream instead."
       }
     },
     "/platform/v1/whatsapp/messages": {
@@ -2514,15 +2711,45 @@
       "post": {
         "operationId": "compat_post_platform_v1_whatsapp_media",
         "tags": ["Phone numbers"],
-        "summary": "Create media",
+        "summary": "Ingest media as a Meta resumable upload handle",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Upload handle",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "required": ["data"],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": ["target"],
+                      "properties": {
+                        "target": {
+                          "type": "object",
+                          "required": ["kind", "handle"],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": ["meta_resumable_asset"]
+                            },
+                            "handle": {
+                              "type": "string",
+                              "description": "Meta resumable upload file handle (`h`)."
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "data": {
+                      "target": {
+                        "kind": "meta_resumable_asset",
+                        "handle": "4::aW1hZ2UvanBlZw==:ARZ..."
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2544,12 +2771,62 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "additionalProperties": true
+                "required": ["media_ingest"],
+                "properties": {
+                  "media_ingest": {
+                    "type": "object",
+                    "required": [
+                      "phone_number_id",
+                      "source",
+                      "delivery",
+                      "mime_type"
+                    ],
+                    "properties": {
+                      "phone_number_id": {
+                        "type": "string",
+                        "description": "Meta phone number ID of a connection in this project."
+                      },
+                      "source": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Public HTTPS URL of the file."
+                      },
+                      "delivery": {
+                        "type": "string",
+                        "enum": ["meta_resumable_asset", "meta_media"]
+                      },
+                      "filename": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Defaults to the last path segment of source."
+                      },
+                      "mime_type": {
+                        "type": "string",
+                        "enum": [
+                          "image/jpeg",
+                          "image/png",
+                          "video/mp4",
+                          "video/3gpp",
+                          "application/pdf"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "media_ingest": {
+                    "phone_number_id": "106540352242922",
+                    "source": "https://cdn.example.com/banner.jpg",
+                    "delivery": "meta_resumable_asset",
+                    "filename": "banner.jpg",
+                    "mime_type": "image/jpeg"
+                  }
+                }
               }
             }
           }
         },
-        "description": "Bridge only. Standalone returns 501 for resumable media ingest. Standalone support is limited: rich health and URL-based media ingestion return 501. An optional upstream bridge may provide these operations. Provider permissions and resource ownership are required. Graph request/response fields follow the configured Meta version."
+        "description": "Downloads `media_ingest.source` server-side and uploads it through Meta's Resumable Upload API on the instance's META_APP_ID, using the stored token of the project's connection named by `phone_number_id`. The returned `handle` is the `header_handle` example for an IMAGE, VIDEO or DOCUMENT template header. Only `delivery: meta_resumable_asset` is implemented; `meta_media` returns 501. The source must be an HTTPS URL on port 443 that resolves to a public address; every redirect (at most three) is re-checked against the dialed IP. Accepted types and limits: image/jpeg and image/png up to 5 MB, video/mp4 and video/3gpp up to 16 MB, application/pdf up to 100 MB, verified against the file's leading bytes. An unknown phone_number_id answers 404 without fetching the source. With the optional upstream bridge enabled for the project, the request is relayed upstream instead."
       }
     },
     "/healthz": {
@@ -7968,6 +8245,11 @@
           },
           "quality_rating": {
             "type": "string"
+          },
+          "messaging_limit_tier": {
+            "type": "string",
+            "description": "Meta's messaging_limit_tier label (for example TIER_1K), recorded by the latest successful connection health check. Absent until one succeeds.",
+            "example": "TIER_1K"
           },
           "status": {
             "type": "string"
