@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.6.0...sdk-v0.7.0) (2026-11-13)
+
+
+### Features
+
+* **compat:** close the Kapso-compatibility gaps Nubea hit ([#49](https://github.com/nubea-ecomm/wapo/issues/49)) ([388ae28](https://github.com/nubea-ecomm/wapo/commit/388ae28a42c5401355e7518d9559a7fc768301ec))
+
 ## [0.6.0](https://github.com/nubea-ecomm/wapo/compare/sdk-v0.5.0...sdk-v0.6.0) (2026-10-22)
 
 
