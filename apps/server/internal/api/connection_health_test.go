@@ -82,7 +82,11 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 		case r.URL.Path == "/v24.0/health-account":
 			write(w, 200, store.Object{"id": "health-account", "account_review_status": "APPROVED"})
 		default:
-			write(w, 200, store.Object{"id": "123456", "quality_rating": "GREEN"})
+			if !strings.Contains(r.URL.Query().Get("fields"), "messaging_limit_tier") {
+				t.Error("phone lookup must ask for the messaging tier")
+			}
+
+			write(w, 200, store.Object{"id": "123456", "quality_rating": "GREEN", "messaging_limit_tier": "TIER_1K"})
 		}
 	}))
 
@@ -139,6 +143,13 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 		t.Fatal("GET bypassed cache")
 	}
 
+	status, body = request(t, h.URL, key, "GET", "/platform/v1/whatsapp/phone_numbers/123456", nil, "")
+	expect(t, status, 200, body)
+
+	if str(object(body, "data"), "whatsapp_business_manager_messaging_limit") != "TIER_1K" || calls != before {
+		t.Fatalf("compat phone must expose the cached tier without calling Meta: %v", body)
+	}
+
 	status, body = request(t, h.URL, key, "POST", "/v1/connections/health-con/health", nil, "")
 	expect(t, status, 429, body)
 	_, _, _, foreign := fixture(t)
@@ -161,5 +172,9 @@ func TestConnectionHealthReportsBillingAndMissingAccessWithoutInventingSuccess(t
 
 	if str(d, "status") != "error" || str(object(d, "billing"), "status") != "unknown" {
 		t.Fatal("missing access should not infer a billing failure")
+	}
+
+	if stored, _ := s.Store.Get(ctx, p, "connections", "health-con"); str(stored, "messaging_limit_tier") != "TIER_1K" {
+		t.Fatal("a failed lookup must keep the last known messaging tier")
 	}
 }

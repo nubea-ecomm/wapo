@@ -34,6 +34,11 @@ remain failures. No inference from connection status overrides provider evidence
 The console uses amber for warnings, red for failures and neutral for unknowns.
 Existing cached reports adopt these rules on their next refresh (or manual check).
 
+The phone lookup also reads Meta's `messaging_limit_tier`, stored on the
+connection as `messaging_limit_tier`. A check that cannot read it keeps the last
+known value. The compatibility phone record exposes it as
+`whatsapp_business_manager_messaging_limit`.
+
 The connection snapshot receives health status, issue count and last check time;
 the console lists issues and links to the detailed report. Health problems do not
 silently delete connections or replace their credentials. App webhook

@@ -2206,7 +2206,7 @@
             }
           }
         ],
-        "description": "ID is Meta phone ID. PATCH supports whatsapp_phone_number.inbound_processing_enabled only. DELETE removes local binding, not the Meta asset."
+        "description": "ID is Meta phone ID. The record includes whatsapp_business_manager_messaging_limit: Meta's messaging_limit_tier label (TIER_250, TIER_1K, TIER_10K, TIER_100K, TIER_UNLIMITED, …) cached by the connection health check, or null before the first successful check; reading it never calls Meta. status keeps Wapo's connection status. PATCH supports whatsapp_phone_number.inbound_processing_enabled only. DELETE removes local binding, not the Meta asset."
       },
       "patch": {
         "operationId": "compat_patch_platform_v1_whatsapp_phone_numbers_id",
@@ -8048,6 +8048,11 @@
           },
           "quality_rating": {
             "type": "string"
+          },
+          "messaging_limit_tier": {
+            "type": "string",
+            "description": "Meta's messaging_limit_tier label (for example TIER_1K), recorded by the latest successful connection health check. Absent until one succeeds.",
+            "example": "TIER_1K"
           },
           "status": {
             "type": "string"

@@ -23,7 +23,9 @@ func pageLimit(r *http.Request) int { // Compatibility consumers request at most
 }
 
 func phone(c store.Object) store.Object {
-	return store.Object{"id": c["external_id"], "customer_id": c["customer_id"], "business_account_id": c["business_account_id"], "display_phone_number": c["display_phone_number"], "status": c["status"], "quality_rating": c["quality_rating"], "inbound_processing_enabled": c["inbound_processing_enabled"]}
+	// The messaging limit is Meta's `messaging_limit_tier` label (TIER_250,
+	// TIER_1K, …), cached by the connection health check; null until checked.
+	return store.Object{"id": c["external_id"], "customer_id": c["customer_id"], "business_account_id": c["business_account_id"], "display_phone_number": c["display_phone_number"], "status": c["status"], "quality_rating": c["quality_rating"], "whatsapp_business_manager_messaging_limit": c["messaging_limit_tier"], "inbound_processing_enabled": c["inbound_processing_enabled"]}
 }
 
 func (s *Server) phoneConnection(r *http.Request, id string) (store.Object, error) {

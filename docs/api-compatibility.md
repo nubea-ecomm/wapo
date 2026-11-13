@@ -121,6 +121,14 @@ Hosted onboarding emits `whatsapp.phone_number.created` with `phone_number_id`,
 `business_account_id`, `display_phone_number` and `customer.id`, at the top level
 and inside `data`, like the reference event.
 
+Compatibility phone records (`GET /platform/v1/whatsapp/phone_numbers[/{id}]`)
+include `whatsapp_business_manager_messaging_limit`. The reference platform
+reports a numeric daily cap there; Wapo reports Meta's `messaging_limit_tier`
+label (`TIER_250`, `TIER_1K`, `TIER_10K`, `TIER_100K`, `TIER_UNLIMITED`, …) as the
+connection health check last saw it, or `null` before a check has succeeded.
+Reading a phone never calls Meta. `status` keeps Wapo's own connection status
+values.
+
 Customer CRUD, setup link creation/list/update, project and phone webhooks, phone
 list/get/update/delete and message list/get have compatibility routes. Webhook
 updates support URL, active, events and secret rotation; buffering is not yet
