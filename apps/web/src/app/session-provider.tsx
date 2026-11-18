@@ -3,10 +3,15 @@ import {
   WapoAdminClient,
   WapoClient,
   WapoAuthClient,
+  type ConsoleSession,
 } from '@nubea-ecomm/wapo-sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { persistSession, restoreSession } from './session-storage'
-import { SessionContext, type Session } from './session-context'
+import {
+  SessionContext,
+  type RegistrationInput,
+  type Session,
+} from './session-context'
 import { useAccessRefresh } from './use-access-refresh'
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -78,37 +83,86 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  async function startUserSession(
+    url: string,
+    result: ConsoleSession,
+    remember: boolean,
+    preferredProject?: string,
+  ) {
+    const tenants = await new WapoAdminClient({
+      baseUrl: url,
+      apiKey: result.token,
+    }).listTenants()
+    const active = tenants.data.filter((t) => t.status === 'active')
+    const tenant =
+      active.find((t) => t.id === preferredProject) ||
+      active.find((t) => t.id === 'default') ||
+      active[0]
+
+    queryClient.clear()
+    setSession({
+      id: crypto.randomUUID(),
+      url,
+      key: result.token,
+      role: 'operator',
+      tenantId: tenant?.id || '',
+      tenantName: tenant?.name || '',
+      user: result.user,
+      expiresAt: result.expires_at,
+      remember,
+    })
+  }
+
   async function connectUser(
     url: string,
     email: string,
     password: string,
     remember = false,
+    invitationToken?: string,
   ) {
     const normalized = url.replace(/\/$/, '')
     const result = await new WapoAuthClient({
       baseUrl: normalized,
       apiKey: '',
     }).login(email, password)
-    const tenants = await new WapoAdminClient({
-      baseUrl: normalized,
-      apiKey: result.data.token,
-    }).listTenants()
-    const tenant =
-      tenants.data.find((t) => t.id === 'default' && t.status === 'active') ||
-      tenants.data.find((t) => t.status === 'active')
+    let project: string | undefined
 
-    queryClient.clear()
-    setSession({
-      id: crypto.randomUUID(),
-      url: normalized,
-      key: result.data.token,
-      role: 'operator',
-      tenantId: tenant?.id || '',
-      tenantName: tenant?.name || '',
-      user: result.data.user,
-      expiresAt: result.data.expires_at,
+    if (invitationToken) {
+      const auth = new WapoAuthClient({
+        baseUrl: normalized,
+        apiKey: result.data.token,
+      })
+
+      try {
+        project = (await auth.acceptProjectInvitation(invitationToken)).data
+          .project_id
+      } catch (error) {
+        // Do not leave an unused server session behind when joining fails.
+        await auth.logout().catch(() => undefined)
+        throw error
+      }
+    }
+
+    await startUserSession(normalized, result.data, remember, project)
+  }
+
+  async function registerUser(
+    url: string,
+    input: RegistrationInput,
+    remember = false,
+  ) {
+    const normalized = url.replace(/\/$/, '')
+    const result = await new WapoAuthClient({
+      baseUrl: normalized,
+      apiKey: '',
+    }).register(input)
+
+    await startUserSession(
+      normalized,
+      result.data,
       remember,
-    })
+      result.data.invitation?.project_id,
+    )
   }
 
   function selectTenant(id: string, name: string) {
@@ -173,6 +227,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         admin,
         connect,
         connectUser,
+        registerUser,
         selectTenant,
         disconnect,
         updateProfile,

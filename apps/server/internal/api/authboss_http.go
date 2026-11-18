@@ -29,15 +29,10 @@ func (a *authResponse) Respond(_ http.ResponseWriter, _ *http.Request, _ int, pa
 	return nil
 }
 
-func (a *authResponse) Redirect(_ http.ResponseWriter, r *http.Request, options authboss.RedirectOptions) error {
+func (a *authResponse) Redirect(_ http.ResponseWriter, _ *http.Request, options authboss.RedirectOptions) error {
 	if options.Failure != "" {
 		a.status = 422
 		a.data = store.Object{"error": store.Object{"code": "auth_failed", "message": "The link is invalid or expired"}}
-
-		if strings.HasSuffix(r.URL.Path, "/login") {
-			a.status = 403
-			a.data = store.Object{"error": store.Object{"code": "email_unverified", "message": "Verify your email before signing in"}}
-		}
 
 		return nil
 	}

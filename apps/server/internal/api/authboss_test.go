@@ -60,20 +60,23 @@ func signupAccount(t *testing.T, s *Server, base string) (email, token, id strin
 	email = store.ID("signup") + "@example.com"
 	s.Config.SMTPHost = "fake.invalid"
 	status, body := request(t, base, "", "POST", "/auth/v1/register", store.Object{"email": email, "name": "Account", "password": "signup-password-123", "role": "admin", "all_projects": true}, "")
-	expect(t, status, 200, body)
 	t.Cleanup(func() {
 		s.Store.Pool.Exec(context.Background(), "DELETE FROM console_users WHERE email=$1", email)
 		s.Store.Pool.Exec(context.Background(), "DELETE FROM notification_deliveries WHERE recipients=ARRAY[$1]::text[]", email)
 	})
-	status, body = request(t, base, "", "POST", "/auth/v1/login", store.Object{"email": email, "password": "signup-password-123"}, "")
-	expect(t, status, 403, body)
-	confirmation := authMailToken(t, s, email, "cnf")
-	status, body = request(t, base, "", "POST", "/auth/v1/confirm", store.Object{"token": confirmation}, "")
 	expect(t, status, 200, body)
-	status, body = request(t, base, "", "POST", "/auth/v1/confirm", store.Object{"token": confirmation}, "")
-	expect(t, status, 422, body)
+	registered := body
+
+	if str(object(body, "data"), "token") == "" {
+		t.Fatal("registration did not sign the account in")
+	}
+
+	// Signing up needs no further step: the same credentials work right away.
 	status, body = request(t, base, "", "POST", "/auth/v1/login", store.Object{"email": email, "password": "signup-password-123"}, "")
 	expect(t, status, 200, body)
+	status, body = request(t, base, str(object(body, "data"), "token"), "POST", "/auth/v1/logout", nil, "")
+	expect(t, status, 200, body)
+	body = registered
 	data := object(body, "data")
 	u := object(data, "user")
 
@@ -112,28 +115,62 @@ func TestAuthbossSignupRecoveryAndRevocation(t *testing.T) {
 	expect(t, status, 401, body)
 }
 
-func TestAuthbossOutboxFailureRollsBackRegistration(t *testing.T) {
+func TestRegistrationWithInvitationJoinsProjectInOneStep(t *testing.T) {
 	s, h, _, _ := fixture(t)
-	s.Config.SMTPHost = "fake.invalid"
 	ctx := context.Background()
-	// A NOT VALID constraint also applies to newly inserted deliveries.
-	_, err := s.Store.Pool.Exec(ctx, `ALTER TABLE notification_deliveries ADD CONSTRAINT reject_auth_test CHECK(notification_type<>'auth_mail') NOT VALID`)
-	if err != nil {
-		t.Fatal(err)
+	_, owner, _ := signupAccount(t, s, h.URL)
+	status, body := request(t, h.URL, owner, "POST", "/auth/v1/projects", store.Object{"name": "Invited workspace"}, "")
+	expect(t, status, 201, body)
+	p := str(object(body, "data"), "id")
+	email := store.ID("invitee") + "@example.com"
+
+	t.Cleanup(func() {
+		s.Store.Pool.Exec(ctx, "DELETE FROM console_users WHERE email=$1", email)
+		s.Store.Pool.Exec(ctx, "DELETE FROM notification_deliveries WHERE recipients=ARRAY[$1]::text[]", email)
+		s.Store.Pool.Exec(ctx, "DELETE FROM projects WHERE id=$1", p)
+	})
+	status, body = scopedRequest(t, h.URL, owner, p, "POST", "/v1/members", store.Object{"email": email, "role": "member"})
+	expect(t, status, 201, body)
+	invitation := authMailToken(t, s, email, "token")
+
+	status, body = request(t, h.URL, "", "GET", "/auth/v1/project-invitations/"+invitation, nil, "")
+	expect(t, status, 200, body)
+	preview := object(body, "data")
+
+	if str(preview, "email") != email || str(preview, "project_name") != "Invited workspace" || preview["account_exists"] != false {
+		t.Fatalf("unexpected invitation preview: %v", preview)
 	}
 
-	t.Cleanup(func() { s.Store.Pool.Exec(ctx, "ALTER TABLE notification_deliveries DROP CONSTRAINT reject_auth_test") })
-
-	email := store.ID("rollback") + "@example.com"
-	status, body := request(t, h.URL, "", "POST", "/auth/v1/register", store.Object{"email": email, "name": "Rollback", "password": "signup-password-123"}, "")
-
-	if status < 400 {
-		t.Fatalf("outbox failure reported success: %v", body)
-	}
+	// The token only works for the invited address; nothing is created otherwise.
+	intruder := store.ID("intruder") + "@example.com"
+	status, body = request(t, h.URL, "", "POST", "/auth/v1/register", store.Object{"email": intruder, "name": "Intruder", "password": "signup-password-123", "invitation_token": invitation}, "")
+	expect(t, status, 410, body)
 
 	var count int
 
-	if err = s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM console_users WHERE email=$1", email).Scan(&count); err != nil || count != 0 {
-		t.Fatalf("registration was not atomic: %d %v", count, err)
+	if err := s.Store.Pool.QueryRow(ctx, "SELECT count(*) FROM console_users WHERE email=$1", intruder).Scan(&count); err != nil || count != 0 {
+		t.Fatalf("rejected registration was not rolled back: %d %v", count, err)
+	}
+
+	status, body = request(t, h.URL, "", "POST", "/auth/v1/register", store.Object{"email": email, "name": "Invitee", "password": "signup-password-123", "invitation_token": invitation}, "")
+	expect(t, status, 200, body)
+	data := object(body, "data")
+
+	if str(object(data, "invitation"), "project_id") != p {
+		t.Fatalf("registration did not join the invited project: %v", data)
+	}
+
+	status, body = scopedRequest(t, h.URL, str(data, "token"), p, "GET", "/v1/customers", nil)
+	expect(t, status, 200, body)
+	status, body = request(t, h.URL, "", "GET", "/auth/v1/project-invitations/"+invitation, nil, "")
+	expect(t, status, 410, body)
+}
+
+func TestLegacyVerificationEndpointsAreNoOps(t *testing.T) {
+	_, h, _, _ := fixture(t)
+
+	for _, path := range []string{"/auth/v1/confirm", "/auth/v1/confirm/resend"} {
+		status, body := request(t, h.URL, "", "POST", path, store.Object{"token": "old", "email": "old@example.com"}, "")
+		expect(t, status, 200, body)
 	}
 }

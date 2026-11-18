@@ -6,9 +6,12 @@ import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { useI18n } from '../app/i18n'
 import { PasswordInput } from '../components/password-input'
+import { useSession } from '../app/session-context'
+import { resumePendingJoin } from '../app/pending-join'
 
 export function AuthFlowPage({ flow }: { flow: string }) {
   const { t, language } = useI18n()
+  const { registerUser } = useSession()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
@@ -16,35 +19,31 @@ export function AuthFlowPage({ flow }: { flow: string }) {
   const [done, setDone] = useState(false)
   const [error, setError] = useState<unknown>(null)
   const registration = flow === '/register'
-  const confirmation = flow === '/confirm'
   const reset = flow === '/recover/end'
   const title = registration
     ? t('auth.registerTitle')
-    : confirmation
-      ? t('auth.confirm')
-      : reset
-        ? t('auth.newPassword')
-        : flow === '/recover'
-          ? t('auth.recover')
-          : t('auth.resend')
+    : reset
+      ? t('auth.newPassword')
+      : t('auth.recover')
 
   async function submit() {
     setBusy(true)
     setError(null)
-    const client = new WapoAuthClient({
-      baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8080',
-      apiKey: '',
-    })
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+    const client = new WapoAuthClient({ baseUrl: apiUrl, apiKey: '' })
     const query = new URLSearchParams(location.hash.split('?')[1] || '')
 
     try {
-      if (registration)
-        await client.register({ name, email, password, language })
-      else if (confirmation) await client.confirm(query.get('cnf') || '')
-      else if (reset)
+      if (registration) {
+        // Creating the account signs the person in; there is no extra step.
+        await registerUser(apiUrl, { name, email, password, language })
+        location.hash = '#/'
+        resumePendingJoin()
+
+        return
+      } else if (reset)
         await client.resetPassword(query.get('token') || '', password)
-      else if (flow === '/recover') await client.recover(email)
-      else await client.resendConfirmation(email)
+      else await client.recover(email)
 
       setDone(true)
     } catch (error) {
@@ -59,20 +58,14 @@ export function AuthFlowPage({ flow }: { flow: string }) {
       title={title}
       description={
         done
-          ? confirmation
-            ? t('auth.confirmed')
-            : reset
-              ? t('auth.resetDone')
-              : t('auth.checkEmail')
+          ? reset
+            ? t('auth.resetDone')
+            : t('auth.checkEmail')
           : registration
             ? t('auth.description')
-            : confirmation
-              ? t('auth.confirmDescription')
-              : reset
-                ? t('auth.resetDescription')
-                : flow === '/recover'
-                  ? t('auth.recoverDescription')
-                  : t('auth.resendDescription')
+            : reset
+              ? t('auth.resetDescription')
+              : t('auth.recoverDescription')
       }
       footer={
         registration && !done ? (
@@ -102,7 +95,7 @@ export function AuthFlowPage({ flow }: { flow: string }) {
               />
             </Field>
           )}
-          {!confirmation && !reset && (
+          {!reset && (
             <Field label="Email">
               <Input
                 type="email"

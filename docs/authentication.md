@@ -1,6 +1,6 @@
 # Accounts and authentication
 
-Wapo uses Authboss v3 for registration, password authentication, email confirmation,
+Wapo uses Authboss v3 for registration, password authentication,
 password recovery and password changes. Wapo supplies PostgreSQL storage, JSON
 adapters, the React UI, project authorization and its durable email transport.
 Authboss is a library inside the existing Go API; no separate identity service is
@@ -8,25 +8,29 @@ required.
 
 ## Public signup
 
-1. Configure SMTP in the API and worker. Set the first `WEB_ORIGIN` entry to the
-   public console origin; authentication emails link to this origin, never an
-   untrusted request header.
-2. Open **Create account** on the sign-in page and enter name, email and password.
-3. Open the verification email and explicitly confirm. The single-use link expires
-   after 24 hours. **Resend verification** issues a replacement.
-4. Sign in and create the first project. Project creation and its administrator
-   membership commit together. Users can create additional projects in Projects.
+1. Open **Create account** on the sign-in page and enter name, email and password.
+2. The account is created and signed in immediately. There is no email
+   verification step.
+3. Create the first project. Project creation and its administrator membership
+   commit together. Users can create additional projects in Projects.
 
-Public registration is available when SMTP is configured. Without SMTP, the
-email-sending routes return `503 email_unavailable`; already-issued verification
-and recovery links still work. Bootstrap and existing
-account login continue to work. No test sends real email: tests inspect the encrypted
+Registration does not need SMTP. Password recovery and invitations do: set the
+first `WEB_ORIGIN` entry to the public console origin (authentication emails link
+to this origin, never an untrusted request header). Without SMTP, recovery returns
+`503 email_unavailable`; already-issued recovery links still work.
+
+Because the sign-up email is not proven, nothing is granted on the basis of the
+email alone: project invitations are accepted only with the token from the
+invitation email, which proves ownership of that inbox. The legacy
+`/auth/v1/confirm` and `/auth/v1/confirm/resend` routes are no-ops kept for
+compatibility, and migration 024 activates accounts that were still waiting for
+a verification link. No test sends real email: tests inspect the encrypted
 outbox or use a fake sender.
 
 ## Passwords, sessions and profile
 
 Existing user IDs, bcrypt cost-12 hashes and sessions are preserved. The migration
-marks existing accounts as verified; new registrations explicitly start unverified.
+marks existing accounts as verified; new registrations are usable immediately.
 Passwords contain 12–72 UTF-8 bytes. Global operators retain the existing manual
 user management and invitation flows.
 
@@ -46,15 +50,14 @@ and language menus in the upper-right corner. Configuration → Preferences expo
 the same controls after login; the existing account theme switch stays synchronized.
 
 Public registration accepts optional `language` (`es` by default for API clients).
-The console sends the detected/selected language so a new account retains it after
-verification. An authenticated account's stored language takes precedence over the
+The console sends the detected/selected language so a new account starts with it. An authenticated account's stored language takes precedence over the
 browser and is updated through the existing profile API. Theme and unauthenticated
 language selections persist locally; account language follows the user across devices.
 
 ## Recovery and sessions
 
 Password recovery links expire in one hour, are single-use and are invalidated by
-replacement requests. Unknown, disabled and unverified accounts receive the same
+replacement requests. Unknown and disabled accounts receive the same
 accepted recovery response. Resetting or changing a password revokes every session
 in the same transaction. **Edit profile → Security** lists active sessions, supports
 individual revocation and allows password changes after checking the current password.
@@ -91,9 +94,14 @@ The screen uses a searchable, status-filtered member table. The empty state and
 header both open the invitation modal. Row menus open role editing or confirm
 project-access removal; they never change another person's password or globally
 disable/delete their account.
-Invitations expire after seven days and must be accepted by a signed-in, verified
-account with the exact invited email. A new recipient registers first and reopens
-the invitation after verification. Existing accounts retain their password and
+Invitations expire after seven days and can only be accepted for the exact invited
+email, using the token from the invitation link. Opening the link shows the
+project and the invited email and finishes in one step: a new recipient enters a
+name and password (**Create account and join**), an existing account enters its
+password (**Sign in and join**), and an invitee who is already signed in joins
+automatically. If the person signs in elsewhere first, the console remembers the
+open invitation on that device and returns to it instead of asking them to create
+an unrelated project. Existing accounts retain their password and
 other memberships. Accepting an invitation cannot replace an existing membership's
 role. The final active project administrator cannot be removed or demoted through
 the team API. Global operators can still deactivate accounts administratively.
@@ -101,7 +109,7 @@ the team API. Global operators can still deactivate accounts administratively.
 Sending a replacement invitation invalidates older pending invitations for the
 same project and email. Removing or changing a membership invalidates outstanding
 invitations for that member, preventing old links from restoring removed access.
-Acceptance serializes with these changes and revalidates the current verified
+Acceptance serializes with these changes and revalidates the current
 session and email inside the transaction. Account security remains accessible
 without an active project. Creation and invitation acceptance refresh access and
 select the target project before navigation; stale responses cannot undo selection.

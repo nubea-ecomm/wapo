@@ -44,6 +44,7 @@ it('puts accepted replies in the timeline immediately and preserves drafts on er
         admin: new WapoAdminClient(options),
         connect: vi.fn(),
         connectUser: vi.fn(),
+        registerUser: vi.fn(),
         selectTenant: vi.fn(),
         disconnect: vi.fn(),
         updateProfile: vi.fn(),

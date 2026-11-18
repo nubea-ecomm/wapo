@@ -41,6 +41,7 @@ it('submits editable profile fields and the selected language', async () => {
     }),
     connect: vi.fn(),
     connectUser: vi.fn(),
+    registerUser: vi.fn(),
     selectTenant: vi.fn(),
     disconnect: vi.fn(),
     updateProfile,

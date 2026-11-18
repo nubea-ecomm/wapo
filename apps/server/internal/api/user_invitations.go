@@ -87,9 +87,14 @@ func (s *Server) userInvitation(w http.ResponseWriter, r *http.Request) {
 	write(w, 200, store.Object{"data": store.Object{"accepted": true}})
 }
 
+// invitationUnavailable is the 410 body shared by every invitation endpoint.
+func invitationUnavailable() store.Object {
+	return store.Object{"error": store.Object{"code": "invitation_unavailable", "message": "Invitation is expired, accepted, or unknown"}}
+}
+
 func invitationError(w http.ResponseWriter, err error) {
 	if err == pgx.ErrNoRows {
-		fail(w, 410, "invitation_unavailable", "Invitation is expired, accepted, or unknown")
+		write(w, 410, invitationUnavailable())
 		return
 	}
 

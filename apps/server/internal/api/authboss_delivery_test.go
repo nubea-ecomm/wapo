@@ -22,7 +22,9 @@ func TestAuthbossEmailWorkerDeliversAndErasesEncryptedBody(t *testing.T) {
 	})
 	status, body := request(t, h.URL, "", "POST", "/auth/v1/register", store.Object{"email": email, "name": "Mail recipient", "password": "signup-password-123"}, "")
 	expect(t, status, 200, body)
-	token := authMailToken(t, s, email, "cnf")
+	status, body = request(t, h.URL, "", "POST", "/auth/v1/recover", store.Object{"email": email}, "")
+	expect(t, status, 200, body)
+	token := authMailToken(t, s, email, "token")
 	workerCtx, cancel := context.WithCancel(ctx)
 	captured := make(invitationCapture, 32)
 	done := make(chan struct{})
@@ -36,7 +38,7 @@ func TestAuthbossEmailWorkerDeliversAndErasesEncryptedBody(t *testing.T) {
 
 	select {
 	case message := <-captured:
-		if len(message.To) != 1 || message.To[0] != email || !strings.Contains(message.Text, "http://localhost:5173/#/confirm?cnf=") || !strings.Contains(message.HTML, "Continuar en Wapo") {
+		if len(message.To) != 1 || message.To[0] != email || !strings.Contains(message.Text, "http://localhost:5173/#/recover/end?token=") || !strings.Contains(message.HTML, "Continuar en Wapo") {
 			t.Fatalf("unexpected authentication message: %#v", message)
 		}
 	case <-time.After(5 * time.Second):
@@ -56,6 +58,6 @@ func TestAuthbossEmailWorkerDeliversAndErasesEncryptedBody(t *testing.T) {
 		t.Fatalf("email body was not erased: %s %s", state, payload)
 	}
 
-	status, body = request(t, h.URL, "", "POST", "/auth/v1/confirm", store.Object{"token": token}, "")
+	status, body = request(t, h.URL, "", "POST", "/auth/v1/recover/end", store.Object{"token": token, "password": "replacement-password-123"}, "")
 	expect(t, status, 200, body)
 }

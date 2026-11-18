@@ -17,6 +17,14 @@ export interface Session {
   tenantName: string
 }
 
+export interface RegistrationInput {
+  name: string
+  email: string
+  password: string
+  language?: ConsoleUser['language']
+  invitation_token?: string
+}
+
 export interface SessionContextValue {
   refreshAccess: (preferredProject?: string) => Promise<void>
   session: Session | null
@@ -27,6 +35,12 @@ export interface SessionContextValue {
     url: string,
     email: string,
     password: string,
+    remember?: boolean,
+    invitationToken?: string,
+  ) => Promise<void>
+  registerUser: (
+    url: string,
+    input: RegistrationInput,
     remember?: boolean,
   ) => Promise<void>
   selectTenant: (id: string, name: string) => void
