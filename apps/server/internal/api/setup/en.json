@@ -50,5 +50,13 @@
   "authorizePrompt": "Complete authorization in the Meta window.",
   "authorized": "Access authorized. Waiting for WhatsApp account confirmation…",
   "noAuthorization": "Authorization was not received. You can try again.",
-  "sdkLocale": "en_US"
+  "sdkLocale": "en_US",
+  "errorMismatch": "Meta connected your number differently from the option you chose, and this link does not allow that type. To keep using the app, make sure the number is on WhatsApp Business (not regular WhatsApp), update the app and try again.",
+  "errorAmbiguous": "Meta found more than one possible number. Try again and pick your business number in Meta.",
+  "errorAccount": "Meta did not say which WhatsApp account you authorized. Try again and finish every step in the Meta window.",
+  "errorAuthorization": "The Meta authorization expired or was already used. Try again.",
+  "errorProvider": "We could not read your WhatsApp account from Meta. Wait a few minutes and try again.",
+  "errorIncomplete": "Your number was saved but setup is not finished. Contact support with this code to complete it.",
+  "errorBusy": "This link is already being completed. Wait a few seconds and reload the page.",
+  "errorUnavailable": "This link is no longer available. Request a new link to connect your number."
 }

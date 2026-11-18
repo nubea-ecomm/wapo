@@ -37,15 +37,8 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mode := str(input, "connection_type")
-	allowed := false
 
-	for _, v := range o["allowed_connection_types"].([]any) {
-		if v == mode {
-			allowed = true
-		}
-	}
-
-	if waba := str(input, "waba_id"); !allowed || str(input, "code") == "" || (waba != "" && !numeric(waba)) {
+	if waba := str(input, "waba_id"); !linkAllows(o, mode) || str(input, "code") == "" || (waba != "" && !numeric(waba)) {
 		fail(w, 422, "validation_error", "code, a numeric waba_id when provided and an allowed connection_type are required")
 		return
 	}
@@ -106,8 +99,21 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	isCoex, _ := selected["is_on_biz_app"].(bool)
 
 	if (mode == "coexistence") != isCoex {
-		s.failConnectionTypeMismatch(ctx, w, p, id, token, mode, signupEvent(input), waba, selected)
-		return
+		// Meta decides how a number connects: a number that is not on the Business
+		// App always goes through regular signup. Keep the connection with the type
+		// Meta reports when the link allows it, instead of failing the merchant.
+		actual := "dedicated"
+		if isCoex {
+			actual = "coexistence"
+		}
+
+		if !linkAllows(o, actual) {
+			s.failConnectionTypeMismatch(ctx, w, p, id, token, mode, signupEvent(input), waba, selected)
+			return
+		}
+
+		slog.Info("setup connection type follows Meta", "project", p, "setup_link", id, "requested_connection_type", mode, "meta_connection_type", actual, "signup_event", signupEvent(input))
+		mode = actual
 	}
 
 	tx, e := s.Store.Pool.Begin(ctx)
@@ -273,4 +279,16 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	write(w, 200, store.Object{"data": store.Object{"connection": clean(connection), "redirect_url": redirect}})
+}
+
+// linkAllows reports whether a setup link permits the connection type.
+func linkAllows(link store.Object, connectionType string) bool {
+	types, _ := link["allowed_connection_types"].([]any)
+	for _, v := range types {
+		if v == connectionType {
+			return true
+		}
+	}
+
+	return false
 }
