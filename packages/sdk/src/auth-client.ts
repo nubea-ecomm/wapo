@@ -1,5 +1,10 @@
 import { Transport } from './transport.js'
-import type { ConsoleUser, Project } from './types.js'
+import type {
+  ConsoleSession,
+  ConsoleUser,
+  Project,
+  ProjectInvitationPreview,
+} from './types.js'
 
 export class WapoAuthClient extends Transport {
   sessions() {
@@ -21,12 +26,20 @@ export class WapoAuthClient extends Transport {
     email: string
     password: string
     language?: ConsoleUser['language']
+    /** Joins the invited project in the same step; the email must match. */
+    invitation_token?: string
   }) {
-    return this.request('POST', '/auth/v1/register', input)
+    return this.request<{ data: ConsoleSession }>(
+      'POST',
+      '/auth/v1/register',
+      input,
+    )
   }
+  /** @deprecated Accounts no longer need email verification; this is a no-op. */
   confirm(token: string) {
     return this.request('POST', '/auth/v1/confirm', { token })
   }
+  /** @deprecated Accounts no longer need email verification; this is a no-op. */
   resendConfirmation(email: string) {
     return this.request('POST', '/auth/v1/confirm/resend', { email })
   }
@@ -40,6 +53,12 @@ export class WapoAuthClient extends Transport {
     return this.request<{ data: Project }>('POST', '/auth/v1/projects', {
       name,
     })
+  }
+  projectInvitation(token: string) {
+    return this.request<{ data: ProjectInvitationPreview }>(
+      'GET',
+      `/auth/v1/project-invitations/${encodeURIComponent(token)}`,
+    )
   }
   acceptProjectInvitation(token: string) {
     return this.request<{ data: { project_id: string; accepted: boolean } }>(
@@ -63,9 +82,10 @@ export class WapoAuthClient extends Transport {
     )
   }
   login(email: string, password: string) {
-    return this.request<{
-      data: { token: string; expires_at: string; user: ConsoleUser }
-    }>('POST', '/auth/v1/login', { email, password })
+    return this.request<{ data: ConsoleSession }>('POST', '/auth/v1/login', {
+      email,
+      password,
+    })
   }
   logout() {
     return this.request('POST', '/auth/v1/logout')

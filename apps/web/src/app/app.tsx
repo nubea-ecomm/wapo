@@ -78,15 +78,7 @@ function AppRoutes() {
   if (location.pathname === '/accept-invitation')
     return <AcceptInvitationPage />
 
-  if (
-    [
-      '/register',
-      '/confirm',
-      '/confirm/resend',
-      '/recover',
-      '/recover/end',
-    ].includes(location.pathname)
-  )
+  if (['/register', '/recover', '/recover/end'].includes(location.pathname))
     return (
       <AuthFlowPage
         key={location.pathname + location.search}

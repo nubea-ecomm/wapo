@@ -77,6 +77,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /auth/v1/sessions", s.ownSessions)
 	mux.HandleFunc("DELETE /auth/v1/sessions/{id}", s.ownSessions)
 	mux.HandleFunc("POST /auth/v1/project-invitations/{token}", s.acceptProjectInvitation)
+	mux.HandleFunc("GET /auth/v1/project-invitations/{token}", s.projectInvitationPreview)
 	mux.HandleFunc("POST /auth/v1/logout", s.logout)
 	mux.HandleFunc("GET /auth/v1/invitations/{token}", s.userInvitation)
 	mux.HandleFunc("POST /auth/v1/invitations/{token}", s.userInvitation)

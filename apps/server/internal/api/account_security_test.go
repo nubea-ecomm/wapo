@@ -50,7 +50,7 @@ func TestAccountSessionsAndPasswordChange(t *testing.T) {
 	expect(t, status, 200, body)
 }
 
-func TestVerificationReplacementAndExpiredRecovery(t *testing.T) {
+func TestExpiredRecovery(t *testing.T) {
 	s, h, _, _ := fixture(t)
 	s.Config.SMTPHost = "fake.invalid"
 	email := store.ID("expiry") + "@example.com"
@@ -61,14 +61,6 @@ func TestVerificationReplacementAndExpiredRecovery(t *testing.T) {
 		s.Store.Pool.Exec(ctx, "DELETE FROM notification_deliveries WHERE recipients=ARRAY[$1]::text[]", email)
 	})
 	status, body := request(t, h.URL, "", "POST", "/auth/v1/register", store.Object{"email": email, "name": "Expiry", "password": "signup-password-123"}, "")
-	expect(t, status, 200, body)
-	old := authMailToken(t, s, email, "cnf")
-	status, body = request(t, h.URL, "", "POST", "/auth/v1/confirm/resend", store.Object{"email": email}, "")
-	expect(t, status, 200, body)
-	current := authMailToken(t, s, email, "cnf")
-	status, body = request(t, h.URL, "", "POST", "/auth/v1/confirm", store.Object{"token": old}, "")
-	expect(t, status, 422, body)
-	status, body = request(t, h.URL, "", "POST", "/auth/v1/confirm", store.Object{"token": current}, "")
 	expect(t, status, 200, body)
 	status, body = request(t, h.URL, "", "POST", "/auth/v1/recover", store.Object{"email": email}, "")
 	expect(t, status, 200, body)

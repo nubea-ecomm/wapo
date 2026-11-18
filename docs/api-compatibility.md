@@ -25,13 +25,17 @@ outgoing project and connection webhook subscriptions are unchanged. See
 [onboarding and migration](whatsapp-onboarding.md#transition-from-project-callbacks).
 
 Native account management now exposes Authboss-backed public registration,
-verification, recovery, password changes, session management and project invitations.
+recovery, password changes, session management and project invitations.
 These `/auth/v1/*` and `/v1/members*` routes are Wapo extensions, not upstream parity
 claims. Existing login tokens and legacy administration routes retain their contracts.
 Profiles additionally expose project-specific `project_roles`; scoped users cannot
 change their email through profile PATCH; neither can non-admin all-project users.
 Replacement invitations and membership changes invalidate older pending invitation
-links. Issued verification/recovery tokens remain usable when SMTP is disabled.
+links. Issued recovery tokens remain usable when SMTP is disabled.
+`POST /auth/v1/register` signs the new account in and returns the login session
+shape; it accepts an optional `invitation_token` to join the invited project in
+the same transaction. `GET /auth/v1/project-invitations/{token}` previews a pending
+invitation. `/auth/v1/confirm` and `/auth/v1/confirm/resend` are deprecated no-ops.
 See [authentication](authentication.md) and [CORS configuration](operations.md).
 `POST /auth/v1/register` also accepts an optional `language` (`es`, `en`, `pt`);
 omitting it preserves the existing Spanish API default.
