@@ -98,6 +98,7 @@ async function complete() {
         waba_id: session.waba_id,
         phone_number_id: session.phone_number_id || '',
         connection_type: mode.value,
+        signup_event: session.event,
       }),
     })
 
@@ -105,7 +106,12 @@ async function complete() {
     const body = await response.json()
 
     // Show Meta/Wapo's error code so support can tell the failures apart.
-    if (!response.ok) throw new Error(body?.error?.code || '')
+    if (!response.ok) {
+      const failure = new Error(body?.error?.code || '')
+
+      failure.details = body?.error?.details
+      throw failure
+    }
 
     status.textContent = copy.connected
     button.hidden = true
@@ -118,10 +124,37 @@ async function complete() {
 
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
   } catch (e) {
-    status.textContent = e?.message
-      ? `${copy.completeError} (${e.message})`
-      : copy.completeError
+    status.textContent = [
+      e?.message ? `${copy.completeError} (${e.message})` : copy.completeError,
+      mismatchDescription(e?.details),
+    ]
+      .filter(Boolean)
+      .join(' ')
   }
+}
+
+// Names the phone, account and type Meta returned when it does not match the
+// chosen connection type, so the person can see what Meta actually connected.
+function mismatchDescription(details) {
+  if (!details?.meta_connection_type) return ''
+
+  const phone = details.display_phone_number || details.phone_number_id || '?'
+  const account = details.waba_name
+    ? `${details.waba_name} (${details.waba_id})`
+    : details.waba_id || '?'
+  const type =
+    details.meta_connection_type === 'coexistence'
+      ? copy.coexistenceType
+      : copy.dedicatedType
+  const returned = copy.mismatchDetails
+    .replace('{phone}', phone)
+    .replace('{account}', account)
+    .replace('{type}', type)
+  const regular =
+    details.requested_connection_type === 'coexistence' &&
+    details.signup_event === 'FINISH'
+
+  return regular ? `${returned} ${copy.regularSignup}` : returned
 }
 
 window.addEventListener('message', (event) => {
@@ -159,6 +192,7 @@ window.addEventListener('message', (event) => {
         value.data?.phone_number_id,
         value.data?.phone_number_ids,
       ),
+      event: value.event,
     }
     void complete()
   } else if (value.event === 'ERROR' || value.event === 'CANCEL') {

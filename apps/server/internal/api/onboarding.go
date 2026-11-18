@@ -106,9 +106,7 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 	isCoex, _ := selected["is_on_biz_app"].(bool)
 
 	if (mode == "coexistence") != isCoex {
-		slog.Warn("setup completion failed", "project", p, "setup_link", id, "code", "connection_type_mismatch")
-		fail(w, 422, "connection_type_mismatch", "Meta phone status does not match the chosen connection type")
-
+		s.failConnectionTypeMismatch(ctx, w, p, id, token, mode, signupEvent(input), waba, selected)
 		return
 	}
 

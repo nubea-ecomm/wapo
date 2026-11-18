@@ -204,6 +204,7 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     expect(submitted.code).toBe('fake-code')
     expect(submitted.waba_id).toBe('654321')
     expect(submitted.phone_number_id).toBe('111111')
+    expect(submitted.signup_event).toBe('FINISH')
     const signupExtras = () =>
       page.evaluate(
         () =>
@@ -280,6 +281,55 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     // The error code is shown for support; the provider message is not.
     await expect(page.getByRole('status')).toHaveText(
       `${copy.completeError} (ambiguous_phone_number)`,
+    )
+
+    // A Business App link that Meta completed through its regular signup names
+    // the phone, account and type Meta returned.
+    await page.route('**/public/setup/test/preview/complete', (route) =>
+      route.fulfill({
+        status: 422,
+        json: {
+          error: {
+            code: 'connection_type_mismatch',
+            message: 'Provider diagnostic',
+            details: {
+              requested_connection_type: 'coexistence',
+              meta_connection_type: 'dedicated',
+              phone_number_id: '111111',
+              display_phone_number: '+57 322 0000000',
+              waba_id: '654321',
+              waba_name: 'Marbest - Nubea',
+              signup_event: 'FINISH',
+            },
+          },
+        },
+      }),
+    )
+    // A failed completion keeps the page closed until it is reloaded.
+    await page.reload()
+    await page.getByRole('button', { name: new RegExp(copy.appTitle) }).click()
+    await page.getByRole('button', { name: copy.continue }).click()
+    await page.evaluate(() =>
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          origin: 'https://www.facebook.com',
+          data: {
+            type: 'WA_EMBEDDED_SIGNUP',
+            event: 'FINISH',
+            data: { waba_id: '654321', phone_number_id: '111111' },
+          },
+        }),
+      ),
+    )
+    await expect(page.getByRole('status')).toHaveText(
+      [
+        `${copy.completeError} (connection_type_mismatch)`,
+        copy.mismatchDetails
+          .replace('{phone}', '+57 322 0000000')
+          .replace('{account}', 'Marbest - Nubea (654321)')
+          .replace('{type}', copy.dedicatedType),
+        copy.regularSignup,
+      ].join(' '),
     )
 
     await page.route('**/public/setup/test/preview', (route) =>

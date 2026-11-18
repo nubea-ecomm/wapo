@@ -115,7 +115,12 @@ The hosted page shows the error code, and completion failures are logged.
 The server exchanges the authorization code, discovers phones under the shared
 WABA (including when the completion event omits a phone ID), and verifies Meta's
 `is_on_biz_app` flag matches the selected mode. Ambiguous phone selections fail
-instead of binding an arbitrary phone. Discovery currently handles the first 100
+instead of binding an arbitrary phone. A `connection_type_mismatch` names what
+Meta returned in `error.details` (phone, WABA ID and name, Meta's type and the
+completion event the page received) and logs the same IDs. The hosted page shows
+them, and explains when a Business App link ended in Meta's regular `FINISH`
+signup instead of `FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING`, which means Meta
+never asked for phone confirmation and did not connect the Business App. Discovery currently handles the first 100
 WABA phone records; paginate discovery before deploying to larger portfolios.
 
 After subscription, dedicated numbers are registered with the Cloud API.
