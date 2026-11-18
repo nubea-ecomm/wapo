@@ -125,8 +125,9 @@ async function complete() {
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
   } catch (e) {
     status.textContent = [
-      e?.message ? `${copy.completeError} (${e.message})` : copy.completeError,
+      failureMessage(e?.message),
       mismatchDescription(e?.details),
+      e?.message ? `(${e.message})` : '',
     ]
       .filter(Boolean)
       .join(' ')
@@ -135,6 +136,24 @@ async function complete() {
 
 // Names the phone, account and type Meta returned when it does not match the
 // chosen connection type, so the person can see what Meta actually connected.
+// Each failure tells the merchant what happened and what to do next; the code
+// stays visible for support.
+function failureMessage(code) {
+  const messages = {
+    connection_type_mismatch: copy.errorMismatch,
+    ambiguous_phone_number: copy.errorAmbiguous,
+    waba_discovery_failed: copy.errorAccount,
+    oauth_exchange_failed: copy.errorAuthorization,
+    asset_verification_failed: copy.errorProvider,
+    onboarding_incomplete: copy.errorIncomplete,
+    event_pending: copy.errorIncomplete,
+    setup_busy: copy.errorBusy,
+    link_unavailable: copy.errorUnavailable,
+  }
+
+  return messages[code] || copy.completeError
+}
+
 function mismatchDescription(details) {
   if (!details?.meta_connection_type) return ''
 

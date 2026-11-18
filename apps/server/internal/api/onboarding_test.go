@@ -232,3 +232,54 @@ func TestSetupLinksExpiryRevocationAndIsolation(t *testing.T) {
 	status, o = request(t, h.URL, otherKey, "GET", "/v1/customers/"+customer+"/setup_links", nil, "")
 	expect(t, status, 404, o)
 }
+
+func TestHostedOnboardingFollowsTheTypeMetaReports(t *testing.T) {
+	server, h, p, key := fixture(t)
+	server.Config.MetaAppID = "meta-app"
+	server.Config.MetaConfigID = "meta-config"
+	server.Config.MetaVersion = "v24.0"
+	server.Config.PublicURL = h.URL
+
+	meta := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/oauth/access_token"):
+			write(w, 200, store.Object{"access_token": "provider-token-" + r.URL.Query().Get("code")})
+		case strings.HasSuffix(r.URL.Path, "/phone_numbers"):
+			// Meta completed its regular signup: the number is not on the Business App.
+			write(w, 200, store.Object{"data": []any{store.Object{"id": "333333", "display_phone_number": "+5491100000000", "is_on_biz_app": false}}})
+		case strings.HasSuffix(r.URL.Path, "/654321"):
+			write(w, 200, store.Object{"id": "654321", "name": "Merchant WABA"})
+		default:
+			write(w, 200, store.Object{"success": true})
+		}
+	}))
+
+	defer meta.Close()
+
+	server.Meta.BaseURL = meta.URL
+	status, o := request(t, h.URL, key, "POST", "/v1/customers", store.Object{"name": "Merchant", "external_customer_id": "shop-follow"}, "")
+	expect(t, status, 201, o)
+	customer := str(object(o, "data"), "id")
+
+	link := func(types ...string) string {
+		status, o := request(t, h.URL, key, "POST", "/platform/v1/customers/"+customer+"/setup_links", store.Object{"setup_link": store.Object{"allowed_connection_types": types}}, "")
+		expect(t, status, 201, o)
+
+		return "/public/setup/" + p + "/" + str(object(o, "data"), "token") + "/complete"
+	}
+
+	// A link that only allows the Business App still refuses a dedicated number.
+	status, o = request(t, h.URL, "", "POST", link("coexistence"), store.Object{"code": "only-app", "waba_id": "654321", "connection_type": "coexistence"}, "")
+	if status != 422 || str(object(o, "error"), "code") != "connection_type_mismatch" {
+		t.Fatalf("disallowed type must fail: %d %v", status, o)
+	}
+
+	// When both types are allowed, the connection follows what Meta reports.
+	status, o = request(t, h.URL, "", "POST", link("coexistence", "dedicated"), store.Object{"code": "both", "waba_id": "654321", "connection_type": "coexistence"}, "")
+	expect(t, status, 200, o)
+
+	connection := object(object(o, "data"), "connection")
+	if str(connection, "connection_type") != "dedicated" || str(connection, "status") != "connected" {
+		t.Fatalf("connection must follow Meta's type: %v", connection)
+	}
+}

@@ -280,7 +280,7 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     )
     // The error code is shown for support; the provider message is not.
     await expect(page.getByRole('status')).toHaveText(
-      `${copy.completeError} (ambiguous_phone_number)`,
+      `${copy.errorAmbiguous} (ambiguous_phone_number)`,
     )
 
     // A Business App link that Meta completed through its regular signup names
@@ -323,12 +323,13 @@ for (const { language, allowed } of ['es', 'en'].flatMap((language) =>
     )
     await expect(page.getByRole('status')).toHaveText(
       [
-        `${copy.completeError} (connection_type_mismatch)`,
+        copy.errorMismatch,
         copy.mismatchDetails
           .replace('{phone}', '+57 322 0000000')
           .replace('{account}', 'Marbest - Nubea (654321)')
           .replace('{type}', copy.dedicatedType),
         copy.regularSignup,
+        '(connection_type_mismatch)',
       ].join(' '),
     )
 

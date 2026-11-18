@@ -113,9 +113,13 @@ or several candidates fail with `ambiguous_phone_number` instead of guessing.
 The hosted page shows the error code, and completion failures are logged.
 
 The server exchanges the authorization code, discovers phones under the shared
-WABA (including when the completion event omits a phone ID), and verifies Meta's
-`is_on_biz_app` flag matches the selected mode. Ambiguous phone selections fail
-instead of binding an arbitrary phone. A `connection_type_mismatch` names what
+WABA (including when the completion event omits a phone ID), and reads Meta's
+`is_on_biz_app` flag. Meta decides how a number connects (a number that is not on
+the Business App always goes through regular signup), so when the flag differs
+from the selected mode and the link allows Meta's type, the connection is kept
+with Meta's type. Only a type the link does not allow fails, with
+`connection_type_mismatch`. Ambiguous phone selections fail instead of binding an
+arbitrary phone. A `connection_type_mismatch` names what
 Meta returned in `error.details` (phone, WABA ID and name, Meta's type and the
 completion event the page received) and logs the same IDs. The hosted page shows
 them, and explains when a Business App link ended in Meta's regular `FINISH`

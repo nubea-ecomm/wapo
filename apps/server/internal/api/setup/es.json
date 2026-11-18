@@ -50,5 +50,13 @@
   "authorizePrompt": "Completá la autorización en la ventana de Meta.",
   "authorized": "Acceso autorizado. Esperando la confirmación de la cuenta de WhatsApp…",
   "noAuthorization": "No se recibió autorización. Podés volver a intentarlo.",
-  "sdkLocale": "es_LA"
+  "sdkLocale": "es_LA",
+  "errorMismatch": "Tu número se conectó en Meta de otra forma de la que elegiste y este enlace no la permite. Si querés seguir usando la app, revisá que el número esté en WhatsApp Business (no en WhatsApp común), actualizá la app y volvé a intentarlo.",
+  "errorAmbiguous": "Meta encontró más de un número posible. Volvé a intentarlo y elegí en Meta el número de tu negocio.",
+  "errorAccount": "Meta no indicó qué cuenta de WhatsApp autorizaste. Volvé a intentarlo y completá todos los pasos en la ventana de Meta.",
+  "errorAuthorization": "La autorización de Meta venció o ya se usó. Volvé a intentarlo.",
+  "errorProvider": "No pudimos leer tu cuenta de WhatsApp en Meta. Esperá unos minutos y volvé a intentarlo.",
+  "errorIncomplete": "Tu número quedó guardado, pero falta terminar la configuración. Contactá a soporte con este código para completarla.",
+  "errorBusy": "Ya hay una conexión en curso para este enlace. Esperá unos segundos y recargá la página.",
+  "errorUnavailable": "Este enlace ya no está disponible. Pedí un enlace nuevo para conectar tu número."
 }
