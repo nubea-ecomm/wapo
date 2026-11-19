@@ -58,5 +58,7 @@
   "errorProvider": "We could not read your WhatsApp account from Meta. Wait a few minutes and try again.",
   "errorIncomplete": "Your number was saved but setup is not finished. Contact support with this code to complete it.",
   "errorBusy": "This link is already being completed. Wait a few seconds and reload the page.",
-  "errorUnavailable": "This link is no longer available. Request a new link to connect your number."
+  "errorUnavailable": "This link is no longer available. Request a new link to connect your number.",
+  "supportButton": "Contact support",
+  "errorPhoneConnected": "This WhatsApp number is already connected to another account. Disconnect it there and try again. If you do not know where it is connected, contact us."
 }

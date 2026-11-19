@@ -3,12 +3,14 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"wapo.local/server/internal/delivery"
 	"wapo.local/server/internal/store"
 )
@@ -186,6 +188,15 @@ func (s *Server) completeSetup(w http.ResponseWriter, r *http.Request) {
 		_, e = tx.Exec(ctx, "UPDATE resources SET data=$3 WHERE project_id=$1 AND kind='connections' AND id=$2", p, reconnectID, raw)
 	} else {
 		_, e = tx.Exec(ctx, "INSERT INTO resources(project_id,kind,id,data) VALUES($1,'connections',$2,$3)", p, str(connection, "id"), raw)
+	}
+
+	// A number can belong to one connection across all projects: it is still
+	// connected somewhere else (another project of this instance).
+	if pe := (*pgconn.PgError)(nil); errors.As(e, &pe) && pe.Code == "23505" {
+		slog.Warn("setup completion failed", "project", p, "setup_link", id, "code", "phone_already_connected", "phone_number_id", phoneID, "waba_id", waba)
+		fail(w, 409, "phone_already_connected", "This WhatsApp number is already connected to another account; disconnect it there first")
+
+		return
 	}
 
 	if e != nil {

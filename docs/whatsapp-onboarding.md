@@ -84,6 +84,12 @@ in 30 days by default and can be revoked through `DELETE /v1/setup_links/{id}` o
 compatibility alias `/platform/v1/setup_links/{id}`. The hosted page requires no
 project API key and exposes only public Meta configuration.
 
+A link can carry an HTTPS `support_url`. When completion fails, the hosted page
+shows a "Contactar a soporte" link to it with the failure code in the
+`wapo_error` query parameter, so the integrator's support team sees why it failed.
+A number still connected in another project fails with `phone_already_connected`
+(409) and a message asking to disconnect it there first.
+
 Links support `theme_config` hex colors, HTTPS `allowed_origins`, redirect URLs,
 `expires_at`, and PATCH updates. Project branding supplies defaults.
 `reconnect_phone_number` creates a credential renewal link for an existing customer

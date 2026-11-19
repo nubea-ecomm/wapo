@@ -92,7 +92,7 @@ func (s *Server) setupLinks(w http.ResponseWriter, r *http.Request, customer str
 		}
 	}
 
-	for _, field := range []string{"success_redirect_url", "failure_redirect_url"} {
+	for _, field := range []string{"success_redirect_url", "failure_redirect_url", "support_url"} {
 		if raw := str(input, field); raw != "" {
 			if e = delivery.ValidateURL(raw, s.Config.AllowPrivateWebhooks); e != nil {
 				fail(w, 422, "invalid_redirect", e.Error())
@@ -135,7 +135,7 @@ func (s *Server) setupLinks(w http.ResponseWriter, r *http.Request, customer str
 	}
 
 	// Hosted links do not expose project keys; project branding is read at view time.
-	for _, field := range []string{"success_redirect_url", "failure_redirect_url", "language"} {
+	for _, field := range []string{"success_redirect_url", "failure_redirect_url", "support_url", "language"} {
 		o[field] = str(input, field)
 	}
 
@@ -214,5 +214,5 @@ func (s *Server) publicSetup(w http.ResponseWriter, r *http.Request) {
 
 	business := setupBusiness(customer)
 
-	write(w, 200, store.Object{"data": store.Object{"project_name": identity["name"], "branding": identity["branding"], "app_id": s.Config.MetaAppID, "config_id": s.Config.MetaConfigID, "graph_version": s.Config.MetaVersion, "business": business, "allowed_connection_types": o["allowed_connection_types"], "expires_at": o["expires_at"]}})
+	write(w, 200, store.Object{"data": store.Object{"project_name": identity["name"], "branding": identity["branding"], "app_id": s.Config.MetaAppID, "config_id": s.Config.MetaConfigID, "graph_version": s.Config.MetaVersion, "business": business, "allowed_connection_types": o["allowed_connection_types"], "expires_at": o["expires_at"], "support_url": o["support_url"]}})
 }

@@ -58,5 +58,7 @@
   "errorProvider": "No pudimos leer tu cuenta de WhatsApp en Meta. Esperá unos minutos y volvé a intentarlo.",
   "errorIncomplete": "Tu número quedó guardado, pero falta terminar la configuración. Contactá a soporte con este código para completarla.",
   "errorBusy": "Ya hay una conexión en curso para este enlace. Esperá unos segundos y recargá la página.",
-  "errorUnavailable": "Este enlace ya no está disponible. Pedí un enlace nuevo para conectar tu número."
+  "errorUnavailable": "Este enlace ya no está disponible. Pedí un enlace nuevo para conectar tu número.",
+  "supportButton": "Contactar a soporte",
+  "errorPhoneConnected": "Este número de WhatsApp ya está conectado a otra cuenta. Desconectalo de esa cuenta y volvé a intentarlo. Si no sabés dónde está conectado, escribinos."
 }

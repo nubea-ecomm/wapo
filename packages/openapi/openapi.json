@@ -8809,6 +8809,11 @@
             "type": "string",
             "format": "uri"
           },
+          "support_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional HTTPS support page. When completion fails, the hosted page shows a \"Contact support\" link to it with the failure code in the wapo_error query parameter."
+          },
           "language": {
             "type": "string",
             "description": "Hosted page language: es (Spanish) or en (English). Omitted values and other accepted languages currently render in Spanish. Applies to page copy, status messages and the Meta SDK locale."
