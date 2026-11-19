@@ -283,3 +283,60 @@ func TestHostedOnboardingFollowsTheTypeMetaReports(t *testing.T) {
 		t.Fatalf("connection must follow Meta's type: %v", connection)
 	}
 }
+
+func TestHostedOnboardingNamesANumberConnectedElsewhere(t *testing.T) {
+	server, h, p, key := fixture(t)
+	server.Config.MetaAppID = "meta-app"
+	server.Config.MetaConfigID = "meta-config"
+	server.Config.MetaVersion = "v24.0"
+	server.Config.PublicURL = h.URL
+
+	meta := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.HasSuffix(r.URL.Path, "/oauth/access_token"):
+			write(w, 200, store.Object{"access_token": "provider-token"})
+		case strings.HasSuffix(r.URL.Path, "/phone_numbers"):
+			write(w, 200, store.Object{"data": []any{store.Object{"id": "444444", "display_phone_number": "+5491100000001", "is_on_biz_app": true}}})
+		default:
+			write(w, 200, store.Object{"success": true})
+		}
+	}))
+
+	defer meta.Close()
+
+	server.Meta.BaseURL = meta.URL
+	ctx := context.Background()
+
+	// The same number is still connected in another project of this instance.
+	other := store.Object{"id": "con_other", "channel": "whatsapp", "external_id": "444444", "business_account_id": "999999"}
+	raw, _ := json.Marshal(other)
+
+	otherProject := "other-" + p
+	if _, e := server.Store.Pool.Exec(ctx, "INSERT INTO projects(id,name) VALUES($1,'Other project')", otherProject); e != nil {
+		t.Fatal(e)
+	}
+
+	if _, e := server.Store.Pool.Exec(ctx, "INSERT INTO resources(project_id,kind,id,data) VALUES($1,'connections','con_other',$2)", otherProject, raw); e != nil {
+		t.Fatal(e)
+	}
+
+	status, o := request(t, h.URL, key, "POST", "/v1/customers", store.Object{"name": "Merchant", "external_customer_id": "shop-duplicate"}, "")
+	expect(t, status, 201, o)
+	customer := str(object(o, "data"), "id")
+
+	status, o = request(t, h.URL, key, "POST", "/platform/v1/customers/"+customer+"/setup_links", store.Object{"setup_link": store.Object{"allowed_connection_types": []string{"coexistence"}, "support_url": "https://support.example/help"}}, "")
+	expect(t, status, 201, o)
+	token := str(object(o, "data"), "token")
+
+	status, o = request(t, h.URL, "", "GET", "/public/setup/"+p+"/"+token, nil, "")
+	expect(t, status, 200, o)
+
+	if str(object(o, "data"), "support_url") != "https://support.example/help" {
+		t.Fatalf("hosted config must expose the support page: %v", o)
+	}
+
+	status, o = request(t, h.URL, "", "POST", "/public/setup/"+p+"/"+token+"/complete", store.Object{"code": "dup", "waba_id": "654321", "connection_type": "coexistence"}, "")
+	if status != 409 || str(object(o, "error"), "code") != "phone_already_connected" {
+		t.Fatalf("a number connected elsewhere must be named: %d %v", status, o)
+	}
+}

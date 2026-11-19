@@ -15,7 +15,7 @@ var setupThemeKeys = map[string]string{"primary_color": "--accent", "primary_for
 func (s *Server) setupOptions(input store.Object) (store.Object, error) {
 	out := store.Object{}
 
-	for _, key := range []string{"success_redirect_url", "failure_redirect_url"} {
+	for _, key := range []string{"success_redirect_url", "failure_redirect_url", "support_url"} {
 		if value, ok := input[key]; ok {
 			if value == nil {
 				out[key] = ""

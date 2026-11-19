@@ -21,6 +21,24 @@ function firstID(...values) {
   return ''
 }
 
+// The integrator's support page receives the failure code so its team sees why
+// the connection failed.
+function showSupport(failure) {
+  const link = document.getElementById('support')
+
+  if (!config?.support_url) return
+
+  try {
+    const url = new URL(config.support_url)
+
+    url.searchParams.set('wapo_error', failure || 'unknown')
+    link.href = url.toString()
+    link.hidden = false
+  } catch {
+    link.hidden = true
+  }
+}
+
 function stopWaiting(message) {
   clearTimeout(authorizationTimer)
   waiting = false
@@ -29,6 +47,7 @@ function stopWaiting(message) {
   button.disabled = false
   document.getElementById('back').disabled = false
   status.textContent = message
+  showSupport('signup_not_finished')
 }
 
 function describe() {
@@ -124,6 +143,7 @@ async function complete() {
 
     if (body.data.redirect_url) location.assign(body.data.redirect_url)
   } catch (e) {
+    showSupport(e?.message)
     status.textContent = [
       failureMessage(e?.message),
       mismatchDescription(e?.details),
@@ -149,6 +169,8 @@ function failureMessage(code) {
     event_pending: copy.errorIncomplete,
     setup_busy: copy.errorBusy,
     link_unavailable: copy.errorUnavailable,
+    phone_already_connected: copy.errorPhoneConnected,
+    number_already_connected: copy.errorPhoneConnected,
   }
 
   return messages[code] || copy.completeError
