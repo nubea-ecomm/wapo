@@ -308,7 +308,7 @@ func TestHostedOnboardingNamesANumberConnectedElsewhere(t *testing.T) {
 	ctx := context.Background()
 
 	// The same number is still connected in another project of this instance.
-	other := store.Object{"id": "con_other", "channel": "whatsapp", "external_id": "444444"}
+	other := store.Object{"id": "con_other", "channel": "whatsapp", "external_id": "444444", "business_account_id": "999999"}
 	raw, _ := json.Marshal(other)
 
 	otherProject := "other-" + p
