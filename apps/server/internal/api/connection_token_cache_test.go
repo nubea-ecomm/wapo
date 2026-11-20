@@ -45,7 +45,7 @@ func TestTokenInspectionCacheCoalescesAndIsolatesCredentials(t *testing.T) {
 
 	// Permissions and renewal share the exact same cached inspection.
 	data, err := s.inspectConnectionToken(ctx, "project", "token")
-	s.checkConnectionToken(data, err, func(_, _, status, _ string, _ store.Object) {
+	s.checkConnectionToken(data, nil, err, func(_, _, status, _ string, _ store.Object) {
 		if status != "pass" {
 			t.Errorf("permission check failed: %s", status)
 		}

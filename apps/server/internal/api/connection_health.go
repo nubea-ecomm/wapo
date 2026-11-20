@@ -161,7 +161,7 @@ func (s *Server) checkConnection(ctx context.Context, p string, c store.Object) 
 				tokenState.inspection, tokenState.inspectionErr = s.inspectConnectionToken(ctx, p, token)
 			}
 
-			s.checkConnectionToken(tokenState.inspection, tokenState.inspectionErr, add)
+			s.checkConnectionToken(tokenState.inspection, connectionAssets(c), tokenState.inspectionErr, add)
 		}
 
 		phone, status := call(url.PathEscape(str(c, "external_id")), "id,display_phone_number,quality_rating,messaging_limit_tier")
