@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -231,6 +232,10 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 			if pe.Status >= 400 && pe.Status < 500 && json.Valid(pe.Body) {
 				var provider store.Object
 
+				if json.Unmarshal(pe.Body, &provider) == nil {
+					logSendRejected(p, c, payload, pe.Status, provider)
+				}
+
 				if json.Unmarshal(pe.Body, &provider) == nil && metaCredentialExpired(provider) {
 					s.markConnectionCredential(ctx, p, c, "expired", time.Time{})
 
@@ -326,4 +331,17 @@ func (s *Server) send(w http.ResponseWriter, r *http.Request, c, payload store.O
 	}
 
 	rawJSON(w, status, response)
+}
+
+// logSendRejected records why Meta refused a message synchronously. Such sends
+// never become messages, so the log is the only trace operators can read. The
+// recipient is omitted.
+func logSendRejected(p string, c, payload store.Object, status int, provider store.Object) {
+	providerErr := object(provider, "error")
+
+	slog.Warn("Meta rejected message", "project", p, "connection_id", str(c, "id"),
+		"phone_number_id", str(c, "external_id"), "business_account_id", str(c, "business_account_id"),
+		"type", str(payload, "type"), "template", str(object(payload, "template"), "name"), "http_status", status,
+		"code", providerErr["code"], "subcode", providerErr["error_subcode"], "message", str(providerErr, "message"),
+		"details", str(object(providerErr, "error_data"), "details"), "fbtrace_id", str(providerErr, "fbtrace_id"))
 }

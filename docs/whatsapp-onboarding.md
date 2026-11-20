@@ -172,7 +172,17 @@ project, token, Meta app and endpoint using hashed keys; concurrent checks share
 one request. Diagnostics reuse the renewal inspection for permission checks.
 Provider failures and invalid tokens are not cached. Credential replacement,
 renewal and token-expiry errors invalidate the relevant cached inspection. This
-cache is independent of `AUTH_CACHE_TTL` (Wapo API-key authentication). Revocations
+cache is independent of `AUTH_CACHE_TTL` (Wapo API-key authentication).
+The permission check also reads the inspection's `granular_scopes`: when Meta
+granted `whatsapp_business_management` or `whatsapp_business_messaging` only to
+other accounts (for example the WABA of an earlier signup attempt), it fails and
+lists those targets in `granted_to`, because Meta then rejects sends with error
+10 although the token holds the scope. Reconnect the number in a single signup.
+
+A message Meta rejects synchronously is not stored in message history; the API
+returns Meta's error and the server logs `Meta rejected message` with the
+connection, WABA, phone ID, template name, Meta code, subcode, message and
+`fbtrace_id` (never the recipient). Revocations
 can be discovered by the next provider operation or inspection; the cache does not
 replace Meta's authorization enforcement. No API response contracts change.
 
