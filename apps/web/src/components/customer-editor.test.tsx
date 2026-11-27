@@ -33,6 +33,7 @@ it('rejects invalid customer metadata before making an API request', async () =>
         }),
         connect: vi.fn(),
         connectUser: vi.fn(),
+        registerUser: vi.fn(),
         disconnect: vi.fn(),
         updateProfile: vi.fn(),
         refreshAccess: vi.fn(),

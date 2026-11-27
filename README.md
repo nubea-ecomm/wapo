@@ -56,7 +56,7 @@ provider webhooks to preserve incoming data.
 
 ## Included
 
-- Authboss-backed public signup, email verification, password recovery, account
+- Authboss-backed public signup (no email verification step), password recovery, account
   security and self-service projects with independently scoped team roles. Requires
   SMTP for authentication emails. See [account management](docs/authentication.md).
 

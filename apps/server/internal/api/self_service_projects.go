@@ -70,10 +70,10 @@ func (s *Server) acceptProjectInvitation(w http.ResponseWriter, r *http.Request)
 	}
 	defer tx.Rollback(r.Context())
 
-	var id, project, role string
+	var locked string
 
 	// Use the same project-first lock order as invitation creation and membership edits.
-	err = tx.QueryRow(r.Context(), `SELECT p.id FROM projects p JOIN project_invitations i ON i.project_id=p.id WHERE i.token_hash=$1 AND p.status='active' FOR NO KEY UPDATE OF p`, store.Hash(r.PathValue("token"))).Scan(&project)
+	err = tx.QueryRow(r.Context(), `SELECT p.id FROM projects p JOIN project_invitations i ON i.project_id=p.id WHERE i.token_hash=$1 AND p.status='active' FOR NO KEY UPDATE OF p`, store.Hash(r.PathValue("token"))).Scan(&locked)
 	if err != nil {
 		invitationError(w, err)
 		return
@@ -84,16 +84,10 @@ func (s *Server) acceptProjectInvitation(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = tx.QueryRow(r.Context(), `SELECT i.id,i.project_id,i.role FROM project_invitations i WHERE i.token_hash=$1 AND i.email=$2 AND i.accepted_at IS NULL AND i.expires_at>clock_timestamp() FOR UPDATE OF i`, store.Hash(r.PathValue("token")), email).Scan(&id, &project, &role)
-	if err != nil {
-		invitationError(w, err)
+	project, status, failure, err := joinInvitedProject(r, tx, r.PathValue("token"), user.ID, email)
+	if failure != nil {
+		write(w, status, failure)
 		return
-	}
-
-	// Accepting an invitation never replaces an existing membership's privileges.
-	_, err = tx.Exec(r.Context(), `INSERT INTO console_user_projects(user_id,project_id,role) VALUES($1,$2,$3) ON CONFLICT DO NOTHING`, user.ID, project, role)
-	if err == nil {
-		_, err = tx.Exec(r.Context(), "UPDATE project_invitations SET accepted_at=now() WHERE id=$1", id)
 	}
 
 	if err == nil {

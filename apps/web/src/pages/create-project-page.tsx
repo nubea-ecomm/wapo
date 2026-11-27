@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { WapoAuthClient } from '@nubea-ecomm/wapo-sdk'
 import { useSession } from '../app/session-context'
 import { ErrorNotice, Field } from '../components/ui'
@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
 import { AuthLayout } from '../components/auth-layout'
 import { useI18n } from '../app/i18n'
+import { resumePendingJoin } from '../app/pending-join'
 
 export function CreateProjectPage() {
   const { t } = useI18n()
@@ -14,6 +15,10 @@ export function CreateProjectPage() {
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
+
+  // Someone who opened an invitation link before signing in goes back to it
+  // instead of being asked to create an unrelated project.
+  useEffect(resumePendingJoin, [])
 
   async function create() {
     if (!session) return

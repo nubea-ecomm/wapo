@@ -12,12 +12,12 @@ import (
 type authStorage struct{ tx pgx.Tx }
 
 func (s authStorage) New(context.Context) authboss.User {
-	return &authUser{ID: store.ID("user"), Active: true, RecoverExpiry: time.Now().UTC()}
+	return &authUser{ID: store.ID("user"), Active: true, Confirmed: true, RecoverExpiry: time.Now().UTC()}
 }
 
 func (s authStorage) Create(ctx context.Context, user authboss.User) error {
 	u := user.(*authUser)
-	result, err := s.tx.Exec(ctx, `INSERT INTO console_users(id,email,name,password_hash,role,all_projects,email_verified,language) VALUES($1,$2,$3,$4,'member',false,false,$5) ON CONFLICT(email) DO NOTHING`, u.ID, u.Email, u.Name, u.Password, u.Language)
+	result, err := s.tx.Exec(ctx, `INSERT INTO console_users(id,email,name,password_hash,role,all_projects,email_verified,language) VALUES($1,$2,$3,$4,'member',false,true,$5) ON CONFLICT(email) DO NOTHING`, u.ID, u.Email, u.Name, u.Password, u.Language)
 
 	if err == nil && result.RowsAffected() == 0 {
 		return authboss.ErrUserFound

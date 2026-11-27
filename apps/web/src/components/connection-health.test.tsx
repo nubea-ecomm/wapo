@@ -65,6 +65,7 @@ it('distinguishes amber warnings, red failures and neutral unknowns with actions
         admin: new WapoAdminClient(options),
         connect: vi.fn(),
         connectUser: vi.fn(),
+        registerUser: vi.fn(),
         disconnect: vi.fn(),
         updateProfile: vi.fn(),
         refreshAccess: vi.fn(),

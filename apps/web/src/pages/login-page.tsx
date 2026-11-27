@@ -8,6 +8,8 @@ import { Checkbox } from '../components/ui/checkbox'
 import { Label } from '../components/ui/label'
 import { AuthLayout } from '../components/auth-layout'
 import { PasswordInput } from '../components/password-input'
+import { resumePendingJoin } from '../app/pending-join'
+import { signInErrorMessage } from '../app/sign-in-error'
 
 export function LoginPage({ description }: { description?: string } = {}) {
   const { connectUser } = useSession()
@@ -27,14 +29,6 @@ export function LoginPage({ description }: { description?: string } = {}) {
           {t('auth.noAccount')} <a href="#/register">{t('auth.register')}</a>
         </>
       }
-      secondary={
-        <a
-          className="login-link"
-          href="#/confirm/resend"
-        >
-          {t('auth.resend')}
-        </a>
-      }
     >
       <form
         onSubmit={(event) => {
@@ -47,7 +41,10 @@ export function LoginPage({ description }: { description?: string } = {}) {
             password,
             remember,
           )
-            .catch(() => setError(new Error(t('signInError'))))
+            .then(resumePendingJoin)
+            .catch((error: unknown) =>
+              setError(new Error(t(signInErrorMessage(error)))),
+            )
             .finally(() => setBusy(false))
         }}
       >

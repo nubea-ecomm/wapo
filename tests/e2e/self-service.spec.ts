@@ -1,20 +1,43 @@
 import { test, expect, env } from './fixtures'
 
-test('public registration, verification and recovery forms use the authentication API', async ({
+const signedIn = {
+  token: 'wapo_session_fake',
+  expires_at: '2099-01-01T00:00:00Z',
+  user: {
+    id: 'user_fake',
+    email: 'owner@example.com',
+    name: 'New owner',
+    language: 'es',
+    avatar_variant: 0,
+    active: true,
+    created_at: '2026-01-01T00:00:00Z',
+    role: 'member',
+    all_projects: false,
+    project_ids: [],
+  },
+}
+
+test('registration signs in at once and recovery forms use the authentication API', async ({
   page,
 }) => {
   const calls: { path: string; body: unknown }[] = []
 
+  await page.route('**/admin/v1/tenants', (route) =>
+    route.fulfill({ json: { data: [] } }),
+  )
   await page.route('**/auth/v1/**', async (route) => {
     const request = route.request()
+    const path = new URL(request.url()).pathname
 
-    calls.push({
-      path: new URL(request.url()).pathname,
-      body: request.postDataJSON(),
+    calls.push({ path, body: request.postDataJSON() })
+    await route.fulfill({
+      json: {
+        data: path === '/auth/v1/register' ? signedIn : { accepted: true },
+      },
     })
-    await route.fulfill({ json: { data: { accepted: true } } })
   })
   await page.goto('/')
+  await expect(page.getByText('Reenviar verificación')).toHaveCount(0)
   await page.getByRole('link', { name: 'Crear cuenta', exact: true }).click()
   await page.getByLabel('Nombre', { exact: true }).fill('New owner')
   await page.getByLabel('Email', { exact: true }).fill('owner@example.com')
@@ -22,8 +45,11 @@ test('public registration, verification and recovery forms use the authenticatio
     .getByLabel('Contraseña', { exact: true })
     .fill('new-account-password-123')
   await page.getByRole('button', { name: 'Crear tu cuenta' }).click()
-  await expect(page.getByText(/Revisa tu correo/)).toBeVisible()
-  expect(calls.at(-1)).toEqual({
+  // No verification email: the new account goes straight to its first project.
+  await expect(
+    page.getByRole('heading', { name: 'Crea tu primer proyecto' }),
+  ).toBeVisible()
+  expect(calls.find((call) => call.path === '/auth/v1/register')).toEqual({
     path: '/auth/v1/register',
     body: {
       name: 'New owner',
@@ -31,22 +57,6 @@ test('public registration, verification and recovery forms use the authenticatio
       password: 'new-account-password-123',
       language: 'es',
     },
-  })
-  await page.goto('/#/confirm?cnf=fake-confirm-token')
-  await page.getByRole('button', { name: 'Verificar correo' }).click()
-  await expect(page.getByText(/Correo verificado/)).toBeVisible()
-  expect(calls.at(-1)).toEqual({
-    path: '/auth/v1/confirm',
-    body: { token: 'fake-confirm-token' },
-  })
-  await page.evaluate(() => {
-    location.hash = '#/confirm?cnf=another-confirm-token'
-  })
-  await page.getByRole('button', { name: 'Verificar correo' }).click()
-  await expect(page.getByText(/Correo verificado/)).toBeVisible()
-  expect(calls.at(-1)).toEqual({
-    path: '/auth/v1/confirm',
-    body: { token: 'another-confirm-token' },
   })
   await page.goto('/#/recover')
   await page.getByLabel('Email', { exact: true }).fill('owner@example.com')
@@ -64,7 +74,71 @@ test('public registration, verification and recovery forms use the authenticatio
   })
 })
 
-test('verified scoped account creates its first project and manages its own team', async ({
+test('an invitation link creates the account and joins the project in one step', async ({
+  page,
+}) => {
+  let registration: unknown
+
+  await page.route('**/auth/v1/project-invitations/invite_fake', (route) =>
+    route.fulfill({
+      json: {
+        data: {
+          email: 'owner@example.com',
+          project_name: 'Acme',
+          role: 'member',
+          expires_at: '2099-01-01T00:00:00Z',
+          account_exists: false,
+        },
+      },
+    }),
+  )
+  await page.route('**/auth/v1/register', async (route) => {
+    registration = route.request().postDataJSON()
+    await route.fulfill({
+      json: {
+        data: {
+          ...signedIn,
+          invitation: { project_id: 'tenant_acme', accepted: true },
+        },
+      },
+    })
+  })
+  await page.route('**/admin/v1/tenants', (route) =>
+    route.fulfill({
+      json: {
+        data: [
+          {
+            id: 'tenant_acme',
+            name: 'Acme',
+            status: 'active',
+            created_at: '2026-01-01T00:00:00Z',
+            active_keys: 0,
+          },
+        ],
+      },
+    }),
+  )
+  await page.goto('/#/join-project?token=invite_fake')
+  await expect(page.getByText('Únete a Acme')).toBeVisible()
+  await expect(page.getByLabel('Email', { exact: true })).toHaveValue(
+    'owner@example.com',
+  )
+  await page.getByLabel('Nombre', { exact: true }).fill('New owner')
+  await page
+    .getByLabel('Contraseña', { exact: true })
+    .fill('new-account-password-123')
+  await page.getByRole('button', { name: 'Crear cuenta y unirme' }).click()
+  await expect(page).toHaveURL(/#\/$/)
+  expect(registration).toEqual({
+    name: 'New owner',
+    email: 'owner@example.com',
+    password: 'new-account-password-123',
+    language: 'es',
+    invitation_token: 'invite_fake',
+  })
+})
+
+test('scoped account creates its first project and manages its own team', async ({
   page,
   request,
 }) => {

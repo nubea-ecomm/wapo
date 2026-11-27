@@ -8,7 +8,6 @@ import (
 
 	"github.com/aarondl/authboss/v3"
 	"github.com/aarondl/authboss/v3/auth"
-	"github.com/aarondl/authboss/v3/confirm"
 	"github.com/aarondl/authboss/v3/defaults"
 	recovery "github.com/aarondl/authboss/v3/recover"
 	"github.com/aarondl/authboss/v3/register"
@@ -28,7 +27,13 @@ func (s *Server) authFlow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	flow := strings.TrimPrefix(r.URL.Path, "/auth/v1/")
-	if (flow == "register" || flow == "recover" || flow == "confirm/resend") && s.Config.SMTPHost == "" {
+	if flow == "confirm" || flow == "confirm/resend" {
+		// Accounts no longer need email verification; old links and SDK calls succeed.
+		write(w, 200, store.Object{"data": store.Object{"accepted": true}})
+		return
+	}
+
+	if flow == "recover" && s.Config.SMTPHost == "" {
 		fail(w, 503, "email_unavailable", "Email delivery is not configured")
 		return
 	}
@@ -88,7 +93,7 @@ func (s *Server) authFlow(w http.ResponseWriter, r *http.Request) {
 			return false, err
 		}
 
-		if !u.(*authUser).Active || !u.(*authUser).Confirmed {
+		if !u.(*authUser).Active {
 			response.status = 200
 			response.data = store.Object{"data": store.Object{"accepted": true}}
 
@@ -104,27 +109,41 @@ func (s *Server) authFlow(w http.ResponseWriter, r *http.Request) {
 			return true, err
 		}
 
-		token := store.ID("wapo_session")
-		expires := time.Now().UTC().Add(12 * time.Hour)
+		response.status, response.data, err = startConsoleSession(r, tx, u.(*authUser).ID, nil)
 
-		_, err = tx.Exec(r.Context(), "INSERT INTO console_sessions(hash,user_id,expires_at) VALUES($1,$2,$3)", store.Hash(token), u.(*authUser).ID, expires)
+		return true, err
+	})
+	// Creating an account signs the person in immediately. An invitation token
+	// proves ownership of the invited email, so the invitation is accepted in the
+	// same transaction.
+	ab.Events.After(authboss.EventRegister, func(_ http.ResponseWriter, r *http.Request, _ bool) (bool, error) {
+		u, err := ab.CurrentUser(r)
 		if err != nil {
 			return true, err
 		}
 
-		user, err := scanUser(tx.QueryRow(r.Context(), selectUser+" WHERE u.id=$1", u.(*authUser).ID))
-		if err != nil {
-			return true, err
+		var joined store.Object
+
+		if token := str(input, "invitation_token"); token != "" {
+			project, status, failure, joinErr := joinInvitedProject(r, tx, token, u.(*authUser).ID, u.(*authUser).Email)
+			if joinErr != nil {
+				return true, joinErr
+			}
+
+			if failure != nil {
+				response.status, response.data = status, failure
+				return true, nil
+			}
+
+			joined = store.Object{"project_id": project, "accepted": true}
 		}
 
-		user.ProjectRoles, err = store.LoadProjectRoles(r.Context(), tx, user.ID)
-		response.status = 200
-		response.data = store.Object{"data": store.Object{"token": token, "expires_at": expires, "user": user}}
+		response.status, response.data, err = startConsoleSession(r, tx, u.(*authUser).ID, joined)
 
 		return true, err
 	})
 
-	if err = ab.Init("auth", "register", "confirm", "recover"); err != nil {
+	if err = ab.Init("auth", "register", "recover"); err != nil {
 		dbError(w, err)
 		return
 	}
@@ -134,25 +153,10 @@ func (s *Server) authFlow(w http.ResponseWriter, r *http.Request) {
 		err = (&auth.Auth{Authboss: ab}).LoginPost(w, r)
 	case "register":
 		err = (&register.Register{Authboss: ab}).Post(w, r)
-	case "confirm":
-		err = (&confirm.Confirm{Authboss: ab}).Get(w, r)
 	case "recover":
 		err = (&recovery.Recover{Authboss: ab}).StartPost(w, r)
 	case "recover/end":
 		err = (&recovery.Recover{Authboss: ab}).EndPost(w, r)
-	case "confirm/resend":
-		var user authboss.User
-
-		user, err = storage.Load(r.Context(), strings.ToLower(strings.TrimSpace(str(input, "email"))))
-
-		if err == authboss.ErrUserNotFound {
-			err = nil
-		} else if err == nil && user.(*authUser).Active && !user.(*authUser).Confirmed {
-			err = (&confirm.Confirm{Authboss: ab}).StartConfirmation(r.Context(), user.(*authUser), true)
-		}
-
-		response.status = 200
-		response.data = store.Object{"data": store.Object{"accepted": true}}
 	default:
 		fail(w, 404, "not_found", "Authentication endpoint not found")
 		return

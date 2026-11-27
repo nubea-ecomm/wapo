@@ -15,6 +15,12 @@ export const messages = {
     signInAction: 'Iniciar sesión',
     signInError:
       'No pudimos iniciar sesión. Revisá tus credenciales e intentá de nuevo.',
+    signInInvalid:
+      'El email o la contraseña no coinciden con ninguna cuenta activa. Si todavía no creaste tu cuenta con este correo, usá “Crear cuenta”; si no recordás la contraseña, usá “Olvidé mi contraseña”.',
+    signInRateLimited:
+      'Demasiados intentos. Esperá un minuto e intentá de nuevo.',
+    signInUnreachable:
+      'No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.',
     search: 'Buscar…',
     documentation: 'Documentación',
     searchWapo: 'Buscar en Wapo',
@@ -71,6 +77,12 @@ export const messages = {
     signInAction: 'Entrar',
     signInError:
       'Não foi possível entrar. Verifique suas credenciais e tente novamente.',
+    signInInvalid:
+      'O email ou a senha não correspondem a nenhuma conta ativa. Se você ainda não criou sua conta com este email, use “Criar conta”; se esqueceu a senha, use “Esqueci minha senha”.',
+    signInRateLimited:
+      'Muitas tentativas. Aguarde um minuto e tente novamente.',
+    signInUnreachable:
+      'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
     search: 'Buscar…',
     documentation: 'Documentação',
     searchWapo: 'Buscar no Wapo',
@@ -127,6 +139,11 @@ export const messages = {
     signInAction: 'Sign in',
     signInError:
       'We could not sign you in. Check your credentials and try again.',
+    signInInvalid:
+      'The email or password does not match an active account. If you have not created an account with this email yet, use “Create account”; if you forgot the password, use “Forgot password”.',
+    signInRateLimited: 'Too many attempts. Wait a minute and try again.',
+    signInUnreachable:
+      'We could not reach the server. Check your connection and try again.',
     search: 'Search…',
     documentation: 'Documentation',
     searchWapo: 'Search Wapo',

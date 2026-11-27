@@ -247,6 +247,22 @@ export interface ConsoleUser {
   created_at: string
 }
 
+export interface ConsoleSession {
+  token: string
+  expires_at: string
+  user: ConsoleUser
+  /** Present when registration also accepted a project invitation. */
+  invitation?: { project_id: string; accepted: boolean }
+}
+
+export interface ProjectInvitationPreview {
+  email: string
+  project_name: string
+  role: 'admin' | 'member' | 'viewer' | 'billing'
+  expires_at: string
+  account_exists: boolean
+}
+
 export interface WhatsAppSettings {
   onboarding_ready: boolean
   public_url: string

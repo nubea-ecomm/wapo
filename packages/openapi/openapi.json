@@ -153,7 +153,7 @@
         "tags": ["Console authentication"],
         "summary": "Create a self-service account",
         "security": [],
-        "description": "Authboss registration. SMTP must be configured. Creates an unverified account without platform privileges or project access. Verification email and account are committed atomically. Password length is 12–72 UTF-8 bytes. Shares the configurable authentication rate limit.",
+        "description": "Authboss registration. Creates an active account without platform privileges and signs it in immediately: the response contains the same opaque 12-hour session as login. No email verification step is required. With invitation_token, the pending project invitation for the same email is accepted in the same transaction; an unknown, used, expired or different-email invitation returns 410 and nothing is created. Password length is 12–72 UTF-8 bytes. Shares the configurable authentication rate limit.",
         "requestBody": {
           "required": true,
           "content": {
@@ -179,6 +179,11 @@
                     "enum": ["es", "en", "pt"],
                     "default": "es",
                     "description": "Initial account language. The console sends the user's explicit selection or the first supported browser language."
+                  },
+                  "invitation_token": {
+                    "type": "string",
+                    "writeOnly": true,
+                    "description": "Token from a project invitation link (#/join-project?token=…). Proves ownership of the invited email."
                   }
                 }
               }
@@ -186,7 +191,37 @@
           }
         },
         "responses": {
-          "200": { "$ref": "#/components/responses/AuthAccepted" },
+          "200": {
+            "description": "Account created and signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": { "type": "string" },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "user": { "$ref": "#/components/schemas/ConsoleUser" },
+                        "invitation": {
+                          "type": "object",
+                          "description": "Present when invitation_token was sent and the invitation was accepted.",
+                          "properties": {
+                            "project_id": { "type": "string" },
+                            "accepted": { "type": "boolean" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "default": { "$ref": "#/components/responses/AuthError" }
         }
       }
@@ -195,9 +230,10 @@
       "post": {
         "operationId": "confirm_console_email",
         "tags": ["Console authentication"],
-        "summary": "Verify an account email",
+        "summary": "Verify an account email (deprecated)",
+        "deprecated": true,
         "security": [],
-        "description": "Consume the Authboss confirmation token from the email (cnf query parameter). Tokens expire after 24 hours and can be used once. Does not sign the user in. Confirmation requires an explicit POST, so mail scanners do not consume links.",
+        "description": "Accounts no longer require email verification. Kept for compatibility with earlier links and SDKs: always returns the accepted response and has no effect.",
         "requestBody": {
           "required": true,
           "content": {
@@ -222,9 +258,10 @@
       "post": {
         "operationId": "resend_console_verification",
         "tags": ["Console authentication"],
-        "summary": "Resend email verification",
+        "summary": "Resend email verification (deprecated)",
+        "deprecated": true,
         "security": [],
-        "description": "Queues a replacement verification email for an active unverified account, invalidating the old token. The accepted response does not reveal whether the account exists. Requires SMTP and shares authentication rate limits.",
+        "description": "Accounts no longer require email verification. Kept for compatibility with earlier links and SDKs: always returns the accepted response and has no effect.",
         "requestBody": { "$ref": "#/components/requestBodies/AuthEmail" },
         "responses": {
           "200": { "$ref": "#/components/responses/AuthAccepted" },
@@ -238,7 +275,7 @@
         "tags": ["Console authentication"],
         "summary": "Request password recovery",
         "security": [],
-        "description": "Queues an Authboss recovery link for an active verified account. Returns the same accepted response for unknown, disabled and unverified accounts. Requires SMTP. Tokens expire after one hour and replacements invalidate earlier tokens.",
+        "description": "Queues an Authboss recovery link for an active account. Returns the same accepted response for unknown and disabled accounts. Requires SMTP. Tokens expire after one hour and replacements invalidate earlier tokens.",
         "requestBody": { "$ref": "#/components/requestBodies/AuthEmail" },
         "responses": {
           "200": { "$ref": "#/components/responses/AuthAccepted" },
@@ -333,11 +370,49 @@
           "schema": { "type": "string" }
         }
       ],
+      "get": {
+        "operationId": "preview_project_invitation",
+        "tags": ["Console authentication"],
+        "summary": "Preview a project invitation",
+        "security": [],
+        "description": "Lets the invitation link show the project, the invited email and whether that email already has an account, so the console offers a single sign-up or sign-in step. Used, expired, replaced, suspended-project and unknown invitations return 410.",
+        "responses": {
+          "200": {
+            "description": "Pending invitation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "email": { "type": "string", "format": "email" },
+                        "project_name": { "type": "string" },
+                        "role": {
+                          "type": "string",
+                          "enum": ["admin", "member", "viewer", "billing"]
+                        },
+                        "expires_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "account_exists": { "type": "boolean" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": { "$ref": "#/components/responses/AuthError" }
+        }
+      },
       "post": {
         "operationId": "accept_project_invitation",
         "tags": ["Console authentication"],
         "summary": "Accept a project invitation",
-        "description": "Requires a verified console session with the invited email, revalidated within the transaction. Seven-day tokens are single-use. Existing memberships are preserved. Expired, replaced, revoked, used, suspended-project, wrong-email and unknown invitations return 410. Invitations do not change global user roles.",
+        "description": "Requires a console session with the invited email, revalidated within the transaction. Seven-day tokens are single-use. Existing memberships are preserved. Expired, replaced, revoked, used, suspended-project, wrong-email and unknown invitations return 410. Invitations do not change global user roles.",
         "responses": {
           "200": {
             "description": "Membership granted",
